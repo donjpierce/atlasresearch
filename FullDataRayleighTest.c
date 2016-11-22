@@ -39,7 +39,7 @@
 
     L115->Draw();
     L115->GetXaxis()->SetTitle("L1 [GeV]");
-    L115->GetYaxis()->SetTitle("Fraction of Events");
+    L115->GetYaxis()->SetTitle("Fraction of Events per GeV");
     L115->SetNormFactor(1.0);
     L115->SetLineColor(2);
     L115->Fit("func","L");
