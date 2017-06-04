@@ -45,16 +45,14 @@ void biniterations(TString& metAlgName = "mettopocl" , TString& setAlgName = "se
 	}
 
 	//Count the non-zero elements of binnum for the number of histograms we will generate
-	Int_t counter = 0;
+	Int_t nHists = 0;
 	for (Int_t k = 1; k < 100; k++)
 	{
 		if (binnum[k] > 0)
 		{
-			counter++;
+			nHists++;
 		}
 	}
-	Int_t nhist = counter;
-
 
 	vector<Int_t> binarray;
 	for (Int_t k = 0; k < 100; k++)
@@ -67,12 +65,12 @@ void biniterations(TString& metAlgName = "mettopocl" , TString& setAlgName = "se
 
 	//Produce an array of histograms for the algorithm MET,
 	//where the length of the array is the number of non-zero elements in binnum
-	TH1F *myhist[nhist];
+	TH1F *myhist[nHists];
 	TString *histname;
 	Int_t nhistbins = 300;
 	Float_t xmin = 0.0
 	Float_t xmax = 300.0;
-	for (Int_t l = 1; l < nhist; l++)
+	for (Int_t l = 1; l < nHists; l++)
 	{
 		histname = Form("histo%d",l);
 		myhist[l] = new TH1F(histname, "", nhistbins, xmin, xmax);
@@ -83,7 +81,7 @@ void biniterations(TString& metAlgName = "mettopocl" , TString& setAlgName = "se
 	for (Int_t i = 0; i < nentries; i++)
 	{
 		tree->GetEntry(i);
-		for (Int_t p = 1; p < nhist; p++)
+		for (Int_t p = 1; p < nHists; p++)
 		{
 			if ((passrndm > 0.5) && (binarray[p] < sqrt(setalg)) && (sqrt(setalg) < binarray[p] + 1))
 			{
@@ -92,7 +90,7 @@ void biniterations(TString& metAlgName = "mettopocl" , TString& setAlgName = "se
 		}
 	}
 
-	for (Int_t n = 1; n < nhist; n++)
+	for (Int_t n = 1; n < nHists; n++)
 	{
 		//myhist[n]->SetTitle(metalg "for bin %d of sq rt SET");
 		myhist[n]->GetYaxis()->SetTitle("Number of Events");
@@ -107,10 +105,10 @@ void biniterations(TString& metAlgName = "mettopocl" , TString& setAlgName = "se
 	func->SetParLimits(1, 0.1, 10000000.);
 
 	// Plot events vs. MET/SIGMA
-	Double_t sigmaarray[nhist];
-	TCanvas *mycanv[nhist];
-	Char_t *canvname = new char[nhist];
-	for (Int_t m = 1; m < nhist; m++)
+	Double_t sigmaarray[nHists];
+	TCanvas *mycanv[nHists];
+	Char_t *canvname = new char[nHists];
+	for (Int_t m = 1; m < nHists; m++)
 	{
 		canvname = Form("canv%d",m);
 		mycanv[m] = new TCanvas(canvname, "");
@@ -123,7 +121,7 @@ void biniterations(TString& metAlgName = "mettopocl" , TString& setAlgName = "se
 	ofstream sigmafile;
 	sigmafile.open("sigmaarray.txt");
 	sigmafile << "sigma" << "\n";
-	for (Int_t p = 1; p < nhist; p++)
+	for (Int_t p = 1; p < nHists; p++)
 	{
 		sigmafile << sigmaarray[p] << "\n";
 	}
