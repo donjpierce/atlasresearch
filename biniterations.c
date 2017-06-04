@@ -1,7 +1,7 @@
 {
 	#include <vector>
 	
-	TFile * 2015 = TFile::Open("ZeroBias2015.p2634.PeriodJ.root");
+	TFile * 2015 = TFile::Open("../../Data/ZeroBias2015.p2634.PeriodJ.root");
 
 	Float_t setalg;
 	TBranch *b_setalg = new TBranch();
