@@ -1,51 +1,41 @@
+void biniterations(TString& metAlgName = "mettopocl" , TString& setAlgName = "settopocl")
 {
-	#include <vector>
-	
-	TFile * file = TFile::Open("../../Data/ZeroBias2015.p2634.PeriodJ.root");
-	Float_t setalg;
-	TBranch *b_setalg = new TBranch();
-	tree->SetBranchAddress("settopocl", &setalg, &b_setalg);
 
-	Float_t metalg;
-	TBranch *b_metalg = new TBranch();
-	tree->SetBranchAddress("mettopocl", &metalg, &b_metalg);
+	TFile * file = TFile::Open("C:/root_v5.34.36/myData/ZeroBias2016R307195R311481Runs56.root");
 
-	int tail = 1;
+	Float_t setalg , metalg;
+	Int_t passrndm, numEntries;
+	Int_t tail = 1;
+
+	tree->SetBranchAddress(setAlgName, &setalg);
+	tree->SetBranchAddress(metAlgName, &metalg);
+	tree->SetBranchAddress("passrndm",&passrndm);
+
+
 
 	//==================================================================================================================================================//
 	//Initialize scatter plot of alg met vs. sqrt alg set
-	//***NOTE: CHANGE RANGE FOR SIGNAL EVENTS***
-	TH1F *algset = new TH1F("algset", "sqrt of Algorithm SET", 100, 0., 100.);
+	//**NOTE: CHANGE RANGE FOR SIGNAL EVENTS***
+	TH1F *algSetHist = new TH1F("algSetHist", Form("sqrt of %s",setAlgName), 100, 0., 100.);
 
-	bool pass;
 	Long64_t nentries = tree->GetEntries();
-	for (int i = 0; i < nentries; i++)
+	for (Int_t i = 0; i < nentries; i++)
 	{
 		tree->GetEntry(i);
-
-		// Only pass the events that are in the specified tail of the algorithm
-		if ("passrndm" > 0.1)
+		if ((passrndm > 0.1) && (metalg > tail))
 		{
-			if (metalg > tail)
-			{
-				algset->Fill(sqrt(setalg));
-			}
+			algSetHist->Fill(sqrt(setalg));
 		}
-
 	}
 
-	//Get the bin content of each bin of sq.rt(SET)
 	//If the bin content is nonzero, save the number of that bin in the binnum array
-	int bincontents[100];
-	int binnum[100];
-	for (int j = 0; j < 100; j++)
+	Int_t binnum[100];
+	for (Int_t j = 0; j < 100; j++)
 	{
-		int binpop = algset->GetBinContent(j);
-		bincontents[j] = binpop;
-
-		if (binpop != 0)
+		numEntries = algSetHist->GetBinContent(j);
+		if (numEntries != 0)
 		{
-			binnum[j] = algset->GetBin(j);
+			binnum[j] = algSetHist->GetBin(j);
 			cout << binnum[j];
 		}
 		else
@@ -55,19 +45,19 @@
 	}
 
 	//Count the non-zero elements of binnum for the number of histograms we will generate
-	int counter = 0;
-	for (int k = 1; k < 100; k++)
+	Int_t counter = 0;
+	for (Int_t k = 1; k < 100; k++)
 	{
 		if (binnum[k] > 0)
 		{
 			counter++;
 		}
 	}
-	int nhist = counter;
+	Int_t nhist = counter;
 
 
-	vector<Handle_t> binarray;
-	for (int k = 1; k < 100; k++)
+	vector<Int_t> binarray;
+	for (Int_t k = 0; k < 100; k++)
 	{
 		if (binnum[k] > 0)
 		{
@@ -78,33 +68,31 @@
 	//Produce an array of histograms for the algorithm MET,
 	//where the length of the array is the number of non-zero elements in binnum
 	TH1F *myhist[nhist];
-	char *histname = new char[nhist];
-	int nhistbins = 300;
-	float xmin = 0., xmax = 300.;
-	for (int l = 1; l < nhist; l++)
+	TString *histname;
+	Int_t nhistbins = 300;
+	Float_t xmin = 0.0
+	Float_t xmax = 300.0;
+	for (Int_t l = 1; l < nhist; l++)
 	{
-		sprintf(histname, "histo%d", l);
+		histname = Form("histo%d",l);
 		myhist[l] = new TH1F(histname, "", nhistbins, xmin, xmax);
 	}
 
 	// Parse through the tree again, and fill each MET histogram only with events in their respective sqrt(set) bins
 
-	for (int i = 0; i < nentries; i++)
+	for (Int_t i = 0; i < nentries; i++)
 	{
-		if ("passrndm" > 0.1)
+		tree->GetEntry(i);
+		for (Int_t p = 1; p < nhist; p++)
 		{
-			tree->GetEntry(i);
-			for (int p = 1; p < nhist; p++)
+			if ((passrndm > 0.5) && (binarray[p] < sqrt(setalg)) && (sqrt(setalg) < binarray[p] + 1))
 			{
-				if (binarray[p] < sqrt(setalg) && sqrt(setalg) < binarray[p] + 1)
-				{
-					myhist[p]->Fill(metalg);
-				}
+				myhist[p]->Fill(metalg);
 			}
 		}
 	}
 
-	for (int n = 1; n < nhist; n++)
+	for (Int_t n = 1; n < nhist; n++)
 	{
 		//myhist[n]->SetTitle(metalg "for bin %d of sq rt SET");
 		myhist[n]->GetYaxis()->SetTitle("Number of Events");
@@ -119,12 +107,12 @@
 	func->SetParLimits(1, 0.1, 10000000.);
 
 	// Plot events vs. MET/SIGMA
-	double sigmaarray[nhist];
+	Double_t sigmaarray[nhist];
 	TCanvas *mycanv[nhist];
-	char *canvname = new char[nhist];
-	for (int m = 1; m < nhist; m++)
+	Char_t *canvname = new char[nhist];
+	for (Int_t m = 1; m < nhist; m++)
 	{
-		sprintf(canvname, "canv%d", m);
+		canvname = Form("canv%d",m);
 		mycanv[m] = new TCanvas(canvname, "");
 		mycanv[m]->SetLogy();
 		myhist[m]->Fit("func", "L");
@@ -135,10 +123,9 @@
 	ofstream sigmafile;
 	sigmafile.open("sigmaarray.txt");
 	sigmafile << "sigma" << "\n";
-	for (int p = 1; p < nhist; p++)
+	for (Int_t p = 1; p < nhist; p++)
 	{
 		sigmafile << sigmaarray[p] << "\n";
 	}
 	sigmafile.close();
-
 }
