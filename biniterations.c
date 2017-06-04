@@ -29,37 +29,26 @@ void biniterations(TString& metAlgName = "mettopocl" , TString& setAlgName = "se
 	}
 
 	//If the bin content is nonzero, save the number of that bin in the binnum array
-	Int_t binnum[100];
+	Int_t nHists = 0;
+	vector<Int_t> binArray;
 	for (Int_t j = 0; j < 100; j++)
 	{
 		numEntries = algSetHist->GetBinContent(j);
-		if (numEntries != 0)
+		if (numEntries > 0)
 		{
-			binnum[j] = algSetHist->GetBin(j);
-			cout << binnum[j];
+			binArray[j] = algSetHist->GetBin(j);
+			nHists++;
 		}
 		else
 		{
 			binnum[j] = 0;
 		}
 	}
-
-	//Count the non-zero elements of binnum for the number of histograms we will generate
-	Int_t nHists = 0;
-	for (Int_t k = 1; k < 100; k++)
-	{
-		if (binnum[k] > 0)
-		{
-			nHists++;
-		}
-	}
-
-	vector<Int_t> binarray;
 	for (Int_t k = 0; k < 100; k++)
 	{
 		if (binnum[k] > 0)
 		{
-			binarray.push_back(binnum[k]);
+			binArray.push_back(binnum[k]);
 		}
 	}
 
@@ -81,9 +70,9 @@ void biniterations(TString& metAlgName = "mettopocl" , TString& setAlgName = "se
 	for (Int_t i = 0; i < nentries; i++)
 	{
 		tree->GetEntry(i);
-		for (Int_t p = 1; p < nHists; p++)
+		for (Int_t p = 1; p < binArray.size(); p++)
 		{
-			if ((passrndm > 0.5) && (binarray[p] < sqrt(setalg)) && (sqrt(setalg) < binarray[p] + 1))
+			if ((passrndm > 0.5) && (binArray[p] < sqrt(setalg)) && (sqrt(setalg) < binArray[p] + 1))
 			{
 				myhist[p]->Fill(metalg);
 			}
