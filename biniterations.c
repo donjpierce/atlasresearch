@@ -95,7 +95,7 @@ void biniterations(TString& metAlgName = "mettopocl" , TString& setAlgName = "se
 		mycanv[m]->SetLogy();
 		histArray[m]->Fit("func", "L");
 		sigmaarray[m] = func->GetParameter(1);
-		mycanv[m]->Print(Form("../Pictures/%s.png", histArray[m]->GetName()));
+		mycanv[m]->Print(Form("./Pictures/%s.png", histArray[m]->GetName()));
 	}
 
 	ofstream sigmafile;
