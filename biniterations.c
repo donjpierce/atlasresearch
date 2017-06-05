@@ -11,8 +11,6 @@ void biniterations(TString& metAlgName = "mettopocl" , TString& setAlgName = "se
 	tree->SetBranchAddress(metAlgName, &metalg);
 	tree->SetBranchAddress("passrndm",&passrndm);
 
-
-
 	//==================================================================================================================================================//
 	//Initialize scatter plot of alg met vs. sqrt alg set
 	//**NOTE: CHANGE RANGE FOR SIGNAL EVENTS***
@@ -29,8 +27,8 @@ void biniterations(TString& metAlgName = "mettopocl" , TString& setAlgName = "se
 	}
 
 	//If the bin content is nonzero, save the number of that bin in the binnum array
-	Int_t nHists = 0;
-	vector<Int_t> binArray;
+	int nHists = 0;
+ 	vector<int> binArray(100);
 	for (Int_t j = 0; j < 100; j++)
 	{
 		numEntries = algSetHist->GetBinContent(j);
@@ -41,49 +39,42 @@ void biniterations(TString& metAlgName = "mettopocl" , TString& setAlgName = "se
 		}
 		else
 		{
-			binnum[j] = 0;
+			binArray[j] = 0;
 		}
 	}
-	for (Int_t k = 0; k < 100; k++)
-	{
-		if (binnum[k] > 0)
-		{
-			binArray.push_back(binnum[k]);
-		}
-	}
-
+	std::cout << "nHists: " << nHists << std::endl;
 	//Produce an array of histograms for the algorithm MET,
 	//where the length of the array is the number of non-zero elements in binnum
-	TH1F *myhist[nHists];
-	TString *histname;
+	TH1F* histArray[100];
+	TString histname;
 	Int_t nhistbins = 300;
-	Float_t xmin = 0.0
+	Float_t xmin = 0.0;
 	Float_t xmax = 300.0;
 	for (Int_t l = 1; l < nHists; l++)
 	{
 		histname = Form("histo%d",l);
-		myhist[l] = new TH1F(histname, "", nhistbins, xmin, xmax);
+		histArray[l] = new TH1F(histname, "", nhistbins, xmin, xmax);
 	}
 
 	// Parse through the tree again, and fill each MET histogram only with events in their respective sqrt(set) bins
 
-	for (Int_t i = 0; i < nentries; i++)
+	for (int i = 0; i < nentries; i++)
 	{
 		tree->GetEntry(i);
-		for (Int_t p = 1; p < binArray.size(); p++)
+		for (int p = 1; p < sizeof(binArray) ; p++)
 		{
 			if ((passrndm > 0.5) && (binArray[p] < sqrt(setalg)) && (sqrt(setalg) < binArray[p] + 1))
 			{
-				myhist[p]->Fill(metalg);
+				histArray[p]->Fill(metalg);
 			}
 		}
 	}
 
-	for (Int_t n = 1; n < nHists; n++)
+	for (int n = 1; n < nHists; n++)
 	{
-		//myhist[n]->SetTitle(metalg "for bin %d of sq rt SET");
-		myhist[n]->GetYaxis()->SetTitle("Number of Events");
-		myhist[n]->GetXaxis()->SetTitle("MET [GeV]");
+		//histArray[n]->SetTitle(metalg "for bin %d of sq rt SET");
+		histArray[n]->GetYaxis()->SetTitle("Number of Events");
+		histArray[n]->GetXaxis()->SetTitle("MET [GeV]");
 	}
 
 	// Initialize the Rayleigh Distribution
@@ -94,17 +85,17 @@ void biniterations(TString& metAlgName = "mettopocl" , TString& setAlgName = "se
 	func->SetParLimits(1, 0.1, 10000000.);
 
 	// Plot events vs. MET/SIGMA
-	Double_t sigmaarray[nHists];
-	TCanvas *mycanv[nHists];
-	Char_t *canvname = new char[nHists];
-	for (Int_t m = 1; m < nHists; m++)
+	double sigmaarray[100];
+	TCanvas *mycanv[100];
+	char *canvname = new char[100];
+	for (int m = 1; m < nHists; m++)
 	{
 		canvname = Form("canv%d",m);
 		mycanv[m] = new TCanvas(canvname, "");
 		mycanv[m]->SetLogy();
-		myhist[m]->Fit("func", "L");
+		histArray[m]->Fit("func", "L");
 		sigmaarray[m] = func->GetParameter(1);
-		mycanv[m]->Print(Form("../Pictures/%s.png", myhist[m]->GetName()));
+		mycanv[m]->Print(Form("../Pictures/%s.png", histArray[m]->GetName()));
 	}
 
 	ofstream sigmafile;
