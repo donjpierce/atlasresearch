@@ -75,8 +75,8 @@
 	L115->FitSlicesY(func, 0, -1, 10, "L");
 	L115_1->Draw();
 	L115_1->Fit("linfit");
-	slope15[1] = linfit->GetParameter(0);
-	intercept15[1] = linfit->GetParameter(1);
+	slope15[0] = linfit->GetParameter(0);
+	intercept15[0] = linfit->GetParameter(1);
 	L115_1->SetTitle("Resolution of L1 in 2015");
 	L115_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 	L115_1->GetYaxis()->SetTitle("#sigma of Fit for L1 [GeV]");
@@ -95,8 +95,8 @@
 	L116->FitSlicesY(func, 0, -1, 10, "L");
 	L116_1->Draw();
 	L116_1->Fit("linfit");
-	slope16[1] = linfit->GetParameter(0);
-	intercept16[1] = linfit->GetParameter(1);
+	slope16[0] = linfit->GetParameter(0);
+	intercept16[0] = linfit->GetParameter(1);
 	L116_1->SetTitle("Resolution of L1 in 2016 ");
 	L116_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 	L116_1->GetYaxis()->SetTitle("#sigma of Fit for L1 [GeV]");
@@ -117,8 +117,8 @@
 		CELL15->FitSlicesY(func, 0, -1, 10, "L");
 		CELL15_1->Draw();
 		CELL15_1->Fit("linfit");
-		slope15[2] = linfit->GetParameter(0);
-		intercept15[2] = linfit->GetParameter(1);
+		slope15[1] = linfit->GetParameter(0);
+		intercept15[1] = linfit->GetParameter(1);
 		CELL15_1->SetTitle("Resolution of CELL in 2015 ");
 		CELL15_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		CELL15_1->GetYaxis()->SetTitle("#sigma of Fit for CELL [GeV]");
@@ -137,8 +137,8 @@
 		CELL16->FitSlicesY(func, 0, -1, 10, "L");
 		CELL16_1->Draw();
 		CELL16_1->Fit("linfit");
-		slope16[2] = linfit->GetParameter(0);
-		intercept16[2] = linfit->GetParameter(1);
+		slope16[1] = linfit->GetParameter(0);
+		intercept16[1] = linfit->GetParameter(1);
 		CELL16_1->SetTitle("Resolution of CELL in 2016 ");
 		CELL16_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		CELL16_1->GetYaxis()->SetTitle("#sigma of Fit for CELL [GeV]");
@@ -158,8 +158,8 @@
 		MHT15->FitSlicesY(func, 0, -1, 10, "L");
 		MHT15_1->Draw();
 		MHT15_1->Fit("linfit");
-		slope15[3] = linfit->GetParameter(0);
-		intercept15[3] = linfit->GetParameter(1);
+		slope15[2] = linfit->GetParameter(0);
+		intercept15[2] = linfit->GetParameter(1);
 		MHT15_1->SetTitle("Resolution of MHT in 2015 ");
 		MHT15_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		MHT15_1->GetYaxis()->SetTitle("#sigma of Fit for MHT [GeV]");
@@ -178,8 +178,8 @@
 		MHT16->FitSlicesY(func, 0, -1, 10, "L");
 		MHT16_1->Draw();
 		MHT16_1->Fit("linfit");
-		slope16[3] = linfit->GetParameter(0);
-		intercept16[3] = linfit->GetParameter(1);
+		slope16[2] = linfit->GetParameter(0);
+		intercept16[2] = linfit->GetParameter(1);
 		MHT16_1->SetTitle("Resolution of MHT in 2016 ");
 		MHT16_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		MHT16_1->GetYaxis()->SetTitle("#sigma of Fit for MHT [GeV]");
@@ -199,8 +199,8 @@
 		TOPOCL15->FitSlicesY(func, 0, -1, 10, "L");
 		TOPOCL15_1->Draw();
 		TOPOCL15_1->Fit("linfit");
-		slope15[4] = linfit->GetParameter(0);
-		intercept15[4] = linfit->GetParameter(1);
+		slope15[3] = linfit->GetParameter(0);
+		intercept15[3] = linfit->GetParameter(1);
 		TOPOCL15_1->SetTitle("Resolution of TOPOCL in 2015 ");
 		TOPOCL15_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCL15_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCL [GeV]");
@@ -219,8 +219,8 @@
 		TOPOCL16->FitSlicesY(func, 0, -1, 10, "L");
 		TOPOCL16_1->Draw();
 		TOPOCL16_1->Fit("linfit");
-		slope16[4] = linfit->GetParameter(0);
-		intercept16[4] = linfit->GetParameter(1);
+		slope16[3] = linfit->GetParameter(0);
+		intercept16[3] = linfit->GetParameter(1);
 		TOPOCL16_1->SetTitle("Resolution of TOPOCL in 2016 ");
 		TOPOCL16_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCL16_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCL [GeV]");
@@ -241,8 +241,8 @@
 		TOPOCLPS15_1->GetYaxis()->SetRange(0, 50.);
 		TOPOCLPS15_1->Draw();
 		TOPOCLPS15_1->Fit("linfit");
-		slope15[5] = linfit->GetParameter(0);
-		intercept15[5] = linfit->GetParameter(1);
+		slope15[4] = linfit->GetParameter(0);
+		intercept15[4] = linfit->GetParameter(1);
 		TOPOCLPS15_1->SetTitle("Resolution of TOPOCLPS in 2015 ");
 		TOPOCLPS15_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLPS15_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCLPS [GeV]");
@@ -262,8 +262,8 @@
 		TOPOCLPS16_1->GetYaxis()->SetRange(0, 50.);
 		TOPOCLPS16_1->Draw();
 		TOPOCLPS16_1->Fit("linfit");
-		slope16[5] = linfit->GetParameter(0);
-		intercept16[5] = linfit->GetParameter(1);
+		slope16[4] = linfit->GetParameter(0);
+		intercept16[4] = linfit->GetParameter(1);
 		TOPOCLPS16_1->SetTitle("Resolution of TOPOCLPS in 2016 ");
 		TOPOCLPS16_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLPS16_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCLPS [GeV]");
@@ -283,8 +283,9 @@
 		TOPOCLPUC15->FitSlicesY(func, 0, -1, 10, "L");
 		TOPOCLPUC15_1->Draw("");
 		TOPOCLPUC15_1->Fit("nfit", "", "", 10., 100.);
-		slope15[6] = nfit->GetParameter(0);
-		intercept15[6] = nfit->GetParameter(1);
+		slope15[5] = nfit->GetParameter(0);
+		intercept15[5] = nfit->GetParameter(1);
+		Double_t shift15 = nfit->GetParameter(2);
 		TOPOCLPUC15_1->SetTitle("Resolution of TOPOCLPUC in 2015 ");
 		TOPOCLPUC15_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLPUC15_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCLPUC [GeV]");
@@ -303,8 +304,9 @@
 		TOPOCLPUC16->FitSlicesY(func, 0, -1, 10, "L");
 		TOPOCLPUC16_1->Draw();
 		TOPOCLPUC16_1->Fit("nfit", "", "", 10., 100.);
-		slope16[6] = nfit->GetParameter(0);
-		intercept16[6] = nfit->GetParameter(1);
+		slope16[5] = nfit->GetParameter(0);
+		intercept16[5] = nfit->GetParameter(1);
+		Double_t shift16 = nfit->GetParameter(2);
 		TOPOCLPUC16_1->SetTitle("Resolution of TOPOCLPUC in 2016 ");
 		TOPOCLPUC16_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLPUC16_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCLPUC [GeV]");
@@ -318,52 +320,24 @@
 		resTOPOCLPUC16->AddEntry("TOPOCLPUC16_1", "2016 Data", "L");
 		resTOPOCLPUC16->Draw();
 
-		/*
-	//OFFRECAL Algorithm resoltuions in 2015 and 2016
-		TCanvas *cOFFRECAL15 = new TCanvas("cOFFRECAL15", "OFFRECAL 2015 ");
-		OFFRECAL15->Draw();
-		OFFRECAL15->FitSlicesY(func, 0, -1, 10, "L");
-		OFFRECAL15_1->Draw();
-		OFFRECAL15_1->SetTitle("Resolution of OFFRECAL in 2015 ");
-		OFFRECAL15_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
-		OFFRECAL15_1->GetYaxis()->SetTitle("#sigma of Fit for OFFRECAL [GeV]");
-		OFFRECAL15_1->SetLineColor(2);
-		gPad->Update();
-		TPaveStats *sOFFRECAL15 = (TPaveStats*)OFFRECAL15_1->FindObject("stats");
-		sOFFRECAL15->SetTextColor(2);
-		gStyle->SetOptFit(11);
-
-		TLegend* resOFFRECAL15 = new TLegend(0.37, 0.7, 0.55, 0.88);
-		resOFFRECAL15->AddEntry("OFFRECAL15_1", "2015 Data", "L");
-		resOFFRECAL15->Draw();
-
-		TCanvas *cOFFRECAL16 = new TCanvas("cOFFRECAL16", "OFFRECAL 2016 ");
-		OFFRECAL16->Draw();
-		OFFRECAL16->FitSlicesY(func, 0, -1, 10, "L");
-		OFFRECAL16_1->Draw();
-		OFFRECAL16_1->SetTitle("Resolution of OFFRECAL in 2016 ");
-		OFFRECAL16_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
-		OFFRECAL16_1->GetYaxis()->SetTitle("#sigma of Fit for OFFRECAL [GeV]");
-		OFFRECAL16_1->SetLineColor(4);
-		gPad->Update();
-		TPaveStats *sOFFRECAL16 = (TPaveStats*)OFFRECAL16_1->FindObject("stats");
-		sOFFRECAL16->SetTextColor(4);
-		gStyle->SetOptFit(11);
-
-		TLegend* resOFFRECAL16 = new TLegend(0.37, 0.7, 0.55, 0.88);
-		resOFFRECAL16->AddEntry("OFFRECAL16_1", "2016 Data", "L");
-		resOFFRECAL16->Draw();
-		*/
-
-		//Calculate Tail Events Based on Resolutions
-		TString setalg[6] = {"setl1", "setcell", "setmht", "settopocl", "settopoclps", "settopoclpuc"};
-		TString metalg[6] = {"metl1", "metcell", "metmht", "mettopocl", "mettopoclps", "mettopoclpuc"};
+		// Calculate Tail Events Based on Resolutions
+		Handle_t setalg[6] = {"setl1", "setcell", "setmht", "settopocl", "settopoclps", "settopoclpuc"};
+		Handle_t metalg[6] = {"metl1", "metcell", "metmht", "mettopocl", "mettopoclps", "mettopoclpuc"};
 
 		TFile *File1 = TFile::Open("ZeroBias2015.p2634.PeriodJ.root");
 
-		Double_t bulk_axis[6];
-		Double_t tail_axis[6];
+		TH2F *correlationgraph[30];
+		char *histname = new char[30];
+		int bins = 200;
+		Double_t min = 0.;
+		Double_t max = 200.;
+		for (int i = 0; i < 30; i++)
+		{
+			sprintf(histname, "histo%d", i);
+			correlationgraph[i] = new TH2F(histname, "", bins, min, max, bins, min, max);
+		}
 
+		bool pass;
 		Long64_t nentries = tree->GetEntries();
 		for (int i = 0; i < nentries; i++)
 		{
@@ -371,32 +345,143 @@
 
 			Double_t sigma[6];
 			Double_t metdist[6]; // metdist will be the distance of the event's MET from the median
-			for (int j = 1; j < 7; j++)
-			{
-				sigma[j] = slope15[j] * sqrt(setalg[j]) + intercept15[j];
-				metdist[j] = abs( metalg[j] - (sigma[j]*sqrt(1.57079633)) ); // 1.5707963 = pi/2
+			Double_t x[6]; // x = bulkmet and y = tailmet will be calculated for each algorithm
+			Double_t y[6];
 
-				if (metdist[j] < 3*sigma[j])
+			// the following loop populates the sigma and metdist arrays
+			for (int j = 0; j < 6; j++)
+			{
+				if (j < 5)
 				{
-					Double_t x.push_back(metalg[j]); // event is not in the tail by definition --- I am calling these xevents
-					Double_t y.push_back(0);
-					bulk_axis[j]->Fill(x, y);
+					// compute sigma and metdist for l1, cell, mht, topocl, and topoclps
+					sigma[j] = slope15[j]*sqrt(setalg[j]) + intercept15[j];
+					metdist[j] = abs( metalg[j] - (sigma[j]*sqrt(1.57079633)) ); // 1.5707963 = pi/2
 				}
 				else
 				{
-					Double_t x.push_back(0);
-					Double_t y.push_back(metalg[j]); // event is in the tail --- I am calling these yevents
-					tail_axis[j]->Fill(x, y);
+					// compute sigma and metdist for topoclpuc whose fit is nonlinear
+					sigma[j] = slope15[j]*(x + shift15)*(x + shift15) + intercept15[j];
+					metdist[j] = abs( metalg[j] - (sigma[j]*sqrt(1.57079633)) );
+				}
+			}
+
+			// the following logic populates correlationgraphs with (x = bulkmet, y = tailmet) touples only...
+			// if they exist for a given event in the tree
+
+			int z = 0; // this variable counts each correlationgraph
+			for (int l = 0; l < 5; l++)
+			{
+				if (metdist[l] < 3*sigma[l]) // if the event is in the bulk of alg[l]
+				{
+					x[l] = metalg[l]; // save to x = bulkmet
+
+					for (int m = l+1; m < 6; m++)
+					{
+						if (metdist[m] > 3*sigma[m]) // if the event is in the tail of alg[m] DNE alg[l]
+						{
+							y[m] = metalg[m]; // save to y = tailmet
+							correlationgraph[z]->Fill(x[l], y[m]); // and populate the appropraite correlationgraph
+							z++;
+						}
+						else
+						{
+							z++;
+						}
+					}
+				}
+				else
+				{
+					y[l] = metalg[l]; // event is in the tail of alg[l]
+
+					for (int m = l+1; m < 6; m++)
+					{
+						if (metdist[m] < 3*sigma[m])
+						{
+							// IF the event is in the BULK of alg[]
+							x[m] = metalg[m];
+							correlationgraph[z]->Fill(y[l], x[m]);
+							z++;
+						}
+						else
+						{
+							z++;
+						}
+					}
+				}
+			}
+
+
+			int k = 0;
+				for (int l = 0; l < 5; l++)
+				{
+					for (int m = l+1; m < 6; m++)
+					{
+						correlationgraph[k]->Fill(x[l], y[m]);
+						k ++;
+					}
 				}
 
+				for (int l = 0; l < 5; l++)
+				{
+					for (int m = l+1; m < 6; m++)
+					{
+						correlationgraph[k]->Fill(y[l], x[m]);
+						k ++;
+					}
+				}
 
-			}
+				correlationgraph[0]->Fill(x[0], y[1]); // l1 bulk cell tail
+				correlationgraph[1]->Fill(x[0], y[2]); // l1 bulk mht tail
+				correlationgraph[2]->Fill(x[0], y[3]); // l1 bulk topocl tail
+				correlationgraph[3]->Fill(x[0], y[4]); // l1 bulk topoclps tail
+				correlationgraph[4]->Fill(x[0], y[5]); // l1 bulk topoclpuc tail
+
+				correlationgraph[5]->Fill(x[1], y[2]); // cell bulk mht tail
+				correlationgraph[6]->Fill(x[1], y[3]); // cell bulk topocl tail
+				correlationgraph[7]->Fill(x[1], y[4]); // cell bulk topoclps tail
+				correlationgraph[8]->Fill(x[1], y[5]); // cell bulk topoclpuc tail
+
+				correlationgraph[9]->Fill(x[2], y[3]); // mht bulk topocl tail
+				correlationgraph[10]->Fill(x[2], y[4]); // mht bulk topoclps tail
+				correlationgraph[11]->Fill(x[2], y[5]); // mht bulk topoclpuc tail
+
+				correlationgraph[12]->Fill(x[3], y[4]); // topocl bulk topoclps tail
+				correlationgraph[13]->Fill(x[3], y[5]); // topocl bulk topoclpuc tail
+
+				correlationgraph[14]->Fill(x[4], y[5]); // topoclps bulk topoclpuc tail
+				//=====================================================================//
+
+				correlationgraph[15]->Fill(y[0], x[1]); // l1 tail cell bulk
+				correlationgraph[16]->Fill(y[0], x[2]); // l1 tail mht bulk
+				correlationgraph[17]->Fill(y[0], x[3]); // l1 tail topocl bulk
+				correlationgraph[18]->Fill(y[0], x[4]); // l1 tail topoclps bulk
+				correlationgraph[19]->Fill(y[0], x[5]); // l1 tail topoclpuc bulk
+
+				correlationgraph[20]->Fill(y[1], x[2]); // cell tail mht bulk
+				correlationgraph[21]->Fill(y[1], x[3]); // cell tail topocl bulk
+				correlationgraph[22]->Fill(y[1], x[4]); // cell tail topoclps bulk
+				correlationgraph[23]->Fill(y[1], x[5]); // cell tail topoclpuc bulk
+
+				correlationgraph[24]->Fill(y[2], x[3]); // mht tail topocl bulk
+				correlationgraph[25]->Fill(y[2], x[4]); // mht tail topoclps bulk
+				correlationgraph[26]->Fill(y[2], x[5]); // mht tail topoclpuc bulk
+
+				correlationgraph[27]->Fill(y[3], x[4]); // topocl tail topoclps bulk
+				correlationgraph[28]->Fill(y[3], x[5]); // topocl tail topoclpuc bulk
+
+				correlationgraph[29]->Fill(y[4], x[5]); // topoclps tail topoclpuc bulk
+
+
 		}
 
+			// record correlation coefficients for each graph
+			Double_t r[30];
+			for (int k = 0; k < 30; k++)
+			{
+				r[k] = correlationgraph[k]->GetCorrelationFactor(1, 2);
+			}
 
-		// Permutation Logic
-		// Double_t r[k] = GetCorrelationFactor(algname[k]_tailevents15, algname[k]_bulkevents15);
-
+		}
 
 		TFile *File2 = TFile::Open("ZeroBias2016.13Runs.root");
 
