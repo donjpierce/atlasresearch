@@ -405,15 +405,15 @@
 				}
 				else
 				{
-					y[l] = met[l]; // event is in the tail of alg[l]
+					y[l] = met[l]; // save to y = tailmet
 
 					for (int m = l+1; m < 6; m++)
 					{
-						if (metdist[m] < 3*sigma[m])
+						if (metdist[m] < 3*sigma[m]) // if the event is in the bulk of alg[m]
 						{
 							// IF the event is in the BULK of alg[]
 							x[m] = met[m];
-							correlationgraph[z]->Fill(y[l], x[m]);
+							correlationgraph[z]->Fill(x[l], y[m]);
 							z++;
 						}
 						else
@@ -424,7 +424,50 @@
 				}
 			}
 
+	int z = 15; // this variable counts each correlationgraph
+	for (int l = 0; l < 5; l++)
+	{
+		if (metdist[l] > 3*sigma[l]) // if the event is in the tail of alg[l]
+		{
+			y[l] = met[l]; // save to x = tailmet
+
+			for (int m = l+1; m < 6; m++)
+			{
+				if (metdist[m] < 3*sigma[m]) // if the event is in the bulk of alg[m] DNE alg[l]
+				{
+					x[m] = met[m]; // save to x = bulkmet
+					correlationgraph[z]->Fill(y[l], x[m]); // and populate the appropraite correlationgraph
+					z++;
+				}
+				else
+				{
+					z++;
+				}
+			}
+		}
+		else
+		{
+			x[l] = met[l]; // save to x = bulkmet
+
+			for (int m = l+1; m < 6; m++)
+			{
+				if (metdist[m] > 3*sigma[m]) // if the event is in the tail of alg[m]
+				{
+					y[m] = met[m]; // save to y = tailmet
+					correlationgraph[z]->Fill(y[l], x[m]);
+					z++;
+				}
+				else
+				{
+					z++;
+				}
+			}
+		}
+	}
+
 /*
+	The preceeding loop is broken down into two parts below (without if statements):
+
 			int k = 0;
 				for (int l = 0; l < 5; l++)
 				{
@@ -435,6 +478,7 @@
 					}
 				}
 
+			int k = 15;
 				for (int l = 0; l < 5; l++)
 				{
 					for (int m = l+1; m < 6; m++)
