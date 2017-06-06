@@ -29,7 +29,7 @@
 	nfit->SetParName(1, "intercept");
 	nfit->SetParName(2, "shift");
 
-	TFile *File1 = TFile::Open("ZeroBias2015.p2634.PeriodJ.root");
+	TFile *File1 = TFile::Open("../ZeroBias2015.p2634.PeriodJ.root");
 	//Produce fitting graphs 2015
 	TH2F *L115 = new TH2F ("L115","", 20, 0., 20.,100,0.,100.);
 		tree->Draw("metl1:sqrt(setl1)>>L115",PlotCut);
@@ -46,7 +46,7 @@
 	//TH2F *OFFRECAL15 = new TH2F ("OFFRECAL15","", 50, 0., 50.,100,0.,100.);
 		//tree->Draw("metoffrecal:sqrt(setoffrecal)>>OFFRECAL15",PlotCut);
 
-	TFile *File2 = TFile::Open("ZeroBias2016.13Runs.root");
+	TFile *File2 = TFile::Open("../ZeroBias2016.13Runs.root");
 	//Fitting graphs 2016
 	TH2F *L116 = new TH2F ("L116","", 20, 0., 20.,100,0.,100.);
 		tree->Draw("metl1:sqrt(setl1)>>L116",PlotCut);
@@ -320,12 +320,26 @@
 		resTOPOCLPUC16->AddEntry("TOPOCLPUC16_1", "2016 Data", "L");
 		resTOPOCLPUC16->Draw();
 
-		// Calculate Tail Events Based on Resolutions
-		Handle_t setalg[6] = {"setl1", "setcell", "setmht", "settopocl", "settopoclps", "settopoclpuc"};
-		Handle_t metalg[6] = {"metl1", "metcell", "metmht", "mettopocl", "mettopoclps", "mettopoclpuc"};
+		//___Calculate Tail Events Based on Resolutions___
+		TFile *File1 = TFile::Open("../ZeroBias2015.p2634.PeriodJ.root");
 
-		TFile *File1 = TFile::Open("ZeroBias2015.p2634.PeriodJ.root");
+		TString metalgName[6] = {"metl1", "metcell", "metmht", "mettopocl", "mettopoclps", "mettopoclpuc"};
+		TString setalgName[6] = {"setl1", "setcell", "setmht", "settopocl", "settopoclps", "settopoclpuc"};
 
+		// create arrays for MET and SET branches
+		Float_t met[6];
+		for (int i = 0; i < 6; i++)
+		{
+			tree->SetBranchAddress(metalgName[i], &met[i]);
+		}
+
+		Float_t set[6];
+		for (int i = 0; i < 6; i++)
+		{
+			tree->SetBranchAddress(setalgName[i], &set[i]);
+		}
+
+		// create graphs which I will later populate with TailMET vs. BulkMET of different algorithm pairs
 		TH2F *correlationgraph[30];
 		char *histname = new char[30];
 		int bins = 200;
@@ -354,14 +368,14 @@
 				if (j < 5)
 				{
 					// compute sigma and metdist for l1, cell, mht, topocl, and topoclps
-					sigma[j] = slope15[j]*sqrt(setalg[j]) + intercept15[j];
-					metdist[j] = abs( metalg[j] - (sigma[j]*sqrt(1.57079633)) ); // 1.5707963 = pi/2
+					sigma[j] = slope15[j]*sqrt(set[j]) + intercept15[j];
+					metdist[j] = abs( met[j] - (sigma[j]*sqrt(1.57079633)) ); // 1.5707963 = pi/2
 				}
 				else
 				{
 					// compute sigma and metdist for topoclpuc whose fit is nonlinear
 					sigma[j] = slope15[j]*(x + shift15)*(x + shift15) + intercept15[j];
-					metdist[j] = abs( metalg[j] - (sigma[j]*sqrt(1.57079633)) );
+					metdist[j] = abs( met[j] - (sigma[j]*sqrt(1.57079633)) );
 				}
 			}
 
@@ -373,13 +387,13 @@
 			{
 				if (metdist[l] < 3*sigma[l]) // if the event is in the bulk of alg[l]
 				{
-					x[l] = metalg[l]; // save to x = bulkmet
+					x[l] = met[l]; // save to x = bulkmet
 
 					for (int m = l+1; m < 6; m++)
 					{
 						if (metdist[m] > 3*sigma[m]) // if the event is in the tail of alg[m] DNE alg[l]
 						{
-							y[m] = metalg[m]; // save to y = tailmet
+							y[m] = met[m]; // save to y = tailmet
 							correlationgraph[z]->Fill(x[l], y[m]); // and populate the appropraite correlationgraph
 							z++;
 						}
@@ -391,14 +405,14 @@
 				}
 				else
 				{
-					y[l] = metalg[l]; // event is in the tail of alg[l]
+					y[l] = met[l]; // event is in the tail of alg[l]
 
 					for (int m = l+1; m < 6; m++)
 					{
 						if (metdist[m] < 3*sigma[m])
 						{
 							// IF the event is in the BULK of alg[]
-							x[m] = metalg[m];
+							x[m] = met[m];
 							correlationgraph[z]->Fill(y[l], x[m]);
 							z++;
 						}
@@ -410,7 +424,7 @@
 				}
 			}
 
-
+/*
 			int k = 0;
 				for (int l = 0; l < 5; l++)
 				{
@@ -471,7 +485,7 @@
 
 				correlationgraph[29]->Fill(y[4], x[5]); // topoclps tail topoclpuc bulk
 
-
+*/
 		}
 
 			// record correlation coefficients for each graph
@@ -483,7 +497,7 @@
 
 		}
 
-		TFile *File2 = TFile::Open("ZeroBias2016.13Runs.root");
+		TFile *File2 = TFile::Open("../ZeroBias2016.13Runs.root");
 
 
 

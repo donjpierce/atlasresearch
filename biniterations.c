@@ -1,8 +1,7 @@
-void biniterations(TString& metAlgName = "mettopocl" , TString& setAlgName = "settopocl")
+int biniterations(TString& metAlgName = "mettopocl" , TString& setAlgName = "settopocl")
 {
 
 	#include <vector>
-
 	TFile *file = TFile::Open("../ZeroBias2016new.13Runs.root");
 
 	Float_t setalg , metalg;
@@ -109,4 +108,5 @@ void biniterations(TString& metAlgName = "mettopocl" , TString& setAlgName = "se
 		sigmafile << sigmaarray[p] << "\n";
 	}
 	sigmafile.close();
+return 0;
 }
