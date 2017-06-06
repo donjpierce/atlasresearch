@@ -1,7 +1,7 @@
 {
 	#include <vector>
-	
-	TFile *file = TFile::Open("ZeroBias2016new.13Runs.root");
+
+	TFile *file = TFile::Open("../ZeroBias2016new.13Runs.root");
 
 	Float_t setalg;
 	TBranch *b_setalg = new TBranch();
@@ -14,8 +14,8 @@
 	int tail = 1;
 
 	//==================================================================================================================================================//
-	//Initialize scatter plot of alg met vs. sqrt alg set 
-	//***NOTE: CHANGE RANGE FOR SIGNAL EVENTS***	
+	//Initialize scatter plot of alg met vs. sqrt alg set
+	//***NOTE: CHANGE RANGE FOR SIGNAL EVENTS***
 	TH1F *algset = new TH1F("algset", "sqrt of Algorithm SET", 100, 0., 100.);
 
 	bool pass;
@@ -32,7 +32,7 @@
 				algset->Fill(sqrt(setalg));
 			}
 		}
-		
+
 	}
 
 	//Get the bin content of each bin of sq.rt(SET)
@@ -54,7 +54,7 @@
 			binnum[j] = 0;
 		}
 	}
-	
+
 	//Count the non-zero elements of binnum for the number of histograms we will generate
 	int counter = 0;
 	for (int k = 1; k < 100; k++)
@@ -65,7 +65,7 @@
 		}
 	}
 	int nhist = counter;
-	
+
 
 	vector<Handle_t> binarray;
 	for (int k = 1; k < 100; k++)
@@ -77,7 +77,7 @@
 	}
 
 	//Produce an array of histograms for the algorithm MET,
-	//where the length of the array is the number of non-zero elements in binnum 
+	//where the length of the array is the number of non-zero elements in binnum
 	TH1F *myhist[nhist];
 	char *histname = new char[nhist];
 	int nhistbins = 300;
@@ -89,7 +89,7 @@
 	}
 
 	// Parse through the tree again, and fill each MET histogram only with events in their respective sqrt(set) bins
-	
+
 	for (int i = 0; i < nentries; i++)
 	{
 		if ("passrndm" > 0.1)
@@ -119,7 +119,7 @@
 	func->SetParLimits(0, 0.1, 10000000.);
 	func->SetParLimits(1, 0.1, 10000000.);
 
-	// Plot events vs. MET/SIGMA	
+	// Plot events vs. MET/SIGMA
 	double sigmaarray[nhist];
 	TCanvas *mycanv[nhist];
 	char *canvname = new char[nhist];
@@ -141,5 +141,5 @@
 		sigmafile << sigmaarray[p] << "\n";
 	}
 	sigmafile.close();
-	
+
 }
