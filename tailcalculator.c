@@ -1,6 +1,7 @@
 {
+	//gROOT->ProcessLine("gROOT->SetBatch(kTRUE)"); // suppresses the drawing of graphs
 	#include <vector>
-	TString PlotCut("passrndm>0.1");
+	TString PlotCut("passrndm>0.5");
 
 	// Define the Rayleigh Distribution
 	TF1 *func = new TF1("func", "[0]*(1/[1])*(x/[1])*exp(-.5*(x/[1])*(x/[1]))");
@@ -29,7 +30,7 @@
 	nfit->SetParName(1, "intercept");
 	nfit->SetParName(2, "shift");
 
-	TFile *File1 = TFile::Open("../ZeroBias2015.p2634.PeriodJ.root");
+	TFile *File1 = TFile::Open("../PhysicsMain2016.Muons.R3073065R311481Runs9");
 	//Produce fitting graphs 2015
 	TH2F *L115 = new TH2F ("L115","", 20, 0., 20.,100,0.,100.);
 		tree->Draw("metl1:sqrt(setl1)>>L115",PlotCut);
@@ -46,7 +47,7 @@
 	//TH2F *OFFRECAL15 = new TH2F ("OFFRECAL15","", 50, 0., 50.,100,0.,100.);
 		//tree->Draw("metoffrecal:sqrt(setoffrecal)>>OFFRECAL15",PlotCut);
 
-	TFile *File2 = TFile::Open("../ZeroBias2016.13Runs.root");
+	TFile *File2 = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
 	//Fitting graphs 2016
 	TH2F *L116 = new TH2F ("L116","", 20, 0., 20.,100,0.,100.);
 		tree->Draw("metl1:sqrt(setl1)>>L116",PlotCut);
@@ -321,7 +322,9 @@
 		resTOPOCLPUC16->Draw();
 
 		//___Calculate Tail Events Based on Resolutions___
-		TFile *File1 = TFile::Open("../ZeroBias2015.p2634.PeriodJ.root");
+
+
+		TFile *File1 = TFile::Open("../PhysicsMain2016.Muons.R3073065R311481Runs9");
 
 		TString metalgName[6] = {"metl1", "metcell", "metmht", "mettopocl", "mettopoclps", "mettopoclpuc"};
 		TString setalgName[6] = {"setl1", "setcell", "setmht", "settopocl", "settopoclps", "settopoclpuc"};
@@ -531,15 +534,25 @@
 
 */
 		}
-
+/*
+		// save correlationgraphs
+		for (int p = 1; p < 30; p++)
+		{
+			correlationgraph[p]->Print(Form("%s.png", p));
+		}
+*/
 			// record correlation coefficients for each graph
+			ofstream correlationcoefficients;
+			correlationcoefficients.open("correlationcoefficients.txt");
+			correlationcoefficients << "Correlation Coefficients" << "\n";
 			Double_t r[30];
 			for (int k = 0; k < 30; k++)
 			{
 				r[k] = correlationgraph[k]->GetCorrelationFactor(1, 2);
+				correlationcoefficients << r[k] << "\n";
 			}
-
-		}
+			correlationcoefficients.close();
+			return 0;
 
 		TFile *File2 = TFile::Open("../ZeroBias2016.13Runs.root");
 
