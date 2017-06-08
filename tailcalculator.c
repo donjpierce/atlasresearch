@@ -30,41 +30,43 @@
 	nfit->SetParName(1, "intercept");
 	nfit->SetParName(2, "shift");
 
-	TFile *File1 = TFile::Open("../PhysicsMain2016.Muons.R3073065R311481Runs9");
+	TFile *File1 = TFile::Open("../ZeroBias2015.p2634.PeriodJ.root");
 	//Produce fitting graphs 2015
-	TH2F *L115 = new TH2F ("L115","", 20, 0., 20.,100,0.,100.);
+	TH2F *L115 = new TH2F ("L115","", 60, 0., 60.,100,0.,100.);
 		tree->Draw("metl1:sqrt(setl1)>>L115",PlotCut);
 	TH2F *CELL15 = new TH2F ("CELL15","CELL2015", 50, 0., 50.,100,0.,100.);
 		tree->Draw("metcell:sqrt(setcell)>>CELL15", PlotCut);
 	TH2F *MHT15 = new TH2F("MHT15", "", 50, 0., 50., 100, 0., 100.);
 		tree->Draw("metmht:sqrt(setmht)>>MHT15", "passrndm>0.1&&metmht>0.1");
-	TH2F *TOPOCL15 = new TH2F ("TOPOCL15","", 50, 0., 50.,100,0.,100.);
+	TH2F *TOPOCL15 = new TH2F ("TOPOCL15","", 70, 0., 70.,100,0.,100.);
 		tree->Draw("mettopocl:sqrt(settopocl)>>TOPOCL15",PlotCut);
-	TH2F *TOPOCLPS15 = new TH2F ("TOPOCLPS15","", 50, 0., 50.,100,0.,100.);
+	TH2F *TOPOCLPS15 = new TH2F ("TOPOCLPS15","", 70, 0., 70.,100,0.,100.);
 		tree->Draw("mettopoclps:sqrt(settopoclps)>>TOPOCLPS15", PlotCut);
-	TH2F *TOPOCLPUC15 = new TH2F ("TOPOCLPUC15","", 50, 0., 50.,100,0.,100.);
+	TH2F *TOPOCLPUC15 = new TH2F ("TOPOCLPUC15","", 70, 0., 70.,100,0.,100.);
 		tree->Draw("mettopoclpuc:sqrt(settopoclpuc)>>TOPOCLPUC15", "passrndm>0.1&&mettopoclpuc>0.1");
 	//TH2F *OFFRECAL15 = new TH2F ("OFFRECAL15","", 50, 0., 50.,100,0.,100.);
 		//tree->Draw("metoffrecal:sqrt(setoffrecal)>>OFFRECAL15",PlotCut);
 
 	TFile *File2 = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
 	//Fitting graphs 2016
-	TH2F *L116 = new TH2F ("L116","", 20, 0., 20.,100,0.,100.);
+	TH2F *L116 = new TH2F ("L116","", 60, 0., 60.,100,0.,100.);
 		tree->Draw("metl1:sqrt(setl1)>>L116",PlotCut);
-	TH2F *CELL16 = new TH2F ("CELL16","",50,0.,50.,100,0.,100.);
+	TH2F *CELL16 = new TH2F ("CELL16","",60,0.,60.,100,0.,100.);
 		tree->Draw("metcell:sqrt(setcell)>>CELL16",PlotCut);
 	TH2F *MHT16 = new TH2F("MHT16", "", 50, 0., 50., 100, 0., 100.);
 		tree->Draw("metmht:sqrt(setmht)>>MHT16", "passrndm>0.1&&metmht>0.1");
-	TH2F *TOPOCL16 = new TH2F ("TOPOCL16","",50,0.,50.,100,0.,100.);
+	TH2F *TOPOCL16 = new TH2F ("TOPOCL16","",70,0.,70.,100,0.,100.);
 		tree->Draw("mettopocl:sqrt(settopocl)>>TOPOCL16",PlotCut);
-	TH2F *TOPOCLPS16 = new TH2F ("TOPOCLPS16","",50, 0., 50.,100,0.,100.);
+	TH2F *TOPOCLPS16 = new TH2F ("TOPOCLPS16","",70, 0., 70.,100,0.,100.);
 		tree->Draw("mettopoclps:sqrt(settopoclps)>>TOPOCLPS16", PlotCut);
-	TH2F *TOPOCLPUC16 = new TH2F ("TOPOCLPUC16","", 50, 0., 50.,100,0.,100.);
+	TH2F *TOPOCLPUC16 = new TH2F ("TOPOCLPUC16","", 100, 0., 100.,100,0.,100.);
 		tree->Draw("mettopoclpuc:sqrt(settopoclpuc)>>TOPOCLPUC16", "passrndm>0.1&&mettopoclpuc>0.1");
 	//TH2F *OFFRECAL16 = new TH2F ("OFFRECAL16","", 50, 0., 50.,100,0.,100.);
 		//tree->Draw("metoffrecal:sqrt(setoffrecal)>>OFFRECAL16",PlotCut);
 
 		//Linear Fit Parameters
+		Double_t shift15[6];
+		Double_t shift16[6];
 		Double_t slope15[6];
 		Double_t slope16[6];
 		Double_t intercept15[6];
@@ -75,9 +77,10 @@
 	L115->Draw();
 	L115->FitSlicesY(func, 0, -1, 10, "L");
 	L115_1->Draw();
-	L115_1->Fit("linfit");
-	slope15[0] = linfit->GetParameter(0);
-	intercept15[0] = linfit->GetParameter(1);
+	L115_1->Fit("nfit");
+	slope15[0] = nfit->GetParameter(0);
+	intercept15[0] = nfit->GetParameter(1);
+	shift15[0] = nfit->GetParameter(2);
 	L115_1->SetTitle("Resolution of L1 in 2015");
 	L115_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 	L115_1->GetYaxis()->SetTitle("#sigma of Fit for L1 [GeV]");
@@ -95,9 +98,10 @@
 	L116->Draw();
 	L116->FitSlicesY(func, 0, -1, 10, "L");
 	L116_1->Draw();
-	L116_1->Fit("linfit");
-	slope16[0] = linfit->GetParameter(0);
-	intercept16[0] = linfit->GetParameter(1);
+	L116_1->Fit("nfit");
+	slope16[0] = nfit->GetParameter(0);
+	intercept16[0] = nfit->GetParameter(1);
+	shift16[0] = nfit->GetParameter(2);
 	L116_1->SetTitle("Resolution of L1 in 2016 ");
 	L116_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 	L116_1->GetYaxis()->SetTitle("#sigma of Fit for L1 [GeV]");
@@ -286,7 +290,7 @@
 		TOPOCLPUC15_1->Fit("nfit", "", "", 10., 100.);
 		slope15[5] = nfit->GetParameter(0);
 		intercept15[5] = nfit->GetParameter(1);
-		Double_t shift15 = nfit->GetParameter(2);
+		shift15[5] = nfit->GetParameter(2);
 		TOPOCLPUC15_1->SetTitle("Resolution of TOPOCLPUC in 2015 ");
 		TOPOCLPUC15_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLPUC15_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCLPUC [GeV]");
@@ -304,10 +308,9 @@
 		TOPOCLPUC16->Draw();
 		TOPOCLPUC16->FitSlicesY(func, 0, -1, 10, "L");
 		TOPOCLPUC16_1->Draw();
-		TOPOCLPUC16_1->Fit("nfit", "", "", 10., 100.);
+		TOPOCLPUC16_1->Fit("linfit", "", "", 0., 100.);
 		slope16[5] = nfit->GetParameter(0);
 		intercept16[5] = nfit->GetParameter(1);
-		Double_t shift16 = nfit->GetParameter(2);
 		TOPOCLPUC16_1->SetTitle("Resolution of TOPOCLPUC in 2016 ");
 		TOPOCLPUC16_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLPUC16_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCLPUC [GeV]");
@@ -322,9 +325,8 @@
 		resTOPOCLPUC16->Draw();
 
 		//___Calculate Tail Events Based on Resolutions___
-
-
-		TFile *File1 = TFile::Open("../PhysicsMain2016.Muons.R3073065R311481Runs9");
+		//TFile *2015file = TFile::Open("../ZeroBias2015.p2634.PeriodJ.root");
+		TFile *2016file = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
 
 		TString metalgName[6] = {"metl1", "metcell", "metmht", "mettopocl", "mettopoclps", "mettopoclpuc"};
 		TString setalgName[6] = {"setl1", "setcell", "setmht", "settopocl", "settopoclps", "settopoclpuc"};
@@ -368,7 +370,7 @@
 			// the following loop populates the sigma and metdist arrays
 			for (int j = 0; j < 6; j++)
 			{
-				if (j < 5)
+				if (j > 0 && j < 5)
 				{
 					// compute sigma and metdist for l1, cell, mht, topocl, and topoclps
 					sigma[j] = slope15[j]*sqrt(set[j]) + intercept15[j];
@@ -377,7 +379,7 @@
 				else
 				{
 					// compute sigma and metdist for topoclpuc whose fit is nonlinear
-					sigma[j] = slope15[j]*(x + shift15)*(x + shift15) + intercept15[j];
+					sigma[j] = slope15[j]*(x + shift15[j])*(x + shift15[j]) + intercept15[j];
 					metdist[j] = abs( met[j] - (sigma[j]*sqrt(1.57079633)) );
 				}
 			}
@@ -534,29 +536,39 @@
 
 */
 		}
-/*
-		// save correlationgraphs
-		for (int p = 1; p < 30; p++)
+
+		TCanvas *mycanv[30];
+		char *canvname = new char[30];
+		for (int p = 0; p < 30; p++)
 		{
-			correlationgraph[p]->Print(Form("%s.png", p));
+			canvname = Form("canv%d",p+1);
+			mycanv[p] = new TCanvas(canvname, "");
+			correlationgraph[p]->Draw();
+			mycanv[p]->Print(Form("%d.png", p+1));
 		}
-*/
+
+TString correlationNames[30] = {"l1 bulk cell tail", "l1 bulk mht tail", "l1 bulk topocl tail", "l1 bulk topoclps tail",
+"l1 bulk topoclpuc tail", "cell bulk mht tail", "cell bulk topocl tail", "cell bulk topoclps tail", "cell bulk topoclpuc tail",
+"mht bulk topocl tail", "mht bulk topoclps tail", "mht bulk topoclpuc tail", "topocl bulk topoclps tail",
+"topocl bulk topoclpuc tail", "topoclps bulk topoclpuc tail", "l1 tail cell bulk", "l1 tail mht bulk", "l1 tail topocl bulk",
+"l1 tail topoclps bulk", "l1 tail topoclpuc bulk", "cell tail mht bulk", "cell tail topocl bulk", "cell tail topoclps bulk",
+"cell tail topoclpuc bulk", "mht tail topocl bulk", "mht tail topoclps bulk", "mht tail topoclpuc bulk", "topocl tail topoclps bulk",
+"topocl tail topoclpuc bulk", "topoclps tail topoclpuc bulk"};
+
 			// record correlation coefficients for each graph
 			ofstream correlationcoefficients;
-			correlationcoefficients.open("correlationcoefficients.txt");
+			correlationcoefficients.open("correlationvalues.txt");
 			correlationcoefficients << "Correlation Coefficients" << "\n";
 			Double_t r[30];
 			for (int k = 0; k < 30; k++)
 			{
 				r[k] = correlationgraph[k]->GetCorrelationFactor(1, 2);
-				correlationcoefficients << r[k] << "\n";
+				correlationcoefficients << k+1 << "\t" << r[k]	<< ',' << "\t" << correlationNames[k] << "\n";
 			}
 			correlationcoefficients.close();
 			return 0;
 
-		TFile *File2 = TFile::Open("../ZeroBias2016.13Runs.root");
-
-
+	}
 
 
 }
