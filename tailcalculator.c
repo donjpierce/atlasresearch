@@ -523,35 +523,37 @@
 		}
 
 
-		TCanvas *mycanv[30];
-		char *canvname = new char[30];
-		Double_t r[30]; // correlation coefficients
-		for (int p = 0; p < 30; p++)
+
+		for (int p = 0; p < 30; p++) // create all of the canvases
 		{
-			canvname = Form("canv%d",p+1);
-			mycanv[p] = new TCanvas(canvname, "");
-			correlationgraph[p]->Draw("colz");
-			mycanv[p]->SetLogz();
-			mycanv[p]->Print(Form("%d.png", p+1));
-			r[p] = correlationgraph[p]->GetCorrelationFactor(1, 2); // record correlation factors of each graph
+
 		}
 
 		TString xaxisNames[6] = {"Cell MET", "MHT MET", "Topocl MET", "TopoclPS MET", "TopoclEM MET", "TopoclPUC MET"};
 		TString yaxisNames[6] = {"Cell Tail MET", "MHT Tail MET", "Topocl Tail MET", "TopoclPS Tail MET", "TopoclEM Tail MET", "TopoclPUC Tail MET"};
 
 		ofstream correlationcoefficients; // prepare log file of correlation coefficients
-		correlationcoefficients.open("correlationvalues.txt");
-		correlationcoefficients << "Correlation Coefficients" << "\n";
+		correlationcoefficients.open("correlationvalues.txt"); // open log file
+		correlationcoefficients << "Correlation Coefficients" << "\n"; // write title of table
 
+		TCanvas *mycanv[30];
+		char *canvname = new char[30];
+		Double_t r[30]; // correlation coefficients
 		int k = 0;
 		for (int q = 0; q < 5; q++)
 		{
 			for (int l = q+1; l < 6; l++)
 			{
-				mycanv[k]->GetYaxis()->SetTitle(yaxisNames[q]);
-				mycanv[k]->GetXaxis()->SetTitle(xaxisNames[l]);
-				correlationcoefficients << k+1 << "\t" << r[k]	<< ',' << "\t" << yaxisNames[q] << "vs." << xaxisNames[l] << "\n";
-				k++
+				canvname = Form("canv%d",k+1);
+				mycanv[k] = new TCanvas(canvname, "");
+				correlationgraph[k]->Draw();
+				correlationgraph[k]->GetYaxis()->SetTitle(yaxisNames[q]);
+				correlationgraph[k]->GetXaxis()->SetTitle(xaxisNames[l]);
+				//mycanv[k]->SetLogz();
+				r[k] = correlationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factors of each graph
+				mycanv[k]->Print(Form("%d.png", k+1));
+				correlationcoefficients << k+1 << "\t" << r[k]	<< ',' << "\t" << yaxisNames[q] << "" << "vs." << "" << xaxisNames[l] << "\n";
+				k++;
 			}
 		}
 		int k = 15;
@@ -559,14 +561,21 @@
 		{
 			for (int t = u+1; t < 6; t++)
 			{
-				mycanv[k]->GetYaxis()->SetTitle(xaxisNames[u]);
-				mycanv[k]->GetXaxis()->SetTitle(yaxisNames[t]);
-				correlationcoefficients << k+1 << "\t" << r[k]	<< ',' << "\t" << xaxisNames[u] << "vs." << yaxisNames[t] << "\n";
-				k++
+				canvname = Form("canv%d",k+1);
+				mycanv[k] = new TCanvas(canvname, "");
+				correlationgraph[k]->Draw();
+				correlationgraph[k]->GetYaxis()->SetTitle(xaxisNames[u]);
+				correlationgraph[k]->GetXaxis()->SetTitle(yaxisNames[t]);
+				//mycanv[k]->SetLogz();
+				r[k] = correlationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factors of each graph
+				mycanv[k]->Print(Form("%d.png", k+1));
+				correlationcoefficients << k+1 << "\t" << r[k]	<< ',' << "\t" << xaxisNames[u] << "" << "vs." << "" << yaxisNames[t] << "\n";
+				k++;
 			}
 		}
 
-			correlationcoefficients.close();
-			return 0;
+		correlationcoefficients.close();
+
+		return 0;
 
 }
