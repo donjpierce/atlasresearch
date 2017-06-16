@@ -522,13 +522,6 @@
 			}
 		}
 
-
-
-		for (int p = 0; p < 30; p++) // create all of the canvases
-		{
-
-		}
-
 		TString xaxisNames[6] = {"Cell MET", "MHT MET", "Topocl MET", "TopoclPS MET", "TopoclEM MET", "TopoclPUC MET"};
 		TString yaxisNames[6] = {"Cell Tail MET", "MHT Tail MET", "Topocl Tail MET", "TopoclPS Tail MET", "TopoclEM Tail MET", "TopoclPUC Tail MET"};
 
