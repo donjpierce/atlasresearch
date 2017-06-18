@@ -396,6 +396,9 @@
 			tree->SetBranchAddress(setalgName[i], &set[i]);
 		}
 
+		tree->SetBranchAddress("metl1", &metl1);
+		tree->SetBranchAddress("passmu26med", &passmuon26med);
+
 		// create graphs which I will later populate with TailMET vs. BulkMET of different algorithm pairs
 		TH2F *correlationgraph[30];
 		char *histname = new char[30];
@@ -414,12 +417,12 @@
 		{
 			tree->GetEntry(i);
 
-			if ("metl1<50.") // throw out events below L1 = 30GeV
+			if (metl1 < 50.) // throw out events below L1 = 30GeV
 			{
 				pass = false;
 			}
 
-			if ("passmu26med<0.5") // throw out events which don't pass the muon trigger
+			if (passmuon26med < 0.5) // throw out events which don't pass the muon trigger
 			{
 				pass = false;
 			}
