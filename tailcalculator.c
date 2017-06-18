@@ -375,10 +375,10 @@
 
 
 		//___Calculate Tail Events Based on Resolutions___
-		//TFile *zerobiasfile = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
-			//TString graphtitle = "2016 ZeroBias (Runs56) for L1 > 30GeV";
-		TFile *muonfile = TFile::Open("../PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root");
-			TString graphtitle = "2016 Muons (L1XE45...Runs9B) for L1 > 50GeV";
+		TFile *zerobiasfile = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
+			TString graphtitle = "2016 ZeroBias (Runs56) for L1 > 30GeV";
+		//TFile *muonfile = TFile::Open("../PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root");
+			//TString graphtitle = "2016 Muons (L1XE45...Runs9B) for L1 > 30GeV";
 
 		TString metalgName[6] = {"metcell", "metmht", "mettopocl", "mettopoclps", "mettopoclem", "mettopoclpuc"};
 		TString setalgName[6] = {"setcell", "setmht", "settopocl", "settopoclps", "settopoclem", "settopoclpuc"};
@@ -396,6 +396,8 @@
 			tree->SetBranchAddress(setalgName[i], &set[i]);
 		}
 
+		Double_t l1trigger = "metl1";
+		Double_t muontrigger = "passmu26med";
 		tree->SetBranchAddress("metl1", &metl1);
 		tree->SetBranchAddress("passmu26med", &passmuon26med);
 
@@ -417,7 +419,7 @@
 		{
 			tree->GetEntry(i);
 
-			if (metl1 < 50.) // throw out events below L1 = 30GeV
+			if (metl1 < 30.) // throw out events below L1 = 30GeV
 			{
 				pass = false;
 			}
