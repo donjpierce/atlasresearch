@@ -375,9 +375,10 @@
 
 
 		//___Calculate Tail Events Based on Resolutions___
-		//TFile *2015file = TFile::Open("../ZeroBias2015.p2634.PeriodJ.root");
-		//TFile *2016file = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
-		TFile *2016muon = TFile::Open("../PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root");
+		//TFile *zerobiasfile = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
+			//TString graphtitle = "2016 ZeroBias (Runs56) for L1 > 30GeV";
+		TFile *muonfile = TFile::Open("../PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root");
+			TString graphtitle = "2016 Muons (L1XE45...Runs9B) for L1 > 50GeV";
 
 		TString metalgName[6] = {"metcell", "metmht", "mettopocl", "mettopoclps", "mettopoclem", "mettopoclpuc"};
 		TString setalgName[6] = {"setcell", "setmht", "settopocl", "settopoclps", "settopoclem", "settopoclpuc"};
@@ -413,7 +414,7 @@
 		{
 			tree->GetEntry(i);
 
-			if ("metl1<30.") // throw out events below L1 = 30GeV
+			if ("metl1<50.") // throw out events below L1 = 30GeV
 			{
 				pass = false;
 			}
@@ -522,12 +523,12 @@
 			}
 		}
 
-		TString xaxisNames[6] = {"Cell MET", "MHT MET", "Topocl MET", "TopoclPS MET", "TopoclEM MET", "TopoclPUC MET"};
-		TString yaxisNames[6] = {"Cell Tail MET", "MHT Tail MET", "Topocl Tail MET", "TopoclPS Tail MET", "TopoclEM Tail MET", "TopoclPUC Tail MET"};
+		TString xaxisNames[6] = {"Cell MET [GeV]", "MHT MET [GeV]", "Topocl MET [GeV]", "TopoclPS MET [GeV]", "TopoclEM MET [GeV]", "TopoclPUC MET [GeV]"};
+		TString yaxisNames[6] = {"Cell Tail MET [GeV]", "MHT Tail MET [GeV]", "Topocl Tail MET [GeV]", "TopoclPS Tail MET [GeV]", "TopoclEM Tail MET [GeV]", "TopoclPUC Tail MET [GeV]"};
 
 		ofstream correlationcoefficients; // prepare log file of correlation coefficients
 		correlationcoefficients.open("correlationvalues.txt"); // open log file
-		correlationcoefficients << "Correlation Coefficients" << "\n"; // write title of table
+		correlationcoefficients << "Correlation Coefficients" << "\t" << graphtitle << "\n"; // write title of table
 
 		TCanvas *mycanv[30];
 		char *canvname = new char[30];
@@ -539,13 +540,14 @@
 			{
 				canvname = Form("canv%d",k+1);
 				mycanv[k] = new TCanvas(canvname, "");
-				correlationgraph[k]->Draw();
+				correlationgraph[k]->Draw("colz"); // add "colz" in function if desired
 				correlationgraph[k]->GetYaxis()->SetTitle(yaxisNames[q]);
 				correlationgraph[k]->GetXaxis()->SetTitle(xaxisNames[l]);
-				//mycanv[k]->SetLogz();
+				correlationgraph[k]->SetTitle(graphtitle);
+				mycanv[k]->SetLogz();
 				r[k] = correlationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factors of each graph
 				mycanv[k]->Print(Form("%d.png", k+1));
-				correlationcoefficients << k+1 << "\t" << r[k]	<< ',' << "\t" << yaxisNames[q] << "" << "vs." << "" << xaxisNames[l] << "\n";
+				correlationcoefficients << k+1 << "\t" << r[k]	<< ',' << "\t" << yaxisNames[q] << " " << "vs." << " " << xaxisNames[l] << "\n";
 				k++;
 			}
 		}
@@ -556,13 +558,14 @@
 			{
 				canvname = Form("canv%d",k+1);
 				mycanv[k] = new TCanvas(canvname, "");
-				correlationgraph[k]->Draw();
+				correlationgraph[k]->Draw("colz");  // add "colz" in function if desired
 				correlationgraph[k]->GetYaxis()->SetTitle(xaxisNames[u]);
 				correlationgraph[k]->GetXaxis()->SetTitle(yaxisNames[t]);
-				//mycanv[k]->SetLogz();
+				correlationgraph[k]->SetTitle(graphtitle);
+				mycanv[k]->SetLogz();
 				r[k] = correlationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factors of each graph
 				mycanv[k]->Print(Form("%d.png", k+1));
-				correlationcoefficients << k+1 << "\t" << r[k]	<< ',' << "\t" << xaxisNames[u] << "" << "vs." << "" << yaxisNames[t] << "\n";
+				correlationcoefficients << k+1 << "\t" << r[k]	<< ',' << "\t" << xaxisNames[u] << " " << "vs." << " " << yaxisNames[t] << "\n";
 				k++;
 			}
 		}
