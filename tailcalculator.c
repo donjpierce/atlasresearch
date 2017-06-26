@@ -1,5 +1,5 @@
 {
-	//gROOT->ProcessLine("gROOT->SetBatch(kTRUE)"); // suppresses the drawing of graphs
+	gROOT->ProcessLine("gROOT->SetBatch(kTRUE)"); // suppresses the drawing of graphs
 	#include <vector>
 	TString PlotCut("passrndm>0.5"); // for 2015
 	TString PlotCutmuons("passmu26med>0.5&&metl1>50."); // for 2016 muons
@@ -31,7 +31,7 @@
 	nfit->SetParName(1, "intercept");
 	nfit->SetParName(2, "shift");
 
-	TFile *File1 = TFile::Open("../ZeroBias2015.p2634.PeriodJ.root");
+	TFile *File1 = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
 	//Produce fitting graphs 2015
 	//TH2F *L1zb = new TH2F ("L1zb","", 60, 0., 60.,100,0.,100.);
 		//tree->Draw("metl1:sqrt(setl1)>>L1zb","passrndm>0.5&&metl1>30.");
@@ -78,7 +78,7 @@
 		Double_t intercept_Muon[6];
 
 /*
-//L1 Algorithm resolutions in 2015 and 2016
+//L1 Algorithm resolutions in ZeroBias and Muons
 	TCanvas *cL115 = new TCanvas("cL115", "L1 2015");
 	L115->Draw();
 	L115->FitSlicesY(func, 0, -1, 10, "L");
@@ -87,7 +87,7 @@
 	slope_ZeroBias[0] = nfit->GetParameter(0);
 	intercept_ZeroBias[0] = nfit->GetParameter(1);
 	shift_ZeroBias[0] = nfit->GetParameter(2);
-	L115_1->SetTitle("Resolution of L1 in 2015");
+	L115_1->SetTitle("Resolution of L1 in ZeroBias 2016");
 	L115_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 	L115_1->GetYaxis()->SetTitle("#sigma of Fit for L1 [GeV]");
 	L115_1->SetLineColor(2);
@@ -97,7 +97,7 @@
 		gStyle->SetOptFit(11);
 
 		TLegend* resl115 = new TLegend(0.37, 0.7, 0.55, 0.88);
-		resl115->AddEntry("L115_1", "2015 Data", "L");
+		resl115->AddEntry("L115_1", "Zero", "L");
 		resl115->Draw();
 
 	TCanvas *cL116 = new TCanvas("cL116", "L1 2016 ");
@@ -108,7 +108,7 @@
 	slope_Muon[0] = nfit->GetParameter(0);
 	intercept_Muon[0] = nfit->GetParameter(1);
 	shift_Muon[0] = nfit->GetParameter(2);
-	L116_1->SetTitle("Resolution of L1 in 2016 ");
+	L116_1->SetTitle("Resolution of L1 in Muons (L1XE45..Runs9B) 2016 ");
 	L116_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 	L116_1->GetYaxis()->SetTitle("#sigma of Fit for L1 [GeV]");
 	L116_1->SetLineColor(4);
@@ -118,62 +118,20 @@
 		gStyle->SetOptFit(11);
 
 		TLegend* resl116 = new TLegend(0.37, 0.7, 0.55, 0.88);
-		resl116->AddEntry("L116_1", "2016 Data", "L");
+		resl116->AddEntry("L116_1", "Muon Data", "L");
 		resl116->Draw();
 */
 
-//TopoclEM Algorithm resolutions in ZeroBias2016 and Muons2016
-	TCanvas *cTopoclEMzb = new TCanvas("cTopoclEMzb", "TopoclEM ZeroBias2016");
-	TopoclEMzb->Draw();
-	TopoclEMzb->FitSlicesY(func, 0, -1, 10, "L");
-	TopoclEMzb_1->Draw();
-	TopoclEMzb_1->Fit("linfit");
-	slope_ZeroBias[0] = nfit->GetParameter(0);
-	intercept_ZeroBias[0] = nfit->GetParameter(1);
-	//shift_ZeroBias[0] = nfit->GetParameter(2);
-	TopoclEMzb_1->SetTitle("Resolution of TopoclEM in ZeroBias2016");
-	TopoclEMzb_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
-	TopoclEMzb_1->GetYaxis()->SetTitle("#sigma of Fit for TopoclEM [GeV]");
-	TopoclEMzb_1->SetLineColor(2);
-	gPad->Update();
-		TPaveStats *topoclemzb = (TPaveStats*)TopoclEMzb_1 ->FindObject("stats");
-		topoclemzb->SetTextColor(2);
-		gStyle->SetOptFit(11);
 
-		TLegend* restopoclemzb = new TLegend(0.37, 0.7, 0.55, 0.88);
-		restopoclemzb->AddEntry("TopoclEMzb_1", "Zero Bias Data", "L");
-		restopoclemzb->Draw();
-
-	TCanvas *cTopoclEMmuon = new TCanvas("cTopoclEMmuon", "TopoclEMMuon 2016 ");
-	TopoclEMmuon->Draw();
-	TopoclEMmuon->FitSlicesY(func, 0, -1, 10, "L");
-	TopoclEMmuon_1->Draw();
-	TopoclEMmuon_1->Fit("nfit");
-	slope_Muon[0] = nfit->GetParameter(0);
-	intercept_Muon[0] = nfit->GetParameter(1);
-	shift_Muon[0] = nfit->GetParameter(2);
-	TopoclEMmuon_1->SetTitle("Resolution of TopoclEM in Muons2016 ");
-	TopoclEMmuon_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
-	TopoclEMmuon_1->GetYaxis()->SetTitle("#sigma of Fit for TopoclEM [GeV]");
-	TopoclEMmuon_1->SetLineColor(4);
-	gPad->Update();
-		TPaveStats *topoclemmuon = (TPaveStats*)TopoclEMmuon_1 ->FindObject("stats");
-		topoclemmuon->SetTextColor(4);
-		gStyle->SetOptFit(11);
-
-		TLegend* restopoclemmuon = new TLegend(0.37, 0.7, 0.55, 0.88);
-		restopoclemmuon->AddEntry("TopoclEMmuon_1", "Muon Data", "L");
-		restopoclemmuon->Draw();
-
-//CELL Algorithm resoltuions in 2015 and 2016
+//CELL Algorithm resoltuions in ZeroBias and Muons
 		TCanvas *cCELLzb = new TCanvas("cCELLzb", "CELL 2015 ");
 		CELLzb->Draw();
 		CELLzb->FitSlicesY(func, 0, -1, 10, "L");
 		CELLzb_1->Draw();
 		CELLzb_1->Fit("linfit");
-		slope_ZeroBias[1] = linfit->GetParameter(0);
-		intercept_ZeroBias[1] = linfit->GetParameter(1);
-		CELLzb_1->SetTitle("Resolution of CELL in 2015 ");
+		slope_ZeroBias[0] = linfit->GetParameter(0);
+		intercept_ZeroBias[0] = linfit->GetParameter(1);
+		CELLzb_1->SetTitle("Resolution of CELL in ZeroBias 2016 ");
 		CELLzb_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		CELLzb_1->GetYaxis()->SetTitle("#sigma of Fit for CELL [GeV]");
 		CELLzb_1->SetLineColor(2);
@@ -183,7 +141,7 @@
 		gStyle->SetOptFit(11);
 
 		TLegend* resCELLzb = new TLegend(0.37, 0.7, 0.55, 0.88);
-		resCELLzb->AddEntry("CELLzb_1", "2015 Data", "L");
+		resCELLzb->AddEntry("CELLzb_1", "Zero Bias Data", "L");
 		resCELLzb->Draw();
 
 		TCanvas *cCELLmuon = new TCanvas("cCELLmuon", "CELL 2016 ");
@@ -191,9 +149,9 @@
 		CELLmuon->FitSlicesY(func, 0, -1, 10, "L");
 		CELLmuon_1->Draw();
 		CELLmuon_1->Fit("linfit");
-		slope_Muon[1] = linfit->GetParameter(0);
-		intercept_Muon[1] = linfit->GetParameter(1);
-		CELLmuon_1->SetTitle("Resolution of CELL in 2016 ");
+		slope_Muon[0] = linfit->GetParameter(0);
+		intercept_Muon[0] = linfit->GetParameter(1);
+		CELLmuon_1->SetTitle("Resolution of CELL in Muons (L1XE45..Runs9B) 2016 ");
 		CELLmuon_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		CELLmuon_1->GetYaxis()->SetTitle("#sigma of Fit for CELL [GeV]");
 		CELLmuon_1->SetLineColor(4);
@@ -203,18 +161,18 @@
 		gStyle->SetOptFit(11);
 
 		TLegend* resCELLmuon = new TLegend(0.37, 0.7, 0.55, 0.88);
-		resCELLmuon->AddEntry("CELLmuon_1", "2016 Data", "L");
+		resCELLmuon->AddEntry("CELLmuon_1", "Muon Data", "L");
 		resCELLmuon->Draw();
 
-		//MHT Algorithm resoltuions in 2015 and 2016
+		//MHT Algorithm resoltuions in ZeroBias and Muons
 		TCanvas *cMHTzb = new TCanvas("cMHTzb", "MHT 2015 ");
 		MHTzb->Draw();
 		MHTzb->FitSlicesY(func, 0, -1, 10, "L");
 		MHTzb_1->Draw();
 		MHTzb_1->Fit("linfit");
-		slope_ZeroBias[2] = linfit->GetParameter(0);
-		intercept_ZeroBias[2] = linfit->GetParameter(1);
-		MHTzb_1->SetTitle("Resolution of MHT in 2015 ");
+		slope_ZeroBias[1] = linfit->GetParameter(0);
+		intercept_ZeroBias[1] = linfit->GetParameter(1);
+		MHTzb_1->SetTitle("Resolution of MHT in ZeroBias 2016 ");
 		MHTzb_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		MHTzb_1->GetYaxis()->SetTitle("#sigma of Fit for MHT [GeV]");
 		MHTzb_1->SetLineColor(2);
@@ -224,7 +182,7 @@
 		gStyle->SetOptFit(11);
 
 		TLegend* resMHTzb = new TLegend(0.37, 0.7, 0.55, 0.88);
-		resMHTzb->AddEntry("MHTzb_1", "2015 Data", "L");
+		resMHTzb->AddEntry("MHTzb_1", "Zero Bias Data", "L");
 		resMHTzb->Draw();
 
 		TCanvas *cMHTmuon = new TCanvas("cMHTmuon", "MHT 2016 ");
@@ -232,9 +190,9 @@
 		MHTmuon->FitSlicesY(func, 0, -1, 10, "L");
 		MHTmuon_1->Draw();
 		MHTmuon_1->Fit("linfit");
-		slope_Muon[2] = linfit->GetParameter(0);
-		intercept_Muon[2] = linfit->GetParameter(1);
-		MHTmuon_1->SetTitle("Resolution of MHT in 2016 ");
+		slope_Muon[1] = linfit->GetParameter(0);
+		intercept_Muon[1] = linfit->GetParameter(1);
+		MHTmuon_1->SetTitle("Resolution of MHT in Muons (L1XE45..Runs9B) 2016 ");
 		MHTmuon_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		MHTmuon_1->GetYaxis()->SetTitle("#sigma of Fit for MHT [GeV]");
 		MHTmuon_1->SetLineColor(4);
@@ -244,18 +202,18 @@
 		gStyle->SetOptFit(11);
 
 		TLegend* resMHTmuon = new TLegend(0.37, 0.7, 0.55, 0.88);
-		resMHTmuon->AddEntry("MHTmuon_1", "2016 Data", "L");
+		resMHTmuon->AddEntry("MHTmuon_1", "Muon Data", "L");
 		resMHTmuon->Draw();
 
-		//TOPOCL Algorithm resoltuions in 2015 and 2016
+		//TOPOCL Algorithm resoltuions in ZeroBias and Muon
 		TCanvas *cTOPOCLzb = new TCanvas("cTOPOCLzb", "TOPOCL 2015 ");
 		TOPOCLzb->Draw();
 		TOPOCLzb->FitSlicesY(func, 0, -1, 10, "L");
 		TOPOCLzb_1->Draw();
 		TOPOCLzb_1->Fit("linfit");
-		slope_ZeroBias[3] = linfit->GetParameter(0);
-		intercept_ZeroBias[3] = linfit->GetParameter(1);
-		TOPOCLzb_1->SetTitle("Resolution of TOPOCL in 2015 ");
+		slope_ZeroBias[2] = linfit->GetParameter(0);
+		intercept_ZeroBias[2] = linfit->GetParameter(1);
+		TOPOCLzb_1->SetTitle("Resolution of TOPOCL in ZeroBias 2016 ");
 		TOPOCLzb_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLzb_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCL [GeV]");
 		TOPOCLzb_1->SetLineColor(2);
@@ -265,7 +223,7 @@
 		gStyle->SetOptFit(11);
 
 		TLegend* resTOPOCLzb = new TLegend(0.37, 0.7, 0.55, 0.88);
-		resTOPOCLzb->AddEntry("TOPOCLzb_1", "2015 Data", "L");
+		resTOPOCLzb->AddEntry("TOPOCLzb_1", "Zero Bias Data", "L");
 		resTOPOCLzb->Draw();
 
 		TCanvas *cTOPOCLmuon = new TCanvas("cTOPOCLmuon", "TOPOCL 2016 ");
@@ -273,9 +231,9 @@
 		TOPOCLmuon->FitSlicesY(func, 0, -1, 10, "L");
 		TOPOCLmuon_1->Draw();
 		TOPOCLmuon_1->Fit("linfit");
-		slope_Muon[3] = linfit->GetParameter(0);
-		intercept_Muon[3] = linfit->GetParameter(1);
-		TOPOCLmuon_1->SetTitle("Resolution of TOPOCL in 2016 ");
+		slope_Muon[2] = linfit->GetParameter(0);
+		intercept_Muon[2] = linfit->GetParameter(1);
+		TOPOCLmuon_1->SetTitle("Resolution of TOPOCL in Muons (L1XE45..Runs9B) 2016 ");
 		TOPOCLmuon_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLmuon_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCL [GeV]");
 		TOPOCLmuon_1->SetLineColor(4);
@@ -285,19 +243,19 @@
 		gStyle->SetOptFit(11);
 
 		TLegend* resTOPOCLmuon = new TLegend(0.37, 0.7, 0.55, 0.88);
-		resTOPOCLmuon->AddEntry("TOPOCLmuon_1", "2016 Data", "L");
+		resTOPOCLmuon->AddEntry("TOPOCLmuon_1", "Muon Data", "L");
 		resTOPOCLmuon->Draw();
 
-		//TOPOCLPS Algorithm resoltuions in 2015 and 2016
+		//TOPOCLPS Algorithm resoltuions in ZeroBias and Muons
 		TCanvas *cTOPOCLPSzb = new TCanvas("cTOPOCLPSzb", "TOPOCLPS 2015 ");
 		TOPOCLPSzb->Draw();
 		TOPOCLPSzb->FitSlicesY(func, 0, -1, 10, "L");
 		TOPOCLPSzb_1->GetYaxis()->SetRange(0, 50.);
 		TOPOCLPSzb_1->Draw();
 		TOPOCLPSzb_1->Fit("linfit");
-		slope_ZeroBias[4] = linfit->GetParameter(0);
-		intercept_ZeroBias[4] = linfit->GetParameter(1);
-		TOPOCLPSzb_1->SetTitle("Resolution of TOPOCLPS in 2015 ");
+		slope_ZeroBias[3] = linfit->GetParameter(0);
+		intercept_ZeroBias[3] = linfit->GetParameter(1);
+		TOPOCLPSzb_1->SetTitle("Resolution of TOPOCLPS in ZeroBias 2016 ");
 		TOPOCLPSzb_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLPSzb_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCLPS [GeV]");
 		TOPOCLPSzb_1->SetLineColor(2);
@@ -307,7 +265,7 @@
 		gStyle->SetOptFit(11);
 
 		TLegend* resTOPOCLPSzb = new TLegend(0.37, 0.7, 0.55, 0.88);
-		resTOPOCLPSzb->AddEntry("TOPOCLPSzb_1", "2015 Data", "L");
+		resTOPOCLPSzb->AddEntry("TOPOCLPSzb_1", "Zero Bias Data", "L");
 		resTOPOCLPSzb->Draw();
 
 		TCanvas *cTOPOCLPSmuon = new TCanvas("cTOPOCLPSmuon", "TOPOCLPS 2016 ");
@@ -316,9 +274,9 @@
 		TOPOCLPSmuon_1->GetYaxis()->SetRange(0, 50.);
 		TOPOCLPSmuon_1->Draw();
 		TOPOCLPSmuon_1->Fit("linfit");
-		slope_Muon[4] = linfit->GetParameter(0);
-		intercept_Muon[4] = linfit->GetParameter(1);
-		TOPOCLPSmuon_1->SetTitle("Resolution of TOPOCLPS in 2016 ");
+		slope_Muon[3] = linfit->GetParameter(0);
+		intercept_Muon[3] = linfit->GetParameter(1);
+		TOPOCLPSmuon_1->SetTitle("Resolution of TOPOCLPS in Muons (L1XE45..Runs9B) 2016 ");
 		TOPOCLPSmuon_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLPSmuon_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCLPS [GeV]");
 		TOPOCLPSmuon_1->SetLineColor(4);
@@ -328,19 +286,19 @@
 		gStyle->SetOptFit(11);
 
 		TLegend* resTOPOCLPSmuon = new TLegend(0.37, 0.7, 0.55, 0.88);
-		resTOPOCLPSmuon->AddEntry("TOPOCLPSmuon_1", "2016 Data", "L");
+		resTOPOCLPSmuon->AddEntry("TOPOCLPSmuon_1", "Muon Data", "L");
 		resTOPOCLPSmuon->Draw();
 
-		//TOPOCLPUC Algorithm resoltuions in 2015 and 2016
+		//TOPOCLPUC Algorithm resoltuions in ZeroBias and Muons
 		TCanvas *cTOPOCLPUCzb = new TCanvas("cTOPOCLPUCzb", "TOPOCLPUC 2015 ");
 		TOPOCLPUCzb->Draw();
 		TOPOCLPUCzb->FitSlicesY(func, 0, -1, 10, "L");
 		TOPOCLPUCzb_1->Draw("");
-		TOPOCLPUCzb_1->Fit("nfit", "", "", 10., 100.);
-		slope_ZeroBias[5] = nfit->GetParameter(0);
-		intercept_ZeroBias[5] = nfit->GetParameter(1);
-		shift_ZeroBias[5] = nfit->GetParameter(2);
-		TOPOCLPUCzb_1->SetTitle("Resolution of TOPOCLPUC in 2015 ");
+		TOPOCLPUCzb_1->Fit("linfit");
+		slope_ZeroBias[4] = linfit->GetParameter(0);
+		intercept_ZeroBias[4] = linfit->GetParameter(1);
+		//shift_ZeroBias[5] = nfit->GetParameter(2);
+		TOPOCLPUCzb_1->SetTitle("Resolution of TOPOCLPUC in ZeroBias 2016 ");
 		TOPOCLPUCzb_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLPUCzb_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCLPUC [GeV]");
 		TOPOCLPUCzb_1->SetLineColor(2);
@@ -350,17 +308,17 @@
 		gStyle->SetOptFit(11);
 
 		TLegend* resTOPOCLPUCzb = new TLegend(0.37, 0.7, 0.55, 0.88);
-		resTOPOCLPUCzb->AddEntry("TOPOCLPUCzb_1", "2015 Data", "L");
+		resTOPOCLPUCzb->AddEntry("TOPOCLPUCzb_1", "Zero Bias Data", "L");
 		resTOPOCLPUCzb->Draw();
 
 		TCanvas *cTOPOCLPUCmuon = new TCanvas("cTOPOCLPUCmuon", "TOPOCLPUC 2016 ");
 		TOPOCLPUCmuon->Draw();
 		TOPOCLPUCmuon->FitSlicesY(func, 0, -1, 10, "L");
 		TOPOCLPUCmuon_1->Draw();
-		TOPOCLPUCmuon_1->Fit("linfit", "", "", 0., 100.);
-		slope_Muon[5] = nfit->GetParameter(0);
-		intercept_Muon[5] = nfit->GetParameter(1);
-		TOPOCLPUCmuon_1->SetTitle("Resolution of TOPOCLPUC in 2016 ");
+		TOPOCLPUCmuon_1->Fit("linfit");
+		slope_Muon[4] = linfit->GetParameter(0);
+		intercept_Muon[4] = linfit->GetParameter(1);
+		TOPOCLPUCmuon_1->SetTitle("Resolution of TOPOCLPUC in Muons (L1XE45..Runs9B) 2016 ");
 		TOPOCLPUCmuon_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLPUCmuon_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCLPUC [GeV]");
 		TOPOCLPUCmuon_1->SetLineColor(4);
@@ -370,18 +328,71 @@
 		gStyle->SetOptFit(11);
 
 		TLegend* resTOPOCLPUCmuon = new TLegend(0.37, 0.7, 0.55, 0.88);
-		resTOPOCLPUCmuon->AddEntry("TOPOCLPUCmuon_1", "2016 Data", "L");
+		resTOPOCLPUCmuon->AddEntry("TOPOCLPUCmuon_1", "Muon Data", "L");
 		resTOPOCLPUCmuon->Draw();
 
 
-		//___Calculate Tail Events Based on Resolutions___
-		TFile *zerobiasfile = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
-			TString graphtitle = "2016 ZeroBias (Runs56) for L1 > 30GeV";
-		//TFile *muonfile = TFile::Open("../PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root");
-			//TString graphtitle = "2016 Muons (L1XE45...Runs9B) for L1 > 30GeV";
+		//TopoclEM Algorithm resolutions in ZeroBias2016 and Muons2016
+			TCanvas *cTopoclEMzb = new TCanvas("cTopoclEMzb", "TopoclEM ZeroBias2016");
+			TopoclEMzb->Draw();
+			TopoclEMzb->FitSlicesY(func, 0, -1, 10, "L");
+			TopoclEMzb_1->Draw();
+			TopoclEMzb_1->Fit("linfit");
+			slope_ZeroBias[5] = linfit->GetParameter(0);
+			intercept_ZeroBias[5] = linfit->GetParameter(1);
+			//shift_ZeroBias[0] = nfit->GetParameter(2);
+			TopoclEMzb_1->SetTitle("Resolution of TopoclEM in ZeroBias2016");
+			TopoclEMzb_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
+			TopoclEMzb_1->GetYaxis()->SetTitle("#sigma of Fit for TopoclEM [GeV]");
+			TopoclEMzb_1->SetLineColor(2);
+			gPad->Update();
+				TPaveStats *topoclemzb = (TPaveStats*)TopoclEMzb_1 ->FindObject("stats");
+				topoclemzb->SetTextColor(2);
+				gStyle->SetOptFit(11);
 
-		TString metalgName[6] = {"metcell", "metmht", "mettopocl", "mettopoclps", "mettopoclem", "mettopoclpuc"};
-		TString setalgName[6] = {"setcell", "setmht", "settopocl", "settopoclps", "settopoclem", "settopoclpuc"};
+				TLegend* restopoclemzb = new TLegend(0.37, 0.7, 0.55, 0.88);
+				restopoclemzb->AddEntry("TopoclEMzb_1", "Zero Bias Data", "L");
+				restopoclemzb->Draw();
+
+			TCanvas *cTopoclEMmuon = new TCanvas("cTopoclEMmuon", "TopoclEMMuon 2016 ");
+			TopoclEMmuon->Draw();
+			TopoclEMmuon->FitSlicesY(func, 0, -1, 10, "L");
+			TopoclEMmuon_1->Draw();
+			TopoclEMmuon_1->Fit("nfit");
+			slope_Muon[5] = nfit->GetParameter(0);
+			intercept_Muon[5] = nfit->GetParameter(1);
+			shift_Muon[5] = nfit->GetParameter(2);
+			TopoclEMmuon_1->SetTitle("Resolution of TopoclEM in Muons2016 ");
+			TopoclEMmuon_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
+			TopoclEMmuon_1->GetYaxis()->SetTitle("#sigma of Fit for TopoclEM [GeV]");
+			TopoclEMmuon_1->SetLineColor(4);
+			gPad->Update();
+				TPaveStats *topoclemmuon = (TPaveStats*)TopoclEMmuon_1 ->FindObject("stats");
+				topoclemmuon->SetTextColor(4);
+				gStyle->SetOptFit(11);
+
+				TLegend* restopoclemmuon = new TLegend(0.37, 0.7, 0.55, 0.88);
+				restopoclemmuon->AddEntry("TopoclEMmuon_1", "Muon Data", "L");
+				restopoclemmuon->Draw();
+
+
+		//___Calculate Tail Events Based on Resolutions___
+		Int_t firsttrigger;
+		Int_t secondtrigger;
+		Double_t l1cut = 50.;
+
+		//TFile *zerobiasfile = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
+			//TString graphtitle = "2016 ZeroBias (Runs56) NO L1 CUT";
+			//tree->SetBranchAddress("passrndm", &firsttrigger);
+
+
+		TFile *muonfile = TFile::Open("../PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root");
+			TString graphtitle = "2016 Muons (L1XE45...Runs9B) L1 > 40GeV";
+			tree->SetBranchAddress("passmu26med", &firsttrigger);
+			tree->SetBranchAddress("passmu26varmed", & secondtrigger);
+
+		TString metalgName[6] = {"metcell", "metmht", "mettopocl", "mettopoclps", "mettopoclpuc", "mettopoclem"};
+		TString setalgName[6] = {"setcell", "setmht", "settopocl", "settopoclps", "settopoclpuc", "settopoclem"};
 
 		// create arrays for MET and SET branches
 		Float_t met[6];
@@ -396,39 +407,28 @@
 			tree->SetBranchAddress(setalgName[i], &set[i]);
 		}
 
-		Double_t l1trigger = "metl1";
-		Double_t muontrigger = "passmu26med";
-		tree->SetBranchAddress("metl1", &metl1);
-		tree->SetBranchAddress("passmu26med", &passmuon26med);
+		Float_t l1met;
+		tree->SetBranchAddress("metl1", &l1met);
 
-		// create graphs which I will later populate with TailMET vs. BulkMET of different algorithm pairs
+		// create graphs which I will later populate with TailMET vs. MET of different algorithm pairs
 		TH2F *correlationgraph[30];
 		char *histname = new char[30];
-		int bins = 1000;
+		int bins = 900;
 		Double_t min = 0.;
-		Double_t max = 1000.;
+		Double_t max = 900.;
 		for (int i = 0; i < 30; i++)
 		{
 			sprintf(histname, "histo%d", i+1);
 			correlationgraph[i] = new TH2F(histname, "", bins, min, max, bins, min, max);
 		}
 
-		bool pass;
-		Long64_t nentries = tree->GetEntries();
-		for (int i = 0; i < nentries; i++)
+	Long64_t nentries = tree->GetEntries();
+	for (int i = 0; i < nentries; i++)
+	{
+		tree->GetEntry(i);
+
+		if (firsttrigger > 0.5 || secondtrigger > 0.5 && l1met > l1cut) // throw out events which don't pass either muon trigger
 		{
-			tree->GetEntry(i);
-
-			if (metl1 < 30.) // throw out events below L1 = 30GeV
-			{
-				pass = false;
-			}
-
-			if (passmuon26med < 0.5) // throw out events which don't pass the muon trigger
-			{
-				pass = false;
-			}
-
 			Double_t sigma[6];
 			Double_t metdist[6]; // metdist will be the distance of the event's MET from the median
 			Double_t x[6]; // x = bulkmet and y = tailmet will be calculated for each algorithm
@@ -439,27 +439,29 @@
 			{
 				if (sqrt(set[j]) < 4.0) // throw out events whose SET values are too low
 				{
-					pass = false;
+					continue;
 				}
 
-				if (j > 0 && j < 5)
-				{
+				// commented-out regions allow for nonlinear calculations
+				//if (j < 5)
+				//{
 					// compute sigma and metdist for l1, cell, mht, topocl, and topoclps
 					sigma[j] = slope_ZeroBias[j]*sqrt(set[j]) + intercept_ZeroBias[j];
-					metdist[j] = abs( met[j] - (sigma[j]*sqrt(1.57079633)) ); // 1.5707963 = pi/2
-				}
-				else
-				{
+					metdist[j] = abs( met[j] - (sigma[j]*sqrt(TMath::PiOver2())));
+				//}
+				//else
+				//{
 					// compute sigma and metdist for topoclpuc whose fit is nonlinear
-					sigma[j] = slope_ZeroBias[j]*(sqrt(set[j]) + shift_ZeroBias[j])*(sqrt(set[j]) + shift_ZeroBias[j]) + intercept_ZeroBias[j];
-					metdist[j] = abs( met[j] - (sigma[j]*sqrt(1.57079633)) ); // 1.5707963 = pi/2
-				}
+					//sigma[j] = slope_ZeroBias[j]*(sqrt(set[j]) + shift_ZeroBias[j])*(sqrt(set[j]) + shift_ZeroBias[j]) + intercept_ZeroBias[j];
+					//metdist[j] = abs( met[j] - (sigma[j]*sqrt(1.57079633)) ); // 1.5707963 = pi/2
+				//}
+
 			}
 
 			// the following logic populates correlationgraphs with (x = met, y = tailmet) touples only...
 			// if they exist for a given event in the tree
 
-			int z = 0; // this variable counts each TH2F correlationgraph
+			int h = 0; // this variable counts each TH2F correlationgraph
 			for (int l = 0; l < 5; l++)
 			{
 				if (metdist[l] < 3*sigma[l]) // if the event is in the bulk
@@ -471,12 +473,12 @@
 						if (metdist[m] > 3*sigma[m]) // if the event is in the tail of alg[m] (does not equal alg[l])
 						{
 							y[m] = met[m]; // save to y = tailmet
-							correlationgraph[z]->Fill(x[l], y[m]); // and populate the appropraite correlationgraph
-							z++;
+							correlationgraph[h]->Fill(x[l], y[m]); // and populate the appropraite correlationgraph
+							h++;
 						}
 						else
 						{
-							z++;
+							h++;
 						}
 					}
 				}
@@ -487,13 +489,13 @@
 					for (int m = l+1; m < 6; m++) // for each remaining alg
 					{
 							x[m] = met[m]; // save to x = met
-							correlationgraph[z]->Fill(x[l], y[m]); // and populate the appropraite correlationgraph
-							z++;
+							correlationgraph[h]->Fill(x[l], y[m]); // and populate the appropraite correlationgraph
+							h++;
 					}
 				}
 			}
 
-			int z = 15; // this variable counts each correlationgraph
+			int h = 15; // this variable counts each correlationgraph
 			for (int l = 0; l < 5; l++)
 			{
 				if (metdist[l] > 3*sigma[l]) // if the event is in the tail of alg[l]
@@ -503,8 +505,8 @@
 					for (int m = l+1; m < 6; m++)
 					{
 						x[m] = met[m]; // save to x = met
-						correlationgraph[z]->Fill(y[l], x[m]); // and populate the appropraite correlationgraph
-						z++;
+						correlationgraph[h]->Fill(y[l], x[m]); // and populate the appropraite correlationgraph
+						h++;
 					}
 				}
 				else
@@ -516,29 +518,36 @@
 						if (metdist[m] > 3*sigma[m]) // if the event is in the tail of alg[m]
 						{
 							y[m] = met[m]; // save to y = tailmet
-							correlationgraph[z]->Fill(y[l], x[m]);
-							z++;
+							correlationgraph[h]->Fill(y[l], x[m]);
+							h++;
 						}
 						else
 						{
-							z++;
+							h++;
 						}
 					}
 				}
 			}
 		}
+	}
 
-		TString xaxisNames[6] = {"Cell MET [GeV]", "MHT MET [GeV]", "Topocl MET [GeV]", "TopoclPS MET [GeV]", "TopoclEM MET [GeV]", "TopoclPUC MET [GeV]"};
-		TString yaxisNames[6] = {"Cell Tail MET [GeV]", "MHT Tail MET [GeV]", "Topocl Tail MET [GeV]", "TopoclPS Tail MET [GeV]", "TopoclEM Tail MET [GeV]", "TopoclPUC Tail MET [GeV]"};
+		TString xaxisNames[6] = {"Cell MET [GeV]", "MHT MET [GeV]", "Topocl MET [GeV]", "TopoclPS MET [GeV]", "TopoclPUC MET [GeV]", "TopoclEM MET [GeV]"};
+		TString yaxisNames[6] = {"Cell Tail MET [GeV]", "MHT Tail MET [GeV]", "Topocl Tail MET [GeV]", "TopoclPS Tail MET [GeV]", "TopoclPUC Tail MET [GeV]", "TopoclEM Tail MET [GeV]"};
 
 		ofstream correlationcoefficients; // prepare log file of correlation coefficients
 		correlationcoefficients.open("correlationvalues.txt"); // open log file
-		correlationcoefficients << "Correlation Coefficients" << "\t" << graphtitle << "\n"; // write title of table
+		correlationcoefficients << "Graph" << "\t" << "Correlation" << " " << "±" << " " << "90\% Confidence Range" << " " << "\t" << "FILE:" << "\t" << graphtitle << "\n"; // write title of table
 
 		TCanvas *mycanv[30];
 		char *canvname = new char[30];
 		Double_t r[30]; // correlation coefficients
-		int k = 0;
+		Double_t z[30]; // Fisher-transformed correlation variables
+		Double_t zsigma[30]; // Fisher standard errors
+		Double_t zlowerlimit[30]; // lower limit of Fisher variable
+		Double_t zupperlimit[30]; // upper limit of Fisher variables
+		Double_t c[30]; // confidence interval of original correlation coefficients
+		int entries[30]; // records number of entries in each correlationgraph
+		int k = 0; // this variable counts correlationgraphs
 		for (int q = 0; q < 5; q++)
 		{
 			for (int l = q+1; l < 6; l++)
@@ -549,10 +558,16 @@
 				correlationgraph[k]->GetYaxis()->SetTitle(yaxisNames[q]);
 				correlationgraph[k]->GetXaxis()->SetTitle(xaxisNames[l]);
 				correlationgraph[k]->SetTitle(graphtitle);
+				entries[k] = correlationgraph[k]->GetEntries();
 				mycanv[k]->SetLogz();
-				r[k] = correlationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factors of each graph
+				r[k] = correlationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factor of each graph
+				z[k] = TMath::ATanH(r[k]); // Fisher-transformation of correlation factor
+				zsigma[k] = 1/(sqrt(entries[k] - 3)); // sigma of gaussian-distributed Fisher variables
+				zlowerlimit[k] = z[k] - 1.645*zsigma[k]/sqrt(entries[k]); // lower limit of Fisher variable (CALCULATED WITH 90% CONFIDENCE)
+				zupperlimit[k] = z[k] + 1.645*zsigma[k]/sqrt(entries[k]); // upper limit of Fisher variable (CALCULATED WITH 90% CONFIDENCE)
+				c[k] = ( exp(2*zlowerlimit[k]) - 1 ) / ( exp(2*zupperlimit[k]) + 1 ); // back-transformation of confidence interval
 				mycanv[k]->Print(Form("%d.png", k+1));
-				correlationcoefficients << k+1 << "\t" << r[k]	<< ',' << "\t" << yaxisNames[q] << " " << "vs." << " " << xaxisNames[l] << "\n";
+				correlationcoefficients << k+1 << "\t" << r[k] << " " << "±" << " " << c[k]	<< ',' << "\t" << yaxisNames[q] << " " << "vs." << " " << xaxisNames[l] << "\n";
 				k++;
 			}
 		}
@@ -567,10 +582,16 @@
 				correlationgraph[k]->GetYaxis()->SetTitle(xaxisNames[u]);
 				correlationgraph[k]->GetXaxis()->SetTitle(yaxisNames[t]);
 				correlationgraph[k]->SetTitle(graphtitle);
+				entries[k] = correlationgraph[k]->GetEntries();
 				mycanv[k]->SetLogz();
-				r[k] = correlationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factors of each graph
+				r[k] = correlationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factor of each graph
+				z[k] = TMath::ATanH(r[k]); // Fisher-transformation of correlation factor
+				zsigma[k] = 1/(sqrt(entries[k] - 3)); // sigma of gaussian-distributed Fisher variables
+				zlowerlimit[k] = z[k] - 1.645*zsigma[k]/sqrt(entries[k]); // lower limit of Fisher variable (CALCULATED WITH 90% CONFIDENCE)
+				zupperlimit[k] = z[k] + 1.645*zsigma[k]/sqrt(entries[k]); // upper limit of Fisher variable (CALCULATED WITH 90% CONFIDENCE)
+				c[k] = ( exp(2*zlowerlimit[k]) - 1 ) / ( exp(2*zupperlimit[k]) + 1 ); // back-transformation of confidence interval
 				mycanv[k]->Print(Form("%d.png", k+1));
-				correlationcoefficients << k+1 << "\t" << r[k]	<< ',' << "\t" << xaxisNames[u] << " " << "vs." << " " << yaxisNames[t] << "\n";
+				correlationcoefficients << k+1 << "\t" << r[k] << " " << "±" << " " << c[k]	<< ',' << "\t" << xaxisNames[u] << " " << "vs." << " " << yaxisNames[t] << "\n";
 				k++;
 			}
 		}
