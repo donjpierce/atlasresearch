@@ -14,7 +14,7 @@
 #include "TSystem.h"
 
 
-Int_t tailcalculator
+Int_t tailcalculator()
 {
 	gROOT->ProcessLine("gROOT->SetBatch(kTRUE)"); // suppresses the drawing of graphs
 	TString PlotCut("passrndm>0.5"); // for 2015
