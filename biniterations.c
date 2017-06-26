@@ -1,16 +1,28 @@
-int biniterations(TString& metAlgName = "mettopoclpuc" , TString& setAlgName = "settopoclpuc")
+#include "TString.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TH1F.h"
+#include <vector>
+
+int biniterations( const TString& metAlgName = "mettopoclpuc" , const TString& setAlgName = "settopoclpuc",
+ const TString& muonFilePath = "../PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root" )
 {
 
-	#include <vector>
-	TFile *file = TFile::Open("../PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root");
+
+	TFile *muonFile = TFile::Open( muonFilePath ,"READ" );
+	TTree* myMuonTree = NULL;
+    muonFile->GetObject("tree",myMuonTree); //explicitly get the ttree called "tree" in the file, and store its address in myMuonTree
 
 	Float_t setalg , metalg;
-	Int_t passrndm, numEntries;
+	Int_t passrndm, numEntries, passmuflag,passmuvarmed;
 	Int_t tail = 1;
 
-	tree->SetBranchAddress(setAlgName, &setalg);
-	tree->SetBranchAddress(metAlgName, &metalg);
-	tree->SetBranchAddress("passrndm",&passrndm);
+	//set branch addresses
+	myMuonTree->SetBranchAddress(setAlgName, &setalg);
+	myMuonTree->SetBranchAddress(metAlgName, &metalg);
+	myMuonTree->SetBranchAddress("passrndm",&passrndm);
+	myMuonTree->SetBranchAddress("passmu26med",&passmuflag);
+	myMuonTree->SetBranchAddress("passmu26varmed",&passmuvarmed);
 
 	//==================================================================================================================================================//
 	//Initialize scatter plot of alg met vs. sqrt alg set
@@ -18,11 +30,12 @@ int biniterations(TString& metAlgName = "mettopoclpuc" , TString& setAlgName = "
 	//**NOTE: CHANGE RANGE FOR SIGNAL EVENTS***
 	TH1F *algSetHist = new TH1F("algSetHist", Form("sqrt of %s",setAlgName), 100, 0., 100.);
 
-	Long64_t nentries = tree->GetEntries();
-	for (Int_t i = 0; i < nentries; i++)
+	Long64_t muonNentries = myMuonTree->GetEntries();
+	for (Int_t i = 0; i < muonNentries; i++)
 	{
-		tree->GetEntry(i);
-		if ((passrndm > 0.1) && (metalg > tail))
+		myMuonTree->GetEntry(i);
+		//are you supposed to cut on passrndm for muon events?
+		if ( ( (passmuflag > 0.5) || (passmuvarmed > 0.5) ) && (metalg > tail))
 		{
 			algSetHist->Fill(sqrt(setalg));
 		}
@@ -60,9 +73,9 @@ int biniterations(TString& metAlgName = "mettopoclpuc" , TString& setAlgName = "
 
 	// Parse through the tree again, and fill each MET histogram only with events in their respective sqrt(set) bins
 
-	for (int i = 0; i < nentries; i++)
+	for (int i = 0; i < muonNentries; i++)
 	{
-		tree->GetEntry(i);
+		myMuonTree->GetEntry(i);
 		for (int p = 1; p < sizeof(binArray) ; p++)
 		{
 			if ((passrndm > 0.5) && (binArray[p] < sqrt(setalg)) && (sqrt(setalg) < binArray[p] + 1))

@@ -1,6 +1,23 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include "TF1.h"
+#include "TMath.h"
+#include "TH1.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TString.h"
+#include "TEfficiency.h"
+#include "TLegend.h"
+#include "TROOT.h"
+#include "TCanvas.h"
+#include "TSystem.h"
+
+
+Int_t tailcalculator
 {
-	//gROOT->ProcessLine("gROOT->SetBatch(kTRUE)"); // suppresses the drawing of graphs
-	#include <vector>
+	gROOT->ProcessLine("gROOT->SetBatch(kTRUE)"); // suppresses the drawing of graphs
+
 	TString PlotCut("passrndm>0.5"); // for 2015
 	TString PlotCutmuons("passmu26med>0.5&&metl1>50."); // for 2016 muons
 
@@ -376,7 +393,12 @@
 
 		//___Calculate Tail Events Based on Resolutions___
 		TFile *zerobiasfile = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
-			TString graphtitle = "2016 ZeroBias (Runs56) for L1 > 30GeV";
+		TTree* zeroBiasTree = NULL;
+	    zerobiasfile->GetObject("tree",zeroBiasTree);
+
+		
+		TString graphtitle = "2016 ZeroBias (Runs56) for L1 > 30GeV";
+
 		//TFile *muonfile = TFile::Open("../PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root");
 			//TString graphtitle = "2016 Muons (L1XE45...Runs9B) for L1 > 30GeV";
 
