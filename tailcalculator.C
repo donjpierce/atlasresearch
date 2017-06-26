@@ -12,6 +12,9 @@
 #include "TROOT.h"
 #include "TCanvas.h"
 #include "TSystem.h"
+#include "TH2F.h"
+#include "TPaveStats.h"
+#include "TStyle.h"
 
 
 Int_t tailcalculator()
@@ -48,6 +51,7 @@ Int_t tailcalculator()
 	nfit->SetParName(2, "shift");
 
 	TFile *File1 = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
+	TTree* tree = (TTree*)File1->Get("tree");
 	//Produce fitting graphs 2015
 	//TH2F *L1zb = new TH2F ("L1zb","", 60, 0., 60.,100,0.,100.);
 		//tree->Draw("metl1:sqrt(setl1)>>L1zb","passrndm>0.5&&metl1>30.");
@@ -143,6 +147,7 @@ Int_t tailcalculator()
 		TCanvas *cCELLzb = new TCanvas("cCELLzb", "CELL 2015 ");
 		CELLzb->Draw();
 		CELLzb->FitSlicesY(func, 0, -1, 10, "L");
+		TH1D *CELLzb_1 = (TH1D*)gDirectory->Get("CELLzb_1");
 		CELLzb_1->Draw();
 		CELLzb_1->Fit("linfit");
 		slope_ZeroBias[0] = linfit->GetParameter(0);
@@ -163,6 +168,7 @@ Int_t tailcalculator()
 		TCanvas *cCELLmuon = new TCanvas("cCELLmuon", "CELL 2016 ");
 		CELLmuon->Draw();
 		CELLmuon->FitSlicesY(func, 0, -1, 10, "L");
+		TH1D *CELLmuon_1 = (TH1D*)gDirectory->Get("CELLmuon_1");
 		CELLmuon_1->Draw();
 		CELLmuon_1->Fit("linfit");
 		slope_Muon[0] = linfit->GetParameter(0);
@@ -184,6 +190,7 @@ Int_t tailcalculator()
 		TCanvas *cMHTzb = new TCanvas("cMHTzb", "MHT 2015 ");
 		MHTzb->Draw();
 		MHTzb->FitSlicesY(func, 0, -1, 10, "L");
+		TH1D *MHTzb_1 = (TH1D*)gDirectory->Get("MHTzb_1");
 		MHTzb_1->Draw();
 		MHTzb_1->Fit("linfit");
 		slope_ZeroBias[1] = linfit->GetParameter(0);
@@ -204,6 +211,7 @@ Int_t tailcalculator()
 		TCanvas *cMHTmuon = new TCanvas("cMHTmuon", "MHT 2016 ");
 		MHTmuon->Draw();
 		MHTmuon->FitSlicesY(func, 0, -1, 10, "L");
+		TH1D *MHTmuon_1 = (TH1D*)gDirectory->Get("MHTmuon_1");
 		MHTmuon_1->Draw();
 		MHTmuon_1->Fit("linfit");
 		slope_Muon[1] = linfit->GetParameter(0);
@@ -225,6 +233,7 @@ Int_t tailcalculator()
 		TCanvas *cTOPOCLzb = new TCanvas("cTOPOCLzb", "TOPOCL 2015 ");
 		TOPOCLzb->Draw();
 		TOPOCLzb->FitSlicesY(func, 0, -1, 10, "L");
+		TH1D *TOPOCLzb_1 = (TH1D*)gDirectory->Get("TOPOCLzb_1");
 		TOPOCLzb_1->Draw();
 		TOPOCLzb_1->Fit("linfit");
 		slope_ZeroBias[2] = linfit->GetParameter(0);
@@ -245,6 +254,7 @@ Int_t tailcalculator()
 		TCanvas *cTOPOCLmuon = new TCanvas("cTOPOCLmuon", "TOPOCL 2016 ");
 		TOPOCLmuon->Draw();
 		TOPOCLmuon->FitSlicesY(func, 0, -1, 10, "L");
+		TH1D *TOPOCLmuon_1 = (TH1D*)gDirectory->Get("TOPOCLmuon_1");
 		TOPOCLmuon_1->Draw();
 		TOPOCLmuon_1->Fit("linfit");
 		slope_Muon[2] = linfit->GetParameter(0);
@@ -266,6 +276,7 @@ Int_t tailcalculator()
 		TCanvas *cTOPOCLPSzb = new TCanvas("cTOPOCLPSzb", "TOPOCLPS 2015 ");
 		TOPOCLPSzb->Draw();
 		TOPOCLPSzb->FitSlicesY(func, 0, -1, 10, "L");
+		TH1D *TOPOCLPSzb_1 = (TH1D*)gDirectory->Get("TOPOCLPSzb_1");
 		TOPOCLPSzb_1->GetYaxis()->SetRange(0, 50.);
 		TOPOCLPSzb_1->Draw();
 		TOPOCLPSzb_1->Fit("linfit");
@@ -287,6 +298,7 @@ Int_t tailcalculator()
 		TCanvas *cTOPOCLPSmuon = new TCanvas("cTOPOCLPSmuon", "TOPOCLPS 2016 ");
 		TOPOCLPSmuon->Draw();
 		TOPOCLPSmuon->FitSlicesY(func, 0, -1, 10, "L");
+		TH1D *TOPOCLPSmuon_1 = (TH1D*)gDirectory->Get("TOPOCLPSmuon_1");
 		TOPOCLPSmuon_1->GetYaxis()->SetRange(0, 50.);
 		TOPOCLPSmuon_1->Draw();
 		TOPOCLPSmuon_1->Fit("linfit");
@@ -309,6 +321,7 @@ Int_t tailcalculator()
 		TCanvas *cTOPOCLPUCzb = new TCanvas("cTOPOCLPUCzb", "TOPOCLPUC 2015 ");
 		TOPOCLPUCzb->Draw();
 		TOPOCLPUCzb->FitSlicesY(func, 0, -1, 10, "L");
+		TH1D *TOPOCLPUCzb_1 = (TH1D*)gDirectory->Get("TOPOCLPUCzb_1");
 		TOPOCLPUCzb_1->Draw("");
 		TOPOCLPUCzb_1->Fit("linfit");
 		slope_ZeroBias[4] = linfit->GetParameter(0);
@@ -330,6 +343,7 @@ Int_t tailcalculator()
 		TCanvas *cTOPOCLPUCmuon = new TCanvas("cTOPOCLPUCmuon", "TOPOCLPUC 2016 ");
 		TOPOCLPUCmuon->Draw();
 		TOPOCLPUCmuon->FitSlicesY(func, 0, -1, 10, "L");
+		TH1D *TOPOCLPUCmuon_1 = (TH1D*)gDirectory->Get("TOPOCLPUCmuon_1");
 		TOPOCLPUCmuon_1->Draw();
 		TOPOCLPUCmuon_1->Fit("linfit");
 		slope_Muon[4] = linfit->GetParameter(0);
@@ -349,47 +363,49 @@ Int_t tailcalculator()
 
 
 		//TopoclEM Algorithm resolutions in ZeroBias2016 and Muons2016
-			TCanvas *cTopoclEMzb = new TCanvas("cTopoclEMzb", "TopoclEM ZeroBias2016");
-			TopoclEMzb->Draw();
-			TopoclEMzb->FitSlicesY(func, 0, -1, 10, "L");
-			TopoclEMzb_1->Draw();
-			TopoclEMzb_1->Fit("linfit");
-			slope_ZeroBias[5] = linfit->GetParameter(0);
-			intercept_ZeroBias[5] = linfit->GetParameter(1);
-			//shift_ZeroBias[0] = nfit->GetParameter(2);
-			TopoclEMzb_1->SetTitle("Resolution of TopoclEM in ZeroBias2016");
-			TopoclEMzb_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
-			TopoclEMzb_1->GetYaxis()->SetTitle("#sigma of Fit for TopoclEM [GeV]");
-			TopoclEMzb_1->SetLineColor(2);
-			gPad->Update();
-				TPaveStats *topoclemzb = (TPaveStats*)TopoclEMzb_1 ->FindObject("stats");
-				topoclemzb->SetTextColor(2);
-				gStyle->SetOptFit(11);
+		TCanvas *cTopoclEMzb = new TCanvas("cTopoclEMzb", "TopoclEM ZeroBias2016");
+		TopoclEMzb->Draw();
+		TopoclEMzb->FitSlicesY(func, 0, -1, 10, "L");
+		TH1D *TopoclEMzb_1 = (TH1D*)gDirectory->Get("TopoclEMzb_1");
+		TopoclEMzb_1->Draw();
+		TopoclEMzb_1->Fit("linfit");
+		slope_ZeroBias[5] = linfit->GetParameter(0);
+		intercept_ZeroBias[5] = linfit->GetParameter(1);
+		//shift_ZeroBias[0] = nfit->GetParameter(2);
+		TopoclEMzb_1->SetTitle("Resolution of TopoclEM in ZeroBias2016");
+		TopoclEMzb_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
+		TopoclEMzb_1->GetYaxis()->SetTitle("#sigma of Fit for TopoclEM [GeV]");
+		TopoclEMzb_1->SetLineColor(2);
+		gPad->Update();
+		TPaveStats *topoclemzb = (TPaveStats*)TopoclEMzb_1 ->FindObject("stats");
+		topoclemzb->SetTextColor(2);
+		gStyle->SetOptFit(11);
 
-				TLegend* restopoclemzb = new TLegend(0.37, 0.7, 0.55, 0.88);
-				restopoclemzb->AddEntry("TopoclEMzb_1", "Zero Bias Data", "L");
-				restopoclemzb->Draw();
+		TLegend* restopoclemzb = new TLegend(0.37, 0.7, 0.55, 0.88);
+		restopoclemzb->AddEntry("TopoclEMzb_1", "Zero Bias Data", "L");
+		restopoclemzb->Draw();
 
-			TCanvas *cTopoclEMmuon = new TCanvas("cTopoclEMmuon", "TopoclEMMuon 2016 ");
-			TopoclEMmuon->Draw();
-			TopoclEMmuon->FitSlicesY(func, 0, -1, 10, "L");
-			TopoclEMmuon_1->Draw();
-			TopoclEMmuon_1->Fit("nfit");
-			slope_Muon[5] = nfit->GetParameter(0);
-			intercept_Muon[5] = nfit->GetParameter(1);
-			shift_Muon[5] = nfit->GetParameter(2);
-			TopoclEMmuon_1->SetTitle("Resolution of TopoclEM in Muons2016 ");
-			TopoclEMmuon_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
-			TopoclEMmuon_1->GetYaxis()->SetTitle("#sigma of Fit for TopoclEM [GeV]");
-			TopoclEMmuon_1->SetLineColor(4);
-			gPad->Update();
-				TPaveStats *topoclemmuon = (TPaveStats*)TopoclEMmuon_1 ->FindObject("stats");
-				topoclemmuon->SetTextColor(4);
-				gStyle->SetOptFit(11);
+		TCanvas *cTopoclEMmuon = new TCanvas("cTopoclEMmuon", "TopoclEMMuon 2016 ");
+		TopoclEMmuon->Draw();
+		TopoclEMmuon->FitSlicesY(func, 0, -1, 10, "L");
+		TH1D *TopoclEMmuon_1 = (TH1D*)gDirectory->Get("TopoclEMmuon_1");
+		TopoclEMmuon_1->Draw();
+		TopoclEMmuon_1->Fit("nfit");
+		slope_Muon[5] = nfit->GetParameter(0);
+		intercept_Muon[5] = nfit->GetParameter(1);
+		shift_Muon[5] = nfit->GetParameter(2);
+		TopoclEMmuon_1->SetTitle("Resolution of TopoclEM in Muons2016 ");
+		TopoclEMmuon_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
+		TopoclEMmuon_1->GetYaxis()->SetTitle("#sigma of Fit for TopoclEM [GeV]");
+		TopoclEMmuon_1->SetLineColor(4);
+		gPad->Update();
+			TPaveStats *topoclemmuon = (TPaveStats*)TopoclEMmuon_1 ->FindObject("stats");
+			topoclemmuon->SetTextColor(4);
+			gStyle->SetOptFit(11);
 
-				TLegend* restopoclemmuon = new TLegend(0.37, 0.7, 0.55, 0.88);
-				restopoclemmuon->AddEntry("TopoclEMmuon_1", "Muon Data", "L");
-				restopoclemmuon->Draw();
+			TLegend* restopoclemmuon = new TLegend(0.37, 0.7, 0.55, 0.88);
+			restopoclemmuon->AddEntry("TopoclEMmuon_1", "Muon Data", "L");
+			restopoclemmuon->Draw();
 
 
 		//___Calculate Tail Events Based on Resolutions___
@@ -416,13 +432,13 @@ Int_t tailcalculator()
 
 		// create arrays for MET and SET branches
 		Float_t met[6];
-		for (int i = 0; i < 6; i++)
+		for (Int_t i = 0; i < 6; i++)
 		{
 			muonTree->SetBranchAddress(metalgName[i], &met[i]);
 		}
 
 		Float_t set[6];
-		for (int i = 0; i < 6; i++)
+		for (Int_t i = 0; i < 6; i++)
 		{
 			muonTree->SetBranchAddress(setalgName[i], &set[i]);
 		}
@@ -432,17 +448,17 @@ Int_t tailcalculator()
 		// create graphs which I will later populate with TailMET vs. MET of different algorithm pairs
 		TH2F *correlationgraph[30];
 		char *histname = new char[30];
-		int bins = 900;
+		Int_t bins = 900;
 		Double_t min = 0.;
 		Double_t max = 900.;
-		for (int i = 0; i < 30; i++)
+		for (Int_t i = 0; i < 30; i++)
 		{
 			sprintf(histname, "histo%d", i+1);
 			correlationgraph[i] = new TH2F(histname, "", bins, min, max, bins, min, max);
 		}
 
 	Long64_t nentries = muonTree->GetEntries();
-	for (int i = 0; i < nentries; i++)
+	for (Int_t i = 0; i < nentries; i++)
 	{
 		muonTree->GetEntry(i);
 
@@ -454,7 +470,7 @@ Int_t tailcalculator()
 			Double_t y[6];
 
 			// the following loop populates the sigma and metdist arrays
-			for (int j = 0; j < 6; j++)
+			for (Int_t j = 0; j < 6; j++)
 			{
 				if (sqrt(set[j]) < 4.0) // throw out events whose SET values are too low
 				{
@@ -479,15 +495,14 @@ Int_t tailcalculator()
 
 			// the following logic populates correlationgraphs with (x = met, y = tailmet) touples only...
 			// if they exist for a given event in the tree
-
-			int h = 0; // this variable counts each TH2F correlationgraph
-			for (int l = 0; l < 5; l++)
+			Int_t h = 0; // this variable counts each TH2F correlationgraph
+			for (Int_t l = 0; l < 5; l++)
 			{
 				if (metdist[l] < 3*sigma[l]) // if the event is in the bulk
 				{
 					x[l] = met[l]; // save to x = met
 
-					for (int m = l+1; m < 6; m++)
+					for (Int_t m = l+1; m < 6; m++)
 					{
 						if (metdist[m] > 3*sigma[m]) // if the event is in the tail of alg[m] (does not equal alg[l])
 						{
@@ -505,7 +520,7 @@ Int_t tailcalculator()
 				{
 					y[l] = met[l]; // save to y = tailmet
 
-					for (int m = l+1; m < 6; m++) // for each remaining alg
+					for (Int_t m = l+1; m < 6; m++) // for each remaining alg
 					{
 							x[m] = met[m]; // save to x = met
 							correlationgraph[h]->Fill(x[l], y[m]); // and populate the appropraite correlationgraph
@@ -514,14 +529,14 @@ Int_t tailcalculator()
 				}
 			}
 
-			int h = 15; // this variable counts each correlationgraph
-			for (int l = 0; l < 5; l++)
+			h = 15; // this variable counts each correlationgraph
+			for (Int_t l = 0; l < 5; l++)
 			{
 				if (metdist[l] > 3*sigma[l]) // if the event is in the tail of alg[l]
 				{
 					y[l] = met[l]; // save to y = tailmet
 
-					for (int m = l+1; m < 6; m++)
+					for (Int_t m = l+1; m < 6; m++)
 					{
 						x[m] = met[m]; // save to x = met
 						correlationgraph[h]->Fill(y[l], x[m]); // and populate the appropraite correlationgraph
@@ -532,7 +547,7 @@ Int_t tailcalculator()
 				{
 					x[l] = met[l]; // save to x = met
 
-					for (int m = l+1; m < 6; m++)
+					for (Int_t m = l+1; m < 6; m++)
 					{
 						if (metdist[m] > 3*sigma[m]) // if the event is in the tail of alg[m]
 						{
@@ -565,11 +580,11 @@ Int_t tailcalculator()
 		Double_t zlowerlimit[30]; // lower limit of Fisher variable
 		Double_t zupperlimit[30]; // upper limit of Fisher variables
 		Double_t c[30]; // confidence interval of original correlation coefficients
-		int entries[30]; // records number of entries in each correlationgraph
-		int k = 0; // this variable counts correlationgraphs
-		for (int q = 0; q < 5; q++)
+		Int_t entries[30]; // records number of entries in each correlationgraph
+		Int_t k = 0; // this variable counts correlationgraphs
+		for (Int_t q = 0; q < 5; q++)
 		{
-			for (int l = q+1; l < 6; l++)
+			for (Int_t l = q+1; l < 6; l++)
 			{
 				canvname = Form("canv%d",k+1);
 				mycanv[k] = new TCanvas(canvname, "");
@@ -590,10 +605,10 @@ Int_t tailcalculator()
 				k++;
 			}
 		}
-		int k = 15;
-		for (int u = 0; u < 5; u++)
+		k = 15;
+		for (Int_t u = 0; u < 5; u++)
 		{
-			for (int t = u+1; t < 6; t++)
+			for (Int_t t = u+1; t < 6; t++)
 			{
 				canvname = Form("canv%d",k+1);
 				mycanv[k] = new TCanvas(canvname, "");

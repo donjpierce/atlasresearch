@@ -19,9 +19,9 @@ Int_t biniterations( const TString& metAlgName = "mettopoclpuc" , const TString&
 
     gROOT->ProcessLine("gROOT->SetBatch(kTRUE)");
 
-	TFile *muonFile = TFile::Open( muonFilePath ,"READ" );
-	TTree* myMuonTree = NULL;
-    muonFile->GetObject("tree",myMuonTree); //explicitly get the ttree called "tree" in the file, and store its address in myMuonTree
+	const TFile *muonFile = TFile::Open( muonFilePath ,"READ" );
+    //explicitly get the ttree called "tree" in muonFile, and store its address in myMuonTree
+    const TTree* myMuonTree = (TTree*)muonFile->Get("tree");
 
 	Float_t setalg , metalg;
 	Int_t passrndm, numEntries, passmuflag,passmuvarmed;
