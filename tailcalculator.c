@@ -1,6 +1,22 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include "TF1.h"
+#include "TMath.h"
+#include "TH1.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TString.h"
+#include "TEfficiency.h"
+#include "TLegend.h"
+#include "TROOT.h"
+#include "TCanvas.h"
+#include "TSystem.h"
+
+
+Int_t tailcalculator
 {
 	gROOT->ProcessLine("gROOT->SetBatch(kTRUE)"); // suppresses the drawing of graphs
-	#include <vector>
 	TString PlotCut("passrndm>0.5"); // for 2015
 	TString PlotCutmuons("passmu26med>0.5&&metl1>50."); // for 2016 muons
 
@@ -377,19 +393,23 @@
 
 
 		//___Calculate Tail Events Based on Resolutions___
-		Int_t firsttrigger;
-		Int_t secondtrigger;
-		Double_t l1cut = 50.;
+		Int_t passmu26Flag, passmuvarmedFlag;
+		Float_t l1cut = 50.0; Float_t l1met;
+/*
+		TFile *zerobiasfile = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
+		TTree* zeroBiasTree = NULL;
+	    zerobiasfile->GetObject("tree",zeroBiasTree);
+		TString zerobiasGraphTitle = "2016 ZeroBias (Runs56) NO L1 CUT";
+*/
+		TFile *muonFile = TFile::Open("../PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root");
+		TTree* muonTree = NULL;
+		//EXPLICTLY SELECT THE TTREE CALLED "tree" FROM MUONFILE; STORE IT IN "muonTree"
+		muonFile->GetObject("tree",muonTree);
+		TString muonGraphTitle = "2016 Muons (L1XE45...Runs9B) L1 > 40GeV";
 
-		//TFile *zerobiasfile = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
-			//TString graphtitle = "2016 ZeroBias (Runs56) NO L1 CUT";
-			//tree->SetBranchAddress("passrndm", &firsttrigger);
-
-
-		TFile *muonfile = TFile::Open("../PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root");
-			TString graphtitle = "2016 Muons (L1XE45...Runs9B) L1 > 40GeV";
-			tree->SetBranchAddress("passmu26med", &firsttrigger);
-			tree->SetBranchAddress("passmu26varmed", & secondtrigger);
+		muonTree->SetBranchAddress("passmu26med", &passmu26Flag);
+		muonTree->SetBranchAddress("passmu26varmed", & passmuvarmedFlag);
+		muonTree->SetBranchAddress("metl1", &l1met);
 
 		TString metalgName[6] = {"metcell", "metmht", "mettopocl", "mettopoclps", "mettopoclpuc", "mettopoclem"};
 		TString setalgName[6] = {"setcell", "setmht", "settopocl", "settopoclps", "settopoclpuc", "settopoclem"};
@@ -398,17 +418,16 @@
 		Float_t met[6];
 		for (int i = 0; i < 6; i++)
 		{
-			tree->SetBranchAddress(metalgName[i], &met[i]);
+			muonTree->SetBranchAddress(metalgName[i], &met[i]);
 		}
 
 		Float_t set[6];
 		for (int i = 0; i < 6; i++)
 		{
-			tree->SetBranchAddress(setalgName[i], &set[i]);
+			muonTree->SetBranchAddress(setalgName[i], &set[i]);
 		}
 
-		Float_t l1met;
-		tree->SetBranchAddress("metl1", &l1met);
+
 
 		// create graphs which I will later populate with TailMET vs. MET of different algorithm pairs
 		TH2F *correlationgraph[30];
@@ -422,12 +441,12 @@
 			correlationgraph[i] = new TH2F(histname, "", bins, min, max, bins, min, max);
 		}
 
-	Long64_t nentries = tree->GetEntries();
+	Long64_t nentries = muonTree->GetEntries();
 	for (int i = 0; i < nentries; i++)
 	{
-		tree->GetEntry(i);
+		muonTree->GetEntry(i);
 
-		if (firsttrigger > 0.5 || secondtrigger > 0.5 && l1met > l1cut) // throw out events which don't pass either muon trigger
+		if ( ( passmu26Flag > 0.5 || passmuvarmedFlag > 0.5 ) && l1met > l1cut) // throw out events which don't pass either muon trigger
 		{
 			Double_t sigma[6];
 			Double_t metdist[6]; // metdist will be the distance of the event's MET from the median
@@ -536,7 +555,7 @@
 
 		ofstream correlationcoefficients; // prepare log file of correlation coefficients
 		correlationcoefficients.open("correlationvalues.txt"); // open log file
-		correlationcoefficients << "Graph" << "\t" << "Correlation" << " " << "±" << " " << "90\% Confidence Range" << " " << "\t" << "FILE:" << "\t" << graphtitle << "\n"; // write title of table
+		correlationcoefficients << "Graph" << "\t" << "Correlation" << " " << "±" << " " << "90\% Confidence Range" << " " << "\t" << "FILE:" << "\t" << muonGraphTitle << "\n"; // write title of table
 
 		TCanvas *mycanv[30];
 		char *canvname = new char[30];
@@ -557,7 +576,7 @@
 				correlationgraph[k]->Draw("colz"); // add "colz" in function if desired
 				correlationgraph[k]->GetYaxis()->SetTitle(yaxisNames[q]);
 				correlationgraph[k]->GetXaxis()->SetTitle(xaxisNames[l]);
-				correlationgraph[k]->SetTitle(graphtitle);
+				correlationgraph[k]->SetTitle(muonGraphTitle);
 				entries[k] = correlationgraph[k]->GetEntries();
 				mycanv[k]->SetLogz();
 				r[k] = correlationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factor of each graph
@@ -581,7 +600,7 @@
 				correlationgraph[k]->Draw("colz");  // add "colz" in function if desired
 				correlationgraph[k]->GetYaxis()->SetTitle(xaxisNames[u]);
 				correlationgraph[k]->GetXaxis()->SetTitle(yaxisNames[t]);
-				correlationgraph[k]->SetTitle(graphtitle);
+				correlationgraph[k]->SetTitle(muonGraphTitle);
 				entries[k] = correlationgraph[k]->GetEntries();
 				mycanv[k]->SetLogz();
 				r[k] = correlationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factor of each graph
