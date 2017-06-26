@@ -18,7 +18,7 @@ Int_t biniterations( const TString& metAlgName = "mettopoclpuc" , const TString&
 {
 
     gROOT->ProcessLine("gROOT->SetBatch(kTRUE)");
-    
+
 	TFile *muonFile = TFile::Open( muonFilePath ,"READ" );
 	TTree* myMuonTree = NULL;
     muonFile->GetObject("tree",myMuonTree); //explicitly get the ttree called "tree" in the file, and store its address in myMuonTree
@@ -114,6 +114,7 @@ Int_t biniterations( const TString& metAlgName = "mettopoclpuc" , const TString&
 	Double_t sigmaarray[100];
 	TCanvas *canvasArray[100];
 	TString canvname;
+    gROOT->ProcessLine(".> biniterations.log");
 	for (Int_t m = 1; m < nHists; m++)
 	{
 		canvname = Form("canv%d",m);
@@ -123,6 +124,7 @@ Int_t biniterations( const TString& metAlgName = "mettopoclpuc" , const TString&
 		sigmaarray[m] = func->GetParameter(1);
 		canvasArray[m]->Print(Form("./Pictures/%s.png", histArray[m]->GetName()));
 	}
+    gROOT->ProcessLine(".>");
 
 	ofstream sigmafile;
 	sigmafile.open("sigmaarray.txt");
