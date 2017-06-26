@@ -1,14 +1,24 @@
-#include "TString.h"
+#include <iostream>
+#include <fstream>
+#include "TMath.h"
+#include "TH1.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "TH1F.h"
-#include <vector>
+#include "TString.h"
+#include "TEfficiency.h"
+#include "TLegend.h"
+#include "TROOT.h"
+#include "TCanvas.h"
+#include "TSystem.h"
+#include "TF1.h"
 
-int biniterations( const TString& metAlgName = "mettopoclpuc" , const TString& setAlgName = "settopoclpuc",
+
+Int_t biniterations( const TString& metAlgName = "mettopoclpuc" , const TString& setAlgName = "settopoclpuc",
  const TString& muonFilePath = "../PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root" )
 {
 
-
+    gROOT->ProcessLine("gROOT->SetBatch(kTRUE)");
+    
 	TFile *muonFile = TFile::Open( muonFilePath ,"READ" );
 	TTree* myMuonTree = NULL;
     muonFile->GetObject("tree",myMuonTree); //explicitly get the ttree called "tree" in the file, and store its address in myMuonTree
@@ -28,7 +38,7 @@ int biniterations( const TString& metAlgName = "mettopoclpuc" , const TString& s
 	//Initialize scatter plot of alg met vs. sqrt alg set
 
 	//**NOTE: CHANGE RANGE FOR SIGNAL EVENTS***
-	TH1F *algSetHist = new TH1F("algSetHist", Form("sqrt of %s",setAlgName), 100, 0., 100.);
+	TH1F *algSetHist = new TH1F("algSetHist", setAlgName , 100, 0., 100.);
 
 	Long64_t muonNentries = myMuonTree->GetEntries();
 	for (Int_t i = 0; i < muonNentries; i++)
@@ -42,8 +52,8 @@ int biniterations( const TString& metAlgName = "mettopoclpuc" , const TString& s
 	}
 
 	//If the bin content is nonzero, save the number of that bin in the binnum array
-	int nHists = 0;
- 	vector<int> binArray(100);
+	Int_t nHists = 0;
+ 	vector<Int_t> binArray(100);
 	for (Int_t j = 0; j < 100; j++)
 	{
 		numEntries = algSetHist->GetBinContent(j);
@@ -73,11 +83,12 @@ int biniterations( const TString& metAlgName = "mettopoclpuc" , const TString& s
 
 	// Parse through the tree again, and fill each MET histogram only with events in their respective sqrt(set) bins
 
-	for (int i = 0; i < muonNentries; i++)
+	for (Int_t i = 0; i < muonNentries; i++)
 	{
 		myMuonTree->GetEntry(i);
-		for (int p = 1; p < sizeof(binArray) ; p++)
+		for (Int_t p = 1; p < sizeof(binArray) ; p++)
 		{
+            //don't use passrndm on muon events. must use the random muon triggers!
 			if ((passrndm > 0.5) && (binArray[p] < sqrt(setalg)) && (sqrt(setalg) < binArray[p] + 1))
 			{
 				histArray[p]->Fill(metalg);
@@ -85,7 +96,7 @@ int biniterations( const TString& metAlgName = "mettopoclpuc" , const TString& s
 		}
 	}
 
-	for (int n = 1; n < nHists; n++)
+	for (Int_t n = 1; n < nHists; n++)
 	{
 		//histArray[n]->SetTitle(metalg "for bin %d of sq rt SET");
 		histArray[n]->GetYaxis()->SetTitle("Number of Events");
@@ -100,17 +111,17 @@ int biniterations( const TString& metAlgName = "mettopoclpuc" , const TString& s
 	func->SetParLimits(1, 0.1, 10000000.);
 
 	// Plot events vs. MET/SIGMA
-	double sigmaarray[100];
-	TCanvas *mycanv[100];
-	char *canvname = new char[100];
-	for (int m = 1; m < nHists; m++)
+	Double_t sigmaarray[100];
+	TCanvas *canvasArray[100];
+	TString canvname;
+	for (Int_t m = 1; m < nHists; m++)
 	{
 		canvname = Form("canv%d",m);
-		mycanv[m] = new TCanvas(canvname, "");
-		mycanv[m]->SetLogy();
+		canvasArray[m] = new TCanvas(canvname, "");
+		canvasArray[m]->SetLogy();
 		histArray[m]->Fit("func", "L");
 		sigmaarray[m] = func->GetParameter(1);
-		mycanv[m]->Print(Form("./Pictures/%s.png", histArray[m]->GetName()));
+		canvasArray[m]->Print(Form("./Pictures/%s.png", histArray[m]->GetName()));
 	}
 
 	ofstream sigmafile;
