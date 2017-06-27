@@ -50,44 +50,49 @@ Int_t tailcalculator()
 	nfit->SetParName(1, "intercept");
 	nfit->SetParName(2, "shift");
 
-	TFile *File1 = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
-	TTree* tree = (TTree*)File1->Get("tree");
+	TFile *File1 = TFile::Open("../myData/ZeroBias2016R307195R311481Runs56.root");
+	TTree* zbTree = (TTree*)File1->Get("tree");
 	//Produce fitting graphs 2015
 	//TH2F *L1zb = new TH2F ("L1zb","", 60, 0., 60.,100,0.,100.);
-		//tree->Draw("metl1:sqrt(setl1)>>L1zb","passrndm>0.5&&metl1>30.");
+		//zbTree->Draw("metl1:sqrt(setl1)>>L1zb","passrndm>0.5&&metl1>30.");
 	TH2F *CELLzb = new TH2F ("CELLzb","", 50, 0., 50.,100,0.,100.);
-		tree->Draw("metcell:sqrt(setcell)>>CELLzb", PlotCut);
+		zbTree->Draw("metcell:sqrt(setcell)>>CELLzb", PlotCut);
 	TH2F *MHTzb = new TH2F("MHTzb", "", 50, 0., 50., 100, 0., 100.);
-		tree->Draw("metmht:sqrt(setmht)>>MHTzb", "passrndm>0.1&&metmht>0.1");
+		zbTree->Draw("metmht:sqrt(setmht)>>MHTzb", "passrndm>0.1&&metmht>0.1");
 	TH2F *TOPOCLzb = new TH2F ("TOPOCLzb","", 70, 0., 70.,100,0.,100.);
-		tree->Draw("mettopocl:sqrt(settopocl)>>TOPOCLzb",PlotCut);
+		zbTree->Draw("mettopocl:sqrt(settopocl)>>TOPOCLzb",PlotCut);
 	TH2F *TopoclEMzb = new TH2F("TopoclEMzb", "", 100, 0., 100., 100, 0., 100.);
-		tree->Draw("mettopoclem:sqrt(settopoclem)>>TopoclEMzb", PlotCut);
+		zbTree->Draw("mettopoclem:sqrt(settopoclem)>>TopoclEMzb", PlotCut);
 	TH2F *TOPOCLPSzb = new TH2F ("TOPOCLPSzb","", 70, 0., 70.,100,0.,100.);
-		tree->Draw("mettopoclps:sqrt(settopoclps)>>TOPOCLPSzb", PlotCut);
+		zbTree->Draw("mettopoclps:sqrt(settopoclps)>>TOPOCLPSzb", PlotCut);
 	TH2F *TOPOCLPUCzb = new TH2F ("TOPOCLPUCzb","", 70, 0., 70.,100,0.,100.);
-		tree->Draw("mettopoclpuc:sqrt(settopoclpuc)>>TOPOCLPUCzb", "passrndm>0.1&&mettopoclpuc>0.1");
+		zbTree->Draw("mettopoclpuc:sqrt(settopoclpuc)>>TOPOCLPUCzb", "passrndm>0.1&&mettopoclpuc>0.1");
 	//TH2F *OFFRECAL15 = new TH2F ("OFFRECAL15","", 50, 0., 50.,100,0.,100.);
-		//tree->Draw("metoffrecal:sqrt(setoffrecal)>>OFFRECAL15",PlotCut);
+		//zbTree->Draw("metoffrecal:sqrt(setoffrecal)>>OFFRECAL15",PlotCut);
 
-	TFile *File2 = TFile::Open("../PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root");
+
+//TODO: YOU OPEN THE MUON FILE HERE AND DOWN BELOW; DELETE THE ONE BELOW AND RENAME THE IDENTIFIER TO MUON FILE AND MUON TREE
+
+	TFile *muonFile = TFile::Open("../myData/PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root");
+	//EXPLICTLY SELECT THE TTREE CALLED "tree" FROM MUONFILE; STORE IT IN "muonTree"
+	TTree* muonTree = muonFile->Get("tree");
 	//Fitting graphs 2016
 	TH2F *L1muon = new TH2F ("L1muon","", 60, 0., 60.,1000,0.,1000.);
-		tree->Draw("metl1:sqrt(setl1)>>L1muon",PlotCutmuons);
+		muonTree->Draw("metl1:sqrt(setl1)>>L1muon",PlotCutmuons);
 	TH2F *CELLmuon = new TH2F ("CELLmuon","",60,0.,60.,1000,0.,1000.);
-		tree->Draw("metcell:sqrt(setcell)>>CELLmuon",PlotCutmuons);
+		muonTree->Draw("metcell:sqrt(setcell)>>CELLmuon",PlotCutmuons);
 	TH2F *MHTmuon = new TH2F("MHTmuon", "", 60, 0., 60., 1000, 0., 1000.);
-		tree->Draw("metmht:sqrt(setmht)>>MHTmuon", PlotCutmuons);
+		muonTree->Draw("metmht:sqrt(setmht)>>MHTmuon", PlotCutmuons);
 	TH2F *TOPOCLmuon = new TH2F ("TOPOCLmuon","",60,0.,60.,1000,0.,1000.);
-		tree->Draw("mettopocl:sqrt(settopocl)>>TOPOCLmuon",PlotCutmuons);
+		muonTree->Draw("mettopocl:sqrt(settopocl)>>TOPOCLmuon",PlotCutmuons);
 	TH2F *TopoclEMmuon = new TH2F("TopoclEMmuon", "", 100, 0., 100., 1000, 0., 1000.);
-		tree->Draw("mettopoclem:sqrt(settopoclem)>>TopoclEMmuon", PlotCutmuons);
+		muonTree->Draw("mettopoclem:sqrt(settopoclem)>>TopoclEMmuon", PlotCutmuons);
 	TH2F *TOPOCLPSmuon = new TH2F ("TOPOCLPSmuon","", 60, 0., 60., 1000, 0., 1000.);
-		tree->Draw("mettopoclps:sqrt(settopoclps)>>TOPOCLPSmuon", PlotCutmuons);
+		muonTree->Draw("mettopoclps:sqrt(settopoclps)>>TOPOCLPSmuon", PlotCutmuons);
 	TH2F *TOPOCLPUCmuon = new TH2F ("TOPOCLPUCmuon","", 60, 0., 60., 1000, 0., 1000.);
-		tree->Draw("mettopoclpuc:sqrt(settopoclpuc)>>TOPOCLPUCmuon", PlotCutmuons);
+		muonTree->Draw("mettopoclpuc:sqrt(settopoclpuc)>>TOPOCLPUCmuon", PlotCutmuons);
 	//TH2F *OFFRECAL16 = new TH2F ("OFFRECAL16","", 50, 0., 50.,100,0.,100.);
-		//tree->Draw("metoffrecal:sqrt(setoffrecal)>>OFFRECAL16",PlotCut);
+		//muonTree->Draw("metoffrecal:sqrt(setoffrecal)>>OFFRECAL16",PlotCut);
 
 		//Fit Parameters
 		Double_t shift_ZeroBias[6];
@@ -417,10 +422,6 @@ Int_t tailcalculator()
 	    zerobiasfile->GetObject("tree",zeroBiasTree);
 		TString zerobiasGraphTitle = "2016 ZeroBias (Runs56) NO L1 CUT";
 */
-		TFile *muonFile = TFile::Open("../PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root");
-		TTree* muonTree = NULL;
-		//EXPLICTLY SELECT THE TTREE CALLED "tree" FROM MUONFILE; STORE IT IN "muonTree"
-		muonFile->GetObject("tree",muonTree);
 		TString muonGraphTitle = "2016 Muons (L1XE45...Runs9B) L1 > 40GeV";
 
 		muonTree->SetBranchAddress("passmu26med", &passmu26Flag);
