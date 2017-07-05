@@ -411,6 +411,7 @@
 		tree->SetBranchAddress("metl1", &l1met);
 
 		// create graphs which I will later populate with TailMET vs. MET of different algorithm pairs
+		// correlationgraphs will be populated with the FULL dataset
 		TH2F *correlationgraph[30];
 		char *histname = new char[30];
 		int bins = 900;
@@ -422,11 +423,29 @@
 			correlationgraph[i] = new TH2F(histname, "", bins, min, max, bins, min, max);
 		}
 
+		// create oddcorrelationgraphs to be populated with the odd-numbered entries in the dataset
+		TH2F *oddcorrelationgraph[30];
+		for (int i = 0; i < 30; i++)
+		{
+			sprintf(histname, "oddhisto%d", i+1);
+			oddcorrelationgraph[i] = new TH2F(histname, "", bins, min, max, bins, min, max);
+		}
+
+		// create evencorrelationgraphs to be populated with the even-numbered entries in the dataset
+		TH2F *evencorrelationgraph[30];
+		for (int i = 0; i < 30; i++)
+		{
+			sprintf(histname, "evenhisto%d", i+1);
+			evencorrelationgraph[i] = new TH2F(histname, "", bins, min, max, bins, min, max);
+		}
+
+	int n = 0; // this variable will determine whether an event is even-numbered or odd-numbered
 	Long64_t nentries = tree->GetEntries();
 	for (int i = 0; i < nentries; i++)
 	{
-		tree->GetEntry(i);
+		n = ( 1 - n ); // this logic changes n to be either 0 or 1
 
+		tree->GetEntry(i);
 		if (firsttrigger > 0.5 || secondtrigger > 0.5 && l1met > l1cut) // throw out events which don't pass either muon trigger
 		{
 			Double_t sigma[6];
@@ -437,30 +456,26 @@
 			// the following loop populates the sigma and metdist arrays
 			for (int j = 0; j < 6; j++)
 			{
-				if (sqrt(set[j]) < 4.0) // throw out events whose SET values are too low
+				if (sqrt(set[j]) > 4.0) // only calculate sigma and metdist if sqrt(set) > 4
 				{
-					continue;
+					// commented-out regions allow for nonlinear calculations
+					//if (j < 5)
+					//{
+						// compute sigma and metdist for l1, cell, mht, topocl, and topoclps
+						sigma[j] = slope_ZeroBias[j]*sqrt(set[j]) + intercept_ZeroBias[j];
+						metdist[j] = abs( met[j] - (sigma[j]*sqrt(TMath::PiOver2())));
+					//}
+					//else
+					//{
+						// compute sigma and metdist for topoclpuc whose fit is nonlinear
+						//sigma[j] = slope_ZeroBias[j]*(sqrt(set[j]) + shift_ZeroBias[j])*(sqrt(set[j]) + shift_ZeroBias[j]) + intercept_ZeroBias[j];
+						//metdist[j] = abs( met[j] - (sigma[j]*sqrt(1.57079633)) ); // 1.5707963 = pi/2
+					//}
 				}
-
-				// commented-out regions allow for nonlinear calculations
-				//if (j < 5)
-				//{
-					// compute sigma and metdist for l1, cell, mht, topocl, and topoclps
-					sigma[j] = slope_ZeroBias[j]*sqrt(set[j]) + intercept_ZeroBias[j];
-					metdist[j] = abs( met[j] - (sigma[j]*sqrt(TMath::PiOver2())));
-				//}
-				//else
-				//{
-					// compute sigma and metdist for topoclpuc whose fit is nonlinear
-					//sigma[j] = slope_ZeroBias[j]*(sqrt(set[j]) + shift_ZeroBias[j])*(sqrt(set[j]) + shift_ZeroBias[j]) + intercept_ZeroBias[j];
-					//metdist[j] = abs( met[j] - (sigma[j]*sqrt(1.57079633)) ); // 1.5707963 = pi/2
-				//}
-
 			}
 
 			// the following logic populates correlationgraphs with (x = met, y = tailmet) touples only...
 			// if they exist for a given event in the tree
-
 			int h = 0; // this variable counts each TH2F correlationgraph
 			for (int l = 0; l < 5; l++)
 			{
@@ -474,6 +489,14 @@
 						{
 							y[m] = met[m]; // save to y = tailmet
 							correlationgraph[h]->Fill(x[l], y[m]); // and populate the appropraite correlationgraph
+							if (n == 0)
+							{
+								oddcorrelationgraph[h]->Fill(x[l], y[m]); // populate with odd-numbered entry
+							}
+							if (n == 1)
+							{
+								evencorrelationgraph[h]->Fill(x[l], y[m]); // populate with even-numbered entry
+							}
 							h++;
 						}
 						else
@@ -490,11 +513,18 @@
 					{
 							x[m] = met[m]; // save to x = met
 							correlationgraph[h]->Fill(x[l], y[m]); // and populate the appropraite correlationgraph
+							if (n == 0)
+							{
+								oddcorrelationgraph[h]->Fill(x[l], y[m]); // populate with odd-numbered entry
+							}
+							if (n == 1)
+							{
+								evencorrelationgraph[h]->Fill(x[l], y[m]); // populate with even-numbered entry
+							}
 							h++;
 					}
 				}
 			}
-
 			int h = 15; // this variable counts each correlationgraph
 			for (int l = 0; l < 5; l++)
 			{
@@ -506,6 +536,14 @@
 					{
 						x[m] = met[m]; // save to x = met
 						correlationgraph[h]->Fill(y[l], x[m]); // and populate the appropraite correlationgraph
+						if (n == 0)
+						{
+							oddcorrelationgraph[h]->Fill(x[l], y[m]); // populate with odd-numbered entry
+						}
+						if (n == 1)
+						{
+							evencorrelationgraph[h]->Fill(x[l], y[m]); // populate with even-numbered entry
+						}
 						h++;
 					}
 				}
@@ -519,6 +557,14 @@
 						{
 							y[m] = met[m]; // save to y = tailmet
 							correlationgraph[h]->Fill(y[l], x[m]);
+							if (n == 0)
+							{
+								oddcorrelationgraph[h]->Fill(x[l], y[m]); // populate with odd-numbered entry
+							}
+							if (n == 1)
+							{
+								evencorrelationgraph[h]->Fill(x[l], y[m]); // populate with even-numbered entry
+							}
 							h++;
 						}
 						else
@@ -528,25 +574,24 @@
 					}
 				}
 			}
-		}
+	  }
 	}
+
+//===========================================================================================================================================//
 
 		TString xaxisNames[6] = {"Cell MET [GeV]", "MHT MET [GeV]", "Topocl MET [GeV]", "TopoclPS MET [GeV]", "TopoclPUC MET [GeV]", "TopoclEM MET [GeV]"};
 		TString yaxisNames[6] = {"Cell Tail MET [GeV]", "MHT Tail MET [GeV]", "Topocl Tail MET [GeV]", "TopoclPS Tail MET [GeV]", "TopoclPUC Tail MET [GeV]", "TopoclEM Tail MET [GeV]"};
 
 		ofstream correlationcoefficients; // prepare log file of correlation coefficients
 		correlationcoefficients.open("correlationvalues.txt"); // open log file
-		correlationcoefficients << "Graph" << "\t" << "Correlation" << " " << "±" << " " << "90\% Confidence Range" << " " << "\t" << "FILE:" << "\t" << graphtitle << "\n"; // write title of table
+		correlationcoefficients << "Graph" << "\t" << "Correlation" << " " << "±" << " " << "Approx. Uncertainty" << " " << "\t" << "FILE:" << "\t" << graphtitle << "\n"; // write title of table
 
 		TCanvas *mycanv[30];
 		char *canvname = new char[30];
 		Double_t r[30]; // correlation coefficients
-		Double_t z[30]; // Fisher-transformed correlation variables
-		Double_t zsigma[30]; // Fisher standard errors
-		Double_t zlowerlimit[30]; // lower limit of Fisher variable
-		Double_t zupperlimit[30]; // upper limit of Fisher variables
-		Double_t c[30]; // confidence interval of original correlation coefficients
-		int entries[30]; // records number of entries in each correlationgraph
+		Double_t oddvalue[30]; // correlation values from oddcorrelationgraphs
+		Double_t evenvalue[30]; // correlation values from evencorrelationgraphs
+		Double_t c[30]; // final confidence interval of original correlation coefficients (r values)
 		int k = 0; // this variable counts correlationgraphs
 		for (int q = 0; q < 5; q++)
 		{
@@ -558,14 +603,11 @@
 				correlationgraph[k]->GetYaxis()->SetTitle(yaxisNames[q]);
 				correlationgraph[k]->GetXaxis()->SetTitle(xaxisNames[l]);
 				correlationgraph[k]->SetTitle(graphtitle);
-				entries[k] = correlationgraph[k]->GetEntries();
 				mycanv[k]->SetLogz();
 				r[k] = correlationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factor of each graph
-				z[k] = TMath::ATanH(r[k]); // Fisher-transformation of correlation factor
-				zsigma[k] = 1/(sqrt(entries[k] - 3)); // sigma of gaussian-distributed Fisher variables
-				zlowerlimit[k] = z[k] - 1.645*zsigma[k]/sqrt(entries[k]); // lower limit of Fisher variable (CALCULATED WITH 90% CONFIDENCE)
-				zupperlimit[k] = z[k] + 1.645*zsigma[k]/sqrt(entries[k]); // upper limit of Fisher variable (CALCULATED WITH 90% CONFIDENCE)
-				c[k] = ( exp(2*zlowerlimit[k]) - 1 ) / ( exp(2*zupperlimit[k]) + 1 ); // back-transformation of confidence interval
+				oddvalue[k] = oddcorrelationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factor of odd graphs
+				evenvalue[k] = evencorrelationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factor of even graphs
+				c[k] = 0.5*(oddvalue[k] - evenvalue[k]);
 				mycanv[k]->Print(Form("%d.png", k+1));
 				correlationcoefficients << k+1 << "\t" << r[k] << " " << "±" << " " << c[k]	<< ',' << "\t" << yaxisNames[q] << " " << "vs." << " " << xaxisNames[l] << "\n";
 				k++;
@@ -582,14 +624,11 @@
 				correlationgraph[k]->GetYaxis()->SetTitle(xaxisNames[u]);
 				correlationgraph[k]->GetXaxis()->SetTitle(yaxisNames[t]);
 				correlationgraph[k]->SetTitle(graphtitle);
-				entries[k] = correlationgraph[k]->GetEntries();
 				mycanv[k]->SetLogz();
 				r[k] = correlationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factor of each graph
-				z[k] = TMath::ATanH(r[k]); // Fisher-transformation of correlation factor
-				zsigma[k] = 1/(sqrt(entries[k] - 3)); // sigma of gaussian-distributed Fisher variables
-				zlowerlimit[k] = z[k] - 1.645*zsigma[k]/sqrt(entries[k]); // lower limit of Fisher variable (CALCULATED WITH 90% CONFIDENCE)
-				zupperlimit[k] = z[k] + 1.645*zsigma[k]/sqrt(entries[k]); // upper limit of Fisher variable (CALCULATED WITH 90% CONFIDENCE)
-				c[k] = ( exp(2*zlowerlimit[k]) - 1 ) / ( exp(2*zupperlimit[k]) + 1 ); // back-transformation of confidence interval
+				oddvalue[k] = oddcorrelationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factor of odd graphs
+				evenvalue[k] = evencorrelationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factor of even graphs
+				c[k] = 0.5*(oddvalue[k] - evenvalue[k]);
 				mycanv[k]->Print(Form("%d.png", k+1));
 				correlationcoefficients << k+1 << "\t" << r[k] << " " << "±" << " " << c[k]	<< ',' << "\t" << xaxisNames[u] << " " << "vs." << " " << yaxisNames[t] << "\n";
 				k++;
