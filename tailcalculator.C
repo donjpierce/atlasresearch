@@ -20,6 +20,7 @@
 Int_t tailcalculator()
 {
 	gROOT->ProcessLine("gROOT->SetBatch(kTRUE)"); // suppresses the drawing of graphs
+	gROOT->ProcessLine("gROOT->Time();");
 	TString PlotCut("passrndm>0.5"); // for 2015
 	TString PlotCutmuons("passmu26med>0.5&&metl1>50."); // for 2016 muons
 
@@ -71,11 +72,9 @@ Int_t tailcalculator()
 		//zbTree->Draw("metoffrecal:sqrt(setoffrecal)>>OFFRECAL15",PlotCut);
 
 
-//TODO: YOU OPEN THE MUON FILE HERE AND DOWN BELOW; DELETE THE ONE BELOW AND RENAME THE IDENTIFIER TO MUON FILE AND MUON TREE
-
 	TFile *muonFile = TFile::Open("../myData/PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root");
 	//EXPLICTLY SELECT THE TTREE CALLED "tree" FROM MUONFILE; STORE IT IN "muonTree"
-	TTree* muonTree = muonFile->Get("tree");
+	TTree* muonTree = (TTree*)muonFile->Get("tree");
 	//Fitting graphs 2016
 	TH2F *L1muon = new TH2F ("L1muon","", 60, 0., 60.,1000,0.,1000.);
 		muonTree->Draw("metl1:sqrt(setl1)>>L1muon",PlotCutmuons);
@@ -432,15 +431,10 @@ Int_t tailcalculator()
 		TString setalgName[6] = {"setcell", "setmht", "settopocl", "settopoclps", "settopoclpuc", "settopoclem"};
 
 		// create arrays for MET and SET branches
-		Float_t met[6];
+		Float_t met[6]; Float_t set[6];
 		for (Int_t i = 0; i < 6; i++)
 		{
 			muonTree->SetBranchAddress(metalgName[i], &met[i]);
-		}
-
-		Float_t set[6];
-		for (Int_t i = 0; i < 6; i++)
-		{
 			muonTree->SetBranchAddress(setalgName[i], &set[i]);
 		}
 
@@ -473,10 +467,9 @@ Int_t tailcalculator()
 			// the following loop populates the sigma and metdist arrays
 			for (Int_t j = 0; j < 6; j++)
 			{
-				if (sqrt(set[j]) < 4.0) // throw out events whose SET values are too low
+				if (sqrt(set[j]) >= 4.0) // throw out events whose SET values are too low
 				{
-					continue;
-				}
+
 
 				// commented-out regions allow for nonlinear calculations
 				//if (j < 5)
@@ -491,10 +484,11 @@ Int_t tailcalculator()
 					//sigma[j] = slope_ZeroBias[j]*(sqrt(set[j]) + shift_ZeroBias[j])*(sqrt(set[j]) + shift_ZeroBias[j]) + intercept_ZeroBias[j];
 					//metdist[j] = abs( met[j] - (sigma[j]*sqrt(1.57079633)) ); // 1.5707963 = pi/2
 				//}
+				}
 
 			}
 
-			// the following logic populates correlationgraphs with (x = met, y = tailmet) touples only...
+			// the following logic populates correlationgraphs with (x = met, y = tailmet) tuples only...
 			// if they exist for a given event in the tree
 			Int_t h = 0; // this variable counts each TH2F correlationgraph
 			for (Int_t l = 0; l < 5; l++)
@@ -502,25 +496,19 @@ Int_t tailcalculator()
 				if (metdist[l] < 3*sigma[l]) // if the event is in the bulk
 				{
 					x[l] = met[l]; // save to x = met
-
 					for (Int_t m = l+1; m < 6; m++)
 					{
 						if (metdist[m] > 3*sigma[m]) // if the event is in the tail of alg[m] (does not equal alg[l])
 						{
 							y[m] = met[m]; // save to y = tailmet
 							correlationgraph[h]->Fill(x[l], y[m]); // and populate the appropraite correlationgraph
-							h++;
 						}
-						else
-						{
-							h++;
-						}
+						h++;
 					}
 				}
 				else
 				{
 					y[l] = met[l]; // save to y = tailmet
-
 					for (Int_t m = l+1; m < 6; m++) // for each remaining alg
 					{
 							x[m] = met[m]; // save to x = met
@@ -554,24 +542,23 @@ Int_t tailcalculator()
 						{
 							y[m] = met[m]; // save to y = tailmet
 							correlationgraph[h]->Fill(y[l], x[m]);
-							h++;
 						}
-						else
-						{
-							h++;
-						}
+						h++;
 					}
 				}
 			}
 		}
 	}
 
-		TString xaxisNames[6] = {"Cell MET [GeV]", "MHT MET [GeV]", "Topocl MET [GeV]", "TopoclPS MET [GeV]", "TopoclPUC MET [GeV]", "TopoclEM MET [GeV]"};
-		TString yaxisNames[6] = {"Cell Tail MET [GeV]", "MHT Tail MET [GeV]", "Topocl Tail MET [GeV]", "TopoclPS Tail MET [GeV]", "TopoclPUC Tail MET [GeV]", "TopoclEM Tail MET [GeV]"};
+		TString xaxisNames[6] = {"Cell MET [GeV]", "MHT MET [GeV]", "Topocl MET [GeV]",
+		 "TopoclPS MET [GeV]", "TopoclPUC MET [GeV]", "TopoclEM MET [GeV]"};
+		TString yaxisNames[6] = {"Cell Tail MET [GeV]", "MHT Tail MET [GeV]", "Topocl Tail MET [GeV]",
+		"TopoclPS Tail MET [GeV]", "TopoclPUC Tail MET [GeV]", "TopoclEM Tail MET [GeV]"};
 
 		ofstream correlationcoefficients; // prepare log file of correlation coefficients
 		correlationcoefficients.open("correlationvalues.txt"); // open log file
-		correlationcoefficients << "Graph" << "\t" << "Correlation" << " " << "±" << " " << "90\% Confidence Range" << " " << "\t" << "FILE:" << "\t" << muonGraphTitle << "\n"; // write title of table
+		correlationcoefficients << "Graph" << "\t" << "Correlation" << " " << "±" << " " << "90\% Confidence Range"
+		<< " " << "\t" << "FILE:" << "\t" << muonGraphTitle << "\n"; // write title of table
 
 		TCanvas *mycanv[30];
 		char *canvname = new char[30];
@@ -583,6 +570,7 @@ Int_t tailcalculator()
 		Double_t c[30]; // confidence interval of original correlation coefficients
 		Int_t entries[30]; // records number of entries in each correlationgraph
 		Int_t k = 0; // this variable counts correlationgraphs
+		gROOT->ProcessLine(".> tailcalc.log");
 		for (Int_t q = 0; q < 5; q++)
 		{
 			for (Int_t l = q+1; l < 6; l++)
@@ -630,7 +618,7 @@ Int_t tailcalculator()
 				k++;
 			}
 		}
-
+		gROOT->ProcessLine(".>");
 		correlationcoefficients.close();
 
 		return 0;
