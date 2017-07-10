@@ -13,8 +13,8 @@
 #include "TF1.h"
 
 
-Int_t biniterations( const TString& metAlgName = "mettopoclpuc" , const TString& setAlgName = "settopoclpuc",
- const TString& muonFilePath = "../PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root" )
+Int_t biniterations( const TString& metAlgName = "metcell" , const TString& setAlgName = "setcell",
+ const TString& muonFilePath = "../ZeroBias2016R307195R311481Runs56.root" )
 {
 
     gROOT->ProcessLine("gROOT->SetBatch(kTRUE)");
