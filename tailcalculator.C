@@ -1,24 +1,26 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include "TF1.h"
-#include "TMath.h"
-#include "TH1.h"
-#include "TFile.h"
-#include "TTree.h"
-#include "TString.h"
-#include "TEfficiency.h"
-#include "TLegend.h"
-#include "TROOT.h"
-#include "TCanvas.h"
-#include "TSystem.h"
-#include "TH2F.h"
-#include "TPaveStats.h"
-#include "TStyle.h"
 
 
-Int_t tailcalculator()
+
+//Int_t tailcalculator()
 {
+	#include <iostream>
+	#include <fstream>
+	#include <vector>
+	#include "TF1.h"
+	#include "TMath.h"
+	#include "TH1.h"
+	#include "TFile.h"
+	#include "TTree.h"
+	#include "TString.h"
+	#include "TEfficiency.h"
+	#include "TLegend.h"
+	#include "TROOT.h"
+	#include "TCanvas.h"
+	#include "TSystem.h"
+	#include "TH2F.h"
+	#include "TPaveStats.h"
+	#include "TStyle.h"
+
 	gROOT->ProcessLine("gROOT->SetBatch(kTRUE)"); // suppresses the drawing of graphs
 	gROOT->ProcessLine("gROOT->Time();");
 	TString PlotCut("passrndm>0.5"); // for 2015
@@ -414,18 +416,22 @@ Int_t tailcalculator()
 
 		//___Calculate Tail Events Based on Resolutions___
 		Int_t passmu26Flag, passmuvarmedFlag;
+		Int_t passrandomFlag;
 		Float_t l1cut = 30.0; Float_t l1met;
 
-		//TFile *zerobiasfile = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
-		//TTree* zeroBiasTree = NULL;
-	    //zerobiasfile->GetObject("tree",zeroBiasTree);
-		//TString graphtitle = "2016 ZeroBias (Runs56) NO L1 CUT";
+		TFile *zerobiasfile = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
+		TTree* zeroBiasTree = NULL;
+	  	zerobiasfile->GetObject("tree",zeroBiasTree);
+		TString graphtitle = "2016 ZeroBias (Runs56) L1 > 30GeV";
 
-		TString graphtitle = "2016 Muons (L1XE45...Runs9B) L1 > 30GeV";
+		zeroBiasTree->SetBranchAddress("passrndm", &passrandomFlag);
+		zeroBiasTree->SetBranchAddress("metl1", &l1met);
 
-		muonTree->SetBranchAddress("passmu26med", &passmu26Flag);
-		muonTree->SetBranchAddress("passmu26varmed", & passmuvarmedFlag);
-		muonTree->SetBranchAddress("metl1", &l1met);
+		//TString graphtitle = "2016 Muons (L1XE45...Runs9B)" /*L1 > 30GeV"*/;
+
+		//muonTree->SetBranchAddress("passmu26med", &passmu26Flag);
+		//muonTree->SetBranchAddress("passmu26varmed", & passmuvarmedFlag);
+		//muonTree->SetBranchAddress("metl1", &l1met);
 
 		TString metalgName[6] = {"metcell", "metmht", "mettopocl", "mettopoclps", "mettopoclpuc", "mettopoclem"};
 		TString setalgName[6] = {"setcell", "setmht", "settopocl", "settopoclps", "settopoclpuc", "settopoclem"};
@@ -434,19 +440,17 @@ Int_t tailcalculator()
 		Float_t met[6]; Float_t set[6];
 		for (Int_t i = 0; i < 6; i++)
 		{
-			muonTree->SetBranchAddress(metalgName[i], &met[i]);
-			muonTree->SetBranchAddress(setalgName[i], &set[i]);
+			zeroBiasTree->SetBranchAddress(metalgName[i], &met[i]);
+			zeroBiasTree->SetBranchAddress(setalgName[i], &set[i]);
 		}
-
-
 
 		// create graphs which I will later populate with TailMET vs. MET of different algorithm pairs
 		// correlationgraphs will be populated with the FULL dataset
 		TH2F *correlationgraph[30];
 		char *histname = new char[30];
-		Int_t bins = 900;
+		Int_t bins = 300;
 		Double_t min = 0.;
-		Double_t max = 900.;
+		Double_t max = 300.;
 		for (Int_t i = 0; i < 30; i++)
 		{
 			sprintf(histname, "histo%d", i+1);
@@ -470,14 +474,13 @@ Int_t tailcalculator()
 		}
 
 	int n = 0; // this variable will determine whether an event is even-numbered or odd-numbered
-	Long64_t nentries = muonTree->GetEntries();
+	Long64_t nentries = zeroBiasTree->GetEntries();
 	for (Int_t i = 0; i < nentries; i++)
 	{
 		n = ( 1 - n ); // this logic changes n to be either 0 or 1
 
-		muonTree->GetEntry(i);
-		if (passmu26Flag > 0.5 || passmuvarmedFlag > 0.5 && l1met > l1cut) // throw out events which don't pass either muon trigger
-
+		zeroBiasTree->GetEntry(i);
+		if (/*passmu26Flag > 0.5 || passmuvarmedFlag > 0.5*/ passrandomFlag > 0.1 && l1met > l1cut)
 		{
 			Double_t sigma[6];
 			Double_t metdist[6]; // metdist will be the distance of the event's MET from the median
@@ -500,7 +503,7 @@ Int_t tailcalculator()
 				//}
 				//else
 				//{
-					// compute sigma and metdist for topoclpuc whose fit is nonlinear
+					// compute ssigma[0]igma and metdist for topoclpuc whose fit is nonlinear
 					//sigma[j] = slope_ZeroBias[j]*(sqrt(set[j]) + shift_ZeroBias[j])*(sqrt(set[j]) + shift_ZeroBias[j]) + intercept_ZeroBias[j];
 					//metdist[j] = abs( met[j] - (sigma[j]*sqrt(1.57079633)) ); // 1.5707963 = pi/2
 				//}
@@ -600,7 +603,7 @@ Int_t tailcalculator()
 	  	}
 		}
 	}
-//===========================================================================================================================================//
+//======================================================================================================================================//
 
 		TString xaxisNames[6] = {"Cell MET [GeV]", "MHT MET [GeV]", "Topocl MET [GeV]", "TopoclPS MET [GeV]", "TopoclPUC MET [GeV]", "TopoclEM MET [GeV]"};
 		TString yaxisNames[6] = {"Cell Tail MET [GeV]", "MHT Tail MET [GeV]", "Topocl Tail MET [GeV]", "TopoclPS Tail MET [GeV]", "TopoclPUC Tail MET [GeV]", "TopoclEM Tail MET [GeV]"};

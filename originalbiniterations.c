@@ -1,15 +1,15 @@
 {
 	#include <vector>
 
-	TFile *file = TFile::Open("ZeroBias2016R307195R311481Runs56.root");
+	TFile *file = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
 
 	Float_t setalg;
 	TBranch *b_setalg = new TBranch();
-	tree->SetBranchAddress("setcell", &setalg, &b_setalg);
+	tree->SetBranchAddress("settopoclpuc", &setalg, &b_setalg);
 
 	Float_t metalg;
 	TBranch *b_metalg = new TBranch();
-	tree->SetBranchAddress("metcell", &metalg, &b_metalg);
+	tree->SetBranchAddress("mettopoclpuc", &metalg, &b_metalg);
 
 	int tail = 1;
 
@@ -92,7 +92,7 @@
 
 	for (int i = 0; i < nentries; i++)
 	{
-		if ("passrndm" > 0.1)
+		if ("passrndm" > 0.1 && "mettopoclpuc" > 0.1)
 		{
 			tree->GetEntry(i);
 			for (int p = 1; p < nhist; p++)
@@ -109,7 +109,8 @@
 	{
 		//myhist[n]->SetTitle(metalg "for bin %d of sq rt SET");
 		myhist[n]->GetYaxis()->SetTitle("Number of Events");
-		myhist[n]->GetXaxis()->SetTitle("MET [GeV]");
+		myhist[n]->GetXaxis()->SetTitle("Cell MET [GeV]");
+		myhist[n]->SetTitle(Form("Algorithm MET in bin %i of #sqrt{SumEt}", n));
 	}
 
 	// Initialize the Rayleigh Distribution
@@ -130,7 +131,7 @@
 		mycanv[m]->SetLogy();
 		myhist[m]->Fit("func", "L");
 		sigmaarray[m] = func->GetParameter(1);
-		mycanv[m]->Print(Form("../Pictures/%s.png", myhist[m]->GetName()));
+		mycanv[m]->Print(Form("%s.png", myhist[m]->GetName()));
 	}
 
 	ofstream sigmafile;
