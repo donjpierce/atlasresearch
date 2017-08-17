@@ -5,17 +5,16 @@
 
 	Float_t setalg;
 	TBranch *b_setalg = new TBranch();
-	tree->SetBranchAddress("setcell", &setalg, &b_setalg);
+	tree->SetBranchAddress("setl1", &setalg, &b_setalg);
 
 	Float_t metalg;
 	TBranch *b_metalg = new TBranch();
-	tree->SetBranchAddress("metcell", &metalg, &b_metalg);
+	tree->SetBranchAddress("meyl1", &metalg, &b_metalg);
 
 	int tail = 1;
 
-	//==================================================================================================================================================//
+	//==============================================================================================================================//
 	//Initialize scatter plot of alg met vs. sqrt alg set
-	//***NOTE: CHANGE RANGE FOR SIGNAL EVENTS***
 	TH1F *algset = new TH1F("algset", "sqrt of Algorithm SET", 100, 0., 100.);
 
 	bool pass;
@@ -80,8 +79,8 @@
 	//where the length of the array is the number of non-zero elements in binnum
 	TH1F *myhist[nhist];
 	char *histname = new char[nhist];
-	int nhistbins = 900;
-	float xmin = 0., xmax = 900.;
+	int nhistbins = 300;
+	float xmin = -300., xmax = 300.;
 	for (int l = 1; l < nhist; l++)
 	{
 		sprintf(histname, "histo%d", l);
@@ -92,7 +91,7 @@
 
 	for (int i = 0; i < nentries; i++)
 	{
-		if ("passrndm" > 0.1 && "mettopoclpuc" > 0.1)
+		if ("passrndm" > 0.1)
 		{
 			tree->GetEntry(i);
 			for (int p = 1; p < nhist; p++)
@@ -107,10 +106,9 @@
 
 	for (int n = 1; n < nhist; n++)
 	{
-		//myhist[n]->SetTitle(metalg "for bin %d of sq rt SET");
+		myhist[n]->SetTitle(Form("Alg MET in bin %d sqrt SET", n));
 		myhist[n]->GetYaxis()->SetTitle("Number of Events");
-		myhist[n]->GetXaxis()->SetTitle("Cell MET [GeV]");
-		myhist[n]->SetTitle(Form("Cell MET in bin %i of #sqrt{SumEt}", n));
+		myhist[n]->GetXaxis()->SetTitle("MET [GeV]");
 	}
 
 	// Initialize the Rayleigh Distribution
@@ -129,8 +127,8 @@
 		sprintf(canvname, "canv%d", m);
 		mycanv[m] = new TCanvas(canvname, "");
 		mycanv[m]->SetLogy();
-		myhist[m]->Fit("func", "L");
-		sigmaarray[m] = func->GetParameter(1);
+		myhist[m]->Fit("gaus");
+		sigmaarray[m] = gaus->GetParameter(0);
 		mycanv[m]->Print(Form("%s.png", myhist[m]->GetName()));
 	}
 

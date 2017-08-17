@@ -1,6 +1,3 @@
-
-
-
 //Int_t tailcalculator()
 {
 	#include <iostream>
@@ -21,10 +18,8 @@
 	#include "TPaveStats.h"
 	#include "TStyle.h"
 
-	gROOT->ProcessLine("gROOT->SetBatch(kTRUE)"); // suppresses the drawing of graphs
+	//gROOT->ProcessLine("gROOT->SetBatch(kTRUE)"); // suppresses the drawing of graphs
 	gROOT->ProcessLine("gROOT->Time();");
-	TString PlotCut("passrndm>0.5"); // for 2015
-	TString PlotCutmuons("passmu26med>0.5&&metl1>50."); // for 2016 muons
 
 	// Define the Rayleigh Distribution
 	TF1 *func = new TF1("func", "[0]*(1/[1])*(x/[1])*exp(-.5*(x/[1])*(x/[1]))");
@@ -53,51 +48,100 @@
 	nfit->SetParName(1, "intercept");
 	nfit->SetParName(2, "shift");
 
-	TFile *File1 = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
-	TTree* zbTree = (TTree*)File1->Get("tree");
-	//Produce fitting graphs 2015
-	//TH2F *L1zb = new TH2F ("L1zb","", 60, 0., 60.,100,0.,100.);
-		//zbTree->Draw("metl1:sqrt(setl1)>>L1zb","passrndm>0.5&&metl1>30.");
-	TH2F *CELLzb = new TH2F ("CELLzb","", 50, 0., 50.,100,0.,100.);
-		zbTree->Draw("metcell:sqrt(setcell)>>CELLzb", PlotCut);
-	TH2F *MHTzb = new TH2F("MHTzb", "", 50, 0., 50., 100, 0., 100.);
-		zbTree->Draw("metmht:sqrt(setmht)>>MHTzb", "passrndm>0.1&&metmht>0.1");
-	TH2F *TOPOCLzb = new TH2F ("TOPOCLzb","", 70, 0., 70.,100,0.,100.);
-		zbTree->Draw("mettopocl:sqrt(settopocl)>>TOPOCLzb",PlotCut);
-	TH2F *TopoclEMzb = new TH2F("TopoclEMzb", "", 100, 0., 100., 100, 0., 100.);
-		zbTree->Draw("mettopoclem:sqrt(settopoclem)>>TopoclEMzb", PlotCut);
-	TH2F *TOPOCLPSzb = new TH2F ("TOPOCLPSzb","", 70, 0., 70.,100,0.,100.);
-		zbTree->Draw("mettopoclps:sqrt(settopoclps)>>TOPOCLPSzb", PlotCut);
-	TH2F *TOPOCLPUCzb = new TH2F ("TOPOCLPUCzb","", 70, 0., 70.,100,0.,100.);
-		zbTree->Draw("mettopoclpuc:sqrt(settopoclpuc)>>TOPOCLPUCzb", "passrndm>0.1&&mettopoclpuc>0.1");
-	//TH2F *OFFRECAL15 = new TH2F ("OFFRECAL15","", 50, 0., 50.,100,0.,100.);
-		//zbTree->Draw("metoffrecal:sqrt(setoffrecal)>>OFFRECAL15",PlotCut);
+	// Defining a sinusoidal Function
+	TF1 *sinfit = new TF1("sinfit", "[0]*sin([1]*(x + [2])) + [3]");
+	sinfit->SetParameters(0, 10.);
+	sinfit->SetParameters(1, 10.);
+	sinfit->SetParameters(2, 50.);
+	sinfit->SetParameters(3, 10.);
+	sinfit->SetParLimits(0, -200., 200.);
+	sinfit->SetParLimits(1, -100., 100.);
+	sinfit->SetParLimits(2, -100., 100.);
+	sinfit->SetParLimits(3, -100., 100.);
+	sinfit->SetParName(0, "amplitude");
+	sinfit->SetParName(1, "period");
+	sinfit->SetParName(2, "horizontal shift");
+	sinfit->SetParName(3, "vertical shift");
 
+
+	TFile *zbFile = TFile::Open("../PhysicsMain.All.noalgXEtriggers.2016.f731f758._m1659m1710.48Runs.root");
+	TTree *zbTree = (TTree*)zbFile->Get("tree");
+
+	Int_t passrandomFlag, l1gt10, l1gt30, l1gt40, l1gt45;
+	Float_t l1met;
+	zbTree->SetBranchAddress("passrndm", &passrandomFlag);
+	zbTree->SetBranchAddress("metl1", &l1met);
+	zbTree->SetBranchAddress("passnoalgL1XE10", &l1gt10);
+	zbTree->SetBranchAddress("passnoalgL1XE30", &l1gt30);
+	zbTree->SetBranchAddress("passnoalgL1XE40", &l1gt40);
+	zbTree->SetBranchAddress("passnoalgL1XE45", &l1gt45);
 
 	TFile *muonFile = TFile::Open("../PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root");
-	//EXPLICTLY SELECT THE TTREE CALLED "tree" FROM MUONFILE; STORE IT IN "muonTree"
 	TTree* muonTree = (TTree*)muonFile->Get("tree");
-	//Fitting graphs 2016
-	TH2F *L1muon = new TH2F ("L1muon","", 60, 0., 60.,1000,0.,1000.);
-		muonTree->Draw("metl1:sqrt(setl1)>>L1muon",PlotCutmuons);
-	TH2F *CELLmuon = new TH2F ("CELLmuon","",60,0.,60.,1000,0.,1000.);
-		muonTree->Draw("metcell:sqrt(setcell)>>CELLmuon",PlotCutmuons);
-	TH2F *MHTmuon = new TH2F("MHTmuon", "", 60, 0., 60., 1000, 0., 1000.);
-		muonTree->Draw("metmht:sqrt(setmht)>>MHTmuon", PlotCutmuons);
-	TH2F *TOPOCLmuon = new TH2F ("TOPOCLmuon","",60,0.,60.,1000,0.,1000.);
-		muonTree->Draw("mettopocl:sqrt(settopocl)>>TOPOCLmuon",PlotCutmuons);
+	Int_t passmu26Flag, passmuvarmedFlag;
+	muonTree->SetBranchAddress("passmu26med", &passmu26Flag);
+	muonTree->SetBranchAddress("passmu26varmed", & passmuvarmedFlag);
+	muonTree->SetBranchAddress("metl1", &l1met);
+
+	// choose which file you're creating correlation plots for
+
+	// ZERO BIAS CORRELATIOON RUN SELECT
+	TTree* runtree = (TTree*)zbFile->Get("tree");
+	TString graphtitle = "PhysicsMain ZeroBias (noalgXEtriggers) 48Runs L1 > 50GeV";
+	TString runcut("(passnoalgL1XE10 > 0.5 || passnoalgL1XE30 > 0.5 || passnoalgL1XE40 > 0.5 || passnoalgL1XE45 > 0.5) && metl1 > l1cut");
+
+	// MUON CORRELATION RUN SELECT
+	//TTree* runtree = (TTree*)muonFile->Get("tree");
+	//TString graphtitle = "2016 Muons (L1XE45...Runs9B) NO L1 CUT";
+	//TString runcut("passmu26med>0.5&&metl1>50.");
+
+	Float_t l1cut = 50.;
+	TString zbPlotCut("(passnoalgL1XE10 > 0.5 || passnoalgL1XE30 > 0.5 || passnoalgL1XE40 > 0.5 || passnoalgL1XE45 > 0.5) && metl1 > 50.");
+	TString muonsPlotCut("passmu26med>0.5&&metl1>50.");
+
+	//Produce fitting graphs for zerobias events
+	//TH2F *L1zb = new TH2F ("L1zb","", 60, 0., 60.,100,0.,100.);
+		//zbTree->Draw("metl1:sqrt(setl1)>>L1zb","passrndm>0.5&&metl1>30.");
+	TH2F *CELLzb = new TH2F ("CELLzb","", 100, 0., 100.,1000,0.,1000.);
+		zbTree->Draw("metcell:sqrt(setcell)>>CELLzb", zbPlotCut);
+	TH2F *MHTzb = new TH2F("MHTzb", "", 100, 0., 100., 1000, 0., 1000.);
+		zbTree->Draw("metmht:sqrt(setmht)>>MHTzb", zbPlotCut);
+	TH2F *TOPOCLzb = new TH2F ("TOPOCLzb","", 100, 0., 100.,1000,0.,1000.);
+		zbTree->Draw("mettopocl:sqrt(settopocl)>>TOPOCLzb", zbPlotCut);
+	TH2F *TopoclEMzb = new TH2F("TopoclEMzb", "", 100, 0., 100., 1000, 0., 1000.);
+		zbTree->Draw("mettopoclem:sqrt(settopoclem)>>TopoclEMzb", zbPlotCut);
+	TH2F *TOPOCLPSzb = new TH2F ("TOPOCLPSzb","", 100, 0., 100.,1000,0.,1000.);
+		zbTree->Draw("mettopoclps:sqrt(settopoclps)>>TOPOCLPSzb", zbPlotCut);
+	TH2F *TOPOCLPUCzb = new TH2F ("TOPOCLPUCzb","", 100, 0., 100.,1000,0.,1000.);
+		zbTree->Draw("mettopoclpuc:sqrt(settopoclpuc)>>TOPOCLPUCzb", zbPlotCut);
+
+	//Produce fitting graphs for muon events
+	TH2F *L1muon = new TH2F ("L1muon","", 100, 0., 100.,1000,0.,1000.);
+		muonTree->Draw("metl1:sqrt(setl1)>>L1muon",muonsPlotCut);
+	TH2F *CELLmuon = new TH2F ("CELLmuon","",100,0.,100.,1000,0.,1000.);
+		muonTree->Draw("metcell:sqrt(setcell)>>CELLmuon",muonsPlotCut);
+	TH2F *MHTmuon = new TH2F("MHTmuon", "", 100, 0., 100., 1000, 0., 1000.);
+		muonTree->Draw("metmht:sqrt(setmht)>>MHTmuon", muonsPlotCut);
+	TH2F *TOPOCLmuon = new TH2F ("TOPOCLmuon","",100,0.,100.,1000,0.,1000.);
+		muonTree->Draw("mettopocl:sqrt(settopocl)>>TOPOCLmuon",muonsPlotCut);
 	TH2F *TopoclEMmuon = new TH2F("TopoclEMmuon", "", 100, 0., 100., 1000, 0., 1000.);
-		muonTree->Draw("mettopoclem:sqrt(settopoclem)>>TopoclEMmuon", PlotCutmuons);
-	TH2F *TOPOCLPSmuon = new TH2F ("TOPOCLPSmuon","", 60, 0., 60., 1000, 0., 1000.);
-		muonTree->Draw("mettopoclps:sqrt(settopoclps)>>TOPOCLPSmuon", PlotCutmuons);
-	TH2F *TOPOCLPUCmuon = new TH2F ("TOPOCLPUCmuon","", 60, 0., 60., 1000, 0., 1000.);
-		muonTree->Draw("mettopoclpuc:sqrt(settopoclpuc)>>TOPOCLPUCmuon", PlotCutmuons);
-	//TH2F *OFFRECAL16 = new TH2F ("OFFRECAL16","", 50, 0., 50.,100,0.,100.);
-		//muonTree->Draw("metoffrecal:sqrt(setoffrecal)>>OFFRECAL16",PlotCut);
+		muonTree->Draw("mettopoclem:sqrt(settopoclem)>>TopoclEMmuon", muonsPlotCut);
+	TH2F *TOPOCLPSmuon = new TH2F ("TOPOCLPSmuon","", 100, 0., 100., 1000, 0., 1000.);
+		muonTree->Draw("mettopoclps:sqrt(settopoclps)>>TOPOCLPSmuon", muonsPlotCut);
+	TH2F *TOPOCLPUCmuon = new TH2F ("TOPOCLPUCmuon","", 100, 0., 100., 1000, 0., 1000.);
+		muonTree->Draw("mettopoclpuc:sqrt(settopoclpuc)>>TOPOCLPUCmuon", muonsPlotCut);
 
 		//Fit Parameters
-		Double_t shift_ZeroBias[6];
-		Double_t shift_Muon[6];
+		//sinusoidal perameters
+		Double_t amplitude_ZeroBias[6];
+		Double_t amplitude_Muon[6];
+		Double_t period_ZeroBias[6];
+		Double_t period_Muon[6];
+		Double_t hshift_ZeroBias[6];
+		Double_t hshift_ZeroBias[6];
+		Double_t vshift_ZeroBias[6];
+		Double_t vshift_Muon[6];
+		//linear parametrs
 		Double_t slope_ZeroBias[6];
 		Double_t slope_Muon[6];
 		Double_t intercept_ZeroBias[6];
@@ -155,9 +199,11 @@
 		CELLzb->FitSlicesY(func, 0, -1, 10, "L");
 		TH1D *CELLzb_1 = (TH1D*)gDirectory->Get("CELLzb_1");
 		CELLzb_1->Draw();
-		CELLzb_1->Fit("linfit");
-		slope_ZeroBias[0] = linfit->GetParameter(0);
-		intercept_ZeroBias[0] = linfit->GetParameter(1);
+		CELLzb_1->Fit(sinfit);
+		amplitude_ZeroBias[0] = sinfit->GetParameter(0);
+		period_ZeroBias[0] = sinfit->GetParameter(1);
+		hshift_ZeroBias[0] = sinfit->GetParameter(2);
+		vshift_ZeroBias[0] = sinfit->GetParameter(3);
 		CELLzb_1->SetTitle("Resolution of CELL in ZeroBias 2016 ");
 		CELLzb_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		CELLzb_1->GetYaxis()->SetTitle("#sigma of Fit for CELL [GeV]");
@@ -176,9 +222,11 @@
 		CELLmuon->FitSlicesY(func, 0, -1, 10, "L");
 		TH1D *CELLmuon_1 = (TH1D*)gDirectory->Get("CELLmuon_1");
 		CELLmuon_1->Draw();
-		CELLmuon_1->Fit("linfit");
-		slope_Muon[0] = linfit->GetParameter(0);
-		intercept_Muon[0] = linfit->GetParameter(1);
+		CELLmuon_1->Fit(sinfit);
+		amplitude_Muon[0] = sinfit->GetParameter(0);
+		period_Muon[0] = sinfit->GetParameter(1);
+		hshift_Muon[0] = sinfit->GetParameter(2);
+		vshift_Muon[0] = sinfit->GetParameter(3);
 		CELLmuon_1->SetTitle("Resolution of CELL in Muons (L1XE45..Runs9B) 2016 ");
 		CELLmuon_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		CELLmuon_1->GetYaxis()->SetTitle("#sigma of Fit for CELL [GeV]");
@@ -241,9 +289,11 @@
 		TOPOCLzb->FitSlicesY(func, 0, -1, 10, "L");
 		TH1D *TOPOCLzb_1 = (TH1D*)gDirectory->Get("TOPOCLzb_1");
 		TOPOCLzb_1->Draw();
-		TOPOCLzb_1->Fit("linfit");
-		slope_ZeroBias[2] = linfit->GetParameter(0);
-		intercept_ZeroBias[2] = linfit->GetParameter(1);
+		TOPOCLzb_1->Fit(sinfit);
+		amplitude_ZeroBias[2] = sinfit->GetParameter(0);
+		period_ZeroBias[2] = sinfit->GetParameter(1);
+		hshift_ZeroBias[2] = sinfit->GetParameter(2);
+		vshift_ZeroBias[2] = sinfit->GetParameter(3);
 		TOPOCLzb_1->SetTitle("Resolution of TOPOCL in ZeroBias 2016 ");
 		TOPOCLzb_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLzb_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCL [GeV]");
@@ -262,9 +312,11 @@
 		TOPOCLmuon->FitSlicesY(func, 0, -1, 10, "L");
 		TH1D *TOPOCLmuon_1 = (TH1D*)gDirectory->Get("TOPOCLmuon_1");
 		TOPOCLmuon_1->Draw();
-		TOPOCLmuon_1->Fit("linfit");
-		slope_Muon[2] = linfit->GetParameter(0);
-		intercept_Muon[2] = linfit->GetParameter(1);
+		TOPOCLmuon_1->Fit(sinfit);
+		amplitude_Muon[2] = sinfit->GetParameter(0);
+		period_Muon[2] = sinfit->GetParameter(1);
+		hshift_Muon[2] = sinfit->GetParameter(2);
+		vshift_Muon[2] = sinfit->GetParameter(3);
 		TOPOCLmuon_1->SetTitle("Resolution of TOPOCL in Muons (L1XE45..Runs9B) 2016 ");
 		TOPOCLmuon_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLmuon_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCL [GeV]");
@@ -285,9 +337,11 @@
 		TH1D *TOPOCLPSzb_1 = (TH1D*)gDirectory->Get("TOPOCLPSzb_1");
 		TOPOCLPSzb_1->GetYaxis()->SetRange(0, 50.);
 		TOPOCLPSzb_1->Draw();
-		TOPOCLPSzb_1->Fit("linfit");
-		slope_ZeroBias[3] = linfit->GetParameter(0);
-		intercept_ZeroBias[3] = linfit->GetParameter(1);
+		TOPOCLPSzb_1->Fit(sinfit);
+		amplitude_ZeroBias[3] = sinfit->GetParameter(0);
+		period_ZeroBias[3] = sinfit->GetParameter(1);
+		hshift_ZeroBias[3] = sinfit->GetParameter(2);
+		vshift_ZeroBias[3] = sinfit->GetParameter(3);
 		TOPOCLPSzb_1->SetTitle("Resolution of TOPOCLPS in ZeroBias 2016 ");
 		TOPOCLPSzb_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLPSzb_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCLPS [GeV]");
@@ -307,9 +361,11 @@
 		TH1D *TOPOCLPSmuon_1 = (TH1D*)gDirectory->Get("TOPOCLPSmuon_1");
 		TOPOCLPSmuon_1->GetYaxis()->SetRange(0, 50.);
 		TOPOCLPSmuon_1->Draw();
-		TOPOCLPSmuon_1->Fit("linfit");
-		slope_Muon[3] = linfit->GetParameter(0);
-		intercept_Muon[3] = linfit->GetParameter(1);
+		TOPOCLPSmuon_1->Fit(sinfit);
+		amplitude_Muon[3] = sinfit->GetParameter(0);
+		period_Muon[3] = sinfit->GetParameter(1);
+		hshift_Muon[3] = sinfit->GetParameter(2);
+		vshift_Muon[3] = sinfit->GetParameter(3);
 		TOPOCLPSmuon_1->SetTitle("Resolution of TOPOCLPS in Muons (L1XE45..Runs9B) 2016 ");
 		TOPOCLPSmuon_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLPSmuon_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCLPS [GeV]");
@@ -329,10 +385,11 @@
 		TOPOCLPUCzb->FitSlicesY(func, 0, -1, 10, "L");
 		TH1D *TOPOCLPUCzb_1 = (TH1D*)gDirectory->Get("TOPOCLPUCzb_1");
 		TOPOCLPUCzb_1->Draw("");
-		TOPOCLPUCzb_1->Fit("linfit");
-		slope_ZeroBias[4] = linfit->GetParameter(0);
-		intercept_ZeroBias[4] = linfit->GetParameter(1);
-		//shift_ZeroBias[5] = nfit->GetParameter(2);
+		TOPOCLPUCzb_1->Fit(sinfit);
+		amplitude_ZeroBias[4] = sinfit->GetParameter(0);
+		period_ZeroBias[4] = sinfit->GetParameter(1);
+		hshift_ZeroBias[4] = sinfit->GetParameter(2);
+		vshift_ZeroBias[4] = sinfit->GetParameter(3);
 		TOPOCLPUCzb_1->SetTitle("Resolution of TOPOCLPUC in ZeroBias 2016 ");
 		TOPOCLPUCzb_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLPUCzb_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCLPUC [GeV]");
@@ -351,9 +408,11 @@
 		TOPOCLPUCmuon->FitSlicesY(func, 0, -1, 10, "L");
 		TH1D *TOPOCLPUCmuon_1 = (TH1D*)gDirectory->Get("TOPOCLPUCmuon_1");
 		TOPOCLPUCmuon_1->Draw();
-		TOPOCLPUCmuon_1->Fit("linfit");
-		slope_Muon[4] = linfit->GetParameter(0);
-		intercept_Muon[4] = linfit->GetParameter(1);
+		TOPOCLPUCmuon_1->Fit(sinfit);
+		amplitude_Muon[4] = sinfit->GetParameter(0);
+		period_Muon[4] = sinfit->GetParameter(1);
+		hshift_Muon[4] = sinfit->GetParameter(2);
+		vshift_Muon[4] = sinfit->GetParameter(3);
 		TOPOCLPUCmuon_1->SetTitle("Resolution of TOPOCLPUC in Muons (L1XE45..Runs9B) 2016 ");
 		TOPOCLPUCmuon_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TOPOCLPUCmuon_1->GetYaxis()->SetTitle("#sigma of Fit for TOPOCLPUC [GeV]");
@@ -374,10 +433,11 @@
 		TopoclEMzb->FitSlicesY(func, 0, -1, 10, "L");
 		TH1D *TopoclEMzb_1 = (TH1D*)gDirectory->Get("TopoclEMzb_1");
 		TopoclEMzb_1->Draw();
-		TopoclEMzb_1->Fit("linfit");
-		slope_ZeroBias[5] = linfit->GetParameter(0);
-		intercept_ZeroBias[5] = linfit->GetParameter(1);
-		//shift_ZeroBias[0] = nfit->GetParameter(2);
+		TopoclEMzb_1->Fit(sinfit);
+		amplitude_ZeroBias[5] = sinfit->GetParameter(0);
+		period_ZeroBias[5] = sinfit->GetParameter(1);
+		hshift_ZeroBias[5] = sinfit->GetParameter(2);
+		vshift_ZeroBias[5] = sinfit->GetParameter(3);
 		TopoclEMzb_1->SetTitle("Resolution of TopoclEM in ZeroBias2016");
 		TopoclEMzb_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TopoclEMzb_1->GetYaxis()->SetTitle("#sigma of Fit for TopoclEM [GeV]");
@@ -396,10 +456,11 @@
 		TopoclEMmuon->FitSlicesY(func, 0, -1, 10, "L");
 		TH1D *TopoclEMmuon_1 = (TH1D*)gDirectory->Get("TopoclEMmuon_1");
 		TopoclEMmuon_1->Draw();
-		TopoclEMmuon_1->Fit("nfit");
-		slope_Muon[5] = nfit->GetParameter(0);
-		intercept_Muon[5] = nfit->GetParameter(1);
-		shift_Muon[5] = nfit->GetParameter(2);
+		TopoclEMmuon_1->Fit(sinfit);
+		amplitude_Muon[5] = sinfit->GetParameter(0);
+		period_Muon[5] = sinfit->GetParameter(1);
+		hshift_Muon[5] = sinfit->GetParameter(2);
+		vshift_Muon[5] = sinfit->GetParameter(3);
 		TopoclEMmuon_1->SetTitle("Resolution of TopoclEM in Muons2016 ");
 		TopoclEMmuon_1->GetXaxis()->SetTitle("#sqrt{SumEt} #left[#sqrt{GeV} #right]");
 		TopoclEMmuon_1->GetYaxis()->SetTitle("#sigma of Fit for TopoclEM [GeV]");
@@ -415,23 +476,6 @@
 
 
 		//___Calculate Tail Events Based on Resolutions___
-		Int_t passmu26Flag, passmuvarmedFlag;
-		Int_t passrandomFlag;
-		Float_t l1cut = 30.0; Float_t l1met;
-
-		TFile *zerobiasfile = TFile::Open("../ZeroBias2016R307195R311481Runs56.root");
-		TTree* zeroBiasTree = NULL;
-	  	zerobiasfile->GetObject("tree",zeroBiasTree);
-		TString graphtitle = "2016 ZeroBias (Runs56) L1 > 30GeV";
-
-		zeroBiasTree->SetBranchAddress("passrndm", &passrandomFlag);
-		zeroBiasTree->SetBranchAddress("metl1", &l1met);
-
-		//TString graphtitle = "2016 Muons (L1XE45...Runs9B)" /*L1 > 30GeV"*/;
-
-		//muonTree->SetBranchAddress("passmu26med", &passmu26Flag);
-		//muonTree->SetBranchAddress("passmu26varmed", & passmuvarmedFlag);
-		//muonTree->SetBranchAddress("metl1", &l1met);
 
 		TString metalgName[6] = {"metcell", "metmht", "mettopocl", "mettopoclps", "mettopoclpuc", "mettopoclem"};
 		TString setalgName[6] = {"setcell", "setmht", "settopocl", "settopoclps", "settopoclpuc", "settopoclem"};
@@ -440,17 +484,17 @@
 		Float_t met[6]; Float_t set[6];
 		for (Int_t i = 0; i < 6; i++)
 		{
-			zeroBiasTree->SetBranchAddress(metalgName[i], &met[i]);
-			zeroBiasTree->SetBranchAddress(setalgName[i], &set[i]);
+			zbTree->SetBranchAddress(metalgName[i], &met[i]);
+			zbTree->SetBranchAddress(setalgName[i], &set[i]);
 		}
 
 		// create graphs which I will later populate with TailMET vs. MET of different algorithm pairs
 		// correlationgraphs will be populated with the FULL dataset
 		TH2F *correlationgraph[30];
 		char *histname = new char[30];
-		Int_t bins = 300;
+		Int_t bins = 900;
 		Double_t min = 0.;
-		Double_t max = 300.;
+		Double_t max = 900.;
 		for (Int_t i = 0; i < 30; i++)
 		{
 			sprintf(histname, "histo%d", i+1);
@@ -474,13 +518,13 @@
 		}
 
 	int n = 0; // this variable will determine whether an event is even-numbered or odd-numbered
-	Long64_t nentries = zeroBiasTree->GetEntries();
+	Long64_t nentries = runtree->GetEntries();
 	for (Int_t i = 0; i < nentries; i++)
 	{
 		n = ( 1 - n ); // this logic changes n to be either 0 or 1
 
-		zeroBiasTree->GetEntry(i);
-		if (/*passmu26Flag > 0.5 || passmuvarmedFlag > 0.5*/ passrandomFlag > 0.1 && l1met > l1cut)
+		runtree->GetEntry(i);
+		if (runcut)
 		{
 			Double_t sigma[6];
 			Double_t metdist[6]; // metdist will be the distance of the event's MET from the median
@@ -493,20 +537,20 @@
 				if (sqrt(set[j]) >= 4.0) // throw out events whose SET values are too low
 				{
 
-
-				// commented-out regions allow for nonlinear calculations
-				//if (j < 5)
-				//{
-					// compute sigma and metdist for l1, cell, mht, topocl, and topoclps
+				// if statement allows for non-linear calculations
+				if (j == 1)
+				{
+					// compute sigma for linear fit
 					sigma[j] = slope_ZeroBias[j]*sqrt(set[j]) + intercept_ZeroBias[j];
-					metdist[j] = abs( met[j] - (sigma[j]*sqrt(TMath::PiOver2())));
-				//}
-				//else
-				//{
-					// compute ssigma[0]igma and metdist for topoclpuc whose fit is nonlinear
-					//sigma[j] = slope_ZeroBias[j]*(sqrt(set[j]) + shift_ZeroBias[j])*(sqrt(set[j]) + shift_ZeroBias[j]) + intercept_ZeroBias[j];
-					//metdist[j] = abs( met[j] - (sigma[j]*sqrt(1.57079633)) ); // 1.5707963 = pi/2
-				//}
+				}
+				else
+				{
+					// compute sigma for a sinusoidal fit
+					sigma[j] = amplitude_ZeroBias[j]*(TMath::Sin(period_ZeroBias[j]*(sqrt(set[j]) + hshift_ZeroBias[j]))) + vshift_ZeroBias[j]
+				}
+				//compute metdist for all algorithms
+				metdist[j] = abs( met[j] - (sigma[j]*sqrt(TMath::PiOver2())));
+
 				}
 			}
 
