@@ -44,7 +44,7 @@
 	nfit->SetParLimits(0, -50000., 50000.);
 	nfit->SetParLimits(1, -50000., 50000.);
 	nfit->SetParLimits(2, -100., 100.);
-	nfit->SetParName(0, "slope");
+	nfit->SetParName(0, "amplitude");
 	nfit->SetParName(1, "intercept");
 	nfit->SetParName(2, "shift");
 
@@ -54,40 +54,45 @@
 	Double_t slope_Muon[6];
 	Double_t intercept_ZeroBias[6];
 	Double_t intercept_Muon[6];
+	//second-order parametrs
+	Double_t slope_ZeroBias[6];
+	Double_t intercept_ZeroBias[6];
+	Double_t shift_ZeroBias[6];
 
-	TFile *zbFile = TFile::Open("../PhysicsMain.All.noalgXEtriggers.2016.f731f758._m1659m1710.48Runs.root");
+	TFile *zbFile = TFile::Open("../PhysicsMain.L1KFnoalgXEtriggers.2016.f731f758_m1659m1710.Run309759.48Runs-001.root");
 	TTree *zbTree = (TTree*)zbFile->Get("tree");
+	Int_t zbl1gt10, zbl1gt30, zbl1gt40, zbl1gt45;
+	Float_t zbl1, zbint;
+	zbTree->SetBranchAddress("passnoalgL1XE10", &zbl1gt10);
+	zbTree->SetBranchAddress("passnoalgL1XE30", &zbl1gt30);
+	zbTree->SetBranchAddress("passnoalgL1XE40", &zbl1gt40);
+	zbTree->SetBranchAddress("passnoalgL1XE45", &zbl1gt45);
+	zbTree->SetBranchAddress("metl1", &zbl1);
+	zbTree->SetBranchAddress("actint", &zbint);
 
-	Int_t passrandomFlag, l1gt10, l1gt30, l1gt40, l1gt45;
-	Float_t l1met;
-	zbTree->SetBranchAddress("passrndm", &passrandomFlag);
-	zbTree->SetBranchAddress("metl1", &l1met);
-	zbTree->SetBranchAddress("passnoalgL1XE10", &l1gt10);
-	zbTree->SetBranchAddress("passnoalgL1XE30", &l1gt30);
-	zbTree->SetBranchAddress("passnoalgL1XE40", &l1gt40);
-	zbTree->SetBranchAddress("passnoalgL1XE45", &l1gt45);
-
-	TFile *muonFile = TFile::Open("../PhysicsMain2016.Muons.noalgL1XE45R3073065R311481Runs9B.root");
+	TFile *muonFile = TFile::Open("../PhysicsMain.L1KFmuontriggers.2016.f731f758_m1659m1710.Run309759.48Runs-002.root");
 	TTree* muonTree = (TTree*)muonFile->Get("tree");
-	Int_t passmu26Flag, passmuvarmedFlag;
-	muonTree->SetBranchAddress("passmu26med", &passmu26Flag);
-	muonTree->SetBranchAddress("passmu26varmed", & passmuvarmedFlag);
-	muonTree->SetBranchAddress("metl1", &l1met);
+	Int_t passmuonmed, passmuonvarmed, muonrecal, muonclean;
+	Float_t ml1, muonint;
+	muonTree->SetBranchAddress("passmu26med", &passmuonmed);
+	muonTree->SetBranchAddress("passmu26varmed", &passmuonvarmed);
+	muonTree->SetBranchAddress("metl1", &ml1);
+	muonTree->SetBranchAddress("actint", &muonint);
+	muonTree->SetBranchAddress("recalbroke", &muonrecal);
+	muonTree->SetBranchAddress("passcleancuts", &muonclean);
 
-	// choose which file you're creating correlation plots for
-
+	// choose with which file you're creating correlation plots
 	// ZERO BIAS CORRELATIOON RUN SELECT
-	TTree* runtree = (TTree*)zbFile->Get("tree");
-	TString graphtitle = "PhysicsMain ZeroBias (noalgXEtriggers) 48Runs L1 > 50GeV";
-	TString runcut("(passnoalgL1XE10 > 0.5 || passnoalgL1XE30 > 0.5 || passnoalgL1XE40 > 0.5 || passnoalgL1XE45 > 0.5) && metl1 > l1cut");
-
+	//TTree* runtree = (TTree*)zbFile->Get("tree");
+	//TString graphtitle = "2016 Prescaled (L1KFnoalgXEtriggers...48Runs-001) L1 > 50GeV and actint > 35.";
+	//TString runcut = (zbl1gt10 > 0.1 || zbl1gt30 > 0.1 || zbl1gt40 > 0.1 || zbl1gt45 > 0.1) && zbl1 > 50. && zbint > 35.;
 	// MUON CORRELATION RUN SELECT
-	//TTree* runtree = (TTree*)muonFile->Get("tree");
-	//TString graphtitle = "2016 Muons (L1XE45...Runs9B) NO L1 CUT";
-	//TString runcut("passmu26med>0.5&&metl1>50.");
+	TTree* runtree = (TTree*)muonFile->Get("tree");
+	TString graphtitle = "2016 Muons (L1KFmuontriggers...48Runs-002) for L1 > 50GeV and actint > 35GeV";
+	TString runcut = (passmuonmed > 0.1 || passmuonvarmed > 0.1) && ml1 > 50. && muonclean > 0.1 && muonrecal < 0.1;
 
-	Float_t l1cut = 50.;
-	TString zbPlotCut("(passnoalgL1XE10 > 0.5 || passnoalgL1XE30 > 0.5 || passnoalgL1XE40 > 0.5 || passnoalgL1XE45 > 0.5)");
+	// initialize zerobias and muon cuts for resolution graphs
+	TString zbPlotCut("(passnoalgL1XE10>0.5||passnoalgL1XE30>0.5||passnoalgL1XE40>0.5||passnoalgL1XE45>0.5)");
 	TString muonsPlotCut("passmu26med>0.5||passmu26varmed>0.5");
 
 	//Produce fitting graphs for zerobias events
@@ -106,6 +111,7 @@
 	TH2F *TOPOCLPUCzb = new TH2F ("TOPOCLPUCzb","", 100, 0., 100.,1000,0.,1000.);
 		zbTree->Draw("mettopoclpuc:sqrt(settopoclpuc)>>TOPOCLPUCzb", zbPlotCut);
 
+/*
 	//Produce fitting graphs for muon events
 	TH2F *L1muon = new TH2F ("L1muon","", 100, 0., 100.,1000,0.,1000.);
 		muonTree->Draw("metl1:sqrt(setl1)>>L1muon",muonsPlotCut);
@@ -121,7 +127,7 @@
 		muonTree->Draw("mettopoclps:sqrt(settopoclps)>>TOPOCLPSmuon", muonsPlotCut);
 	TH2F *TOPOCLPUCmuon = new TH2F ("TOPOCLPUCmuon","", 100, 0., 100., 1000, 0., 1000.);
 		muonTree->Draw("mettopoclpuc:sqrt(settopoclpuc)>>TOPOCLPUCmuon", muonsPlotCut);
-
+*/
 
 /*
 //L1 Algorithm resolutions in ZeroBias and Muons
@@ -191,6 +197,7 @@
 		resCELLzb->AddEntry("CELLzb_1", "Zero Bias Data", "L");
 		resCELLzb->Draw();
 
+/*
 		TCanvas *cCELLmuon = new TCanvas("cCELLmuon", "CELL 2016 ");
 		CELLmuon->Draw();
 		CELLmuon->FitSlicesY(func, 0, -1, 10, "L");
@@ -211,6 +218,7 @@
 		TLegend* resCELLmuon = new TLegend(0.37, 0.7, 0.55, 0.88);
 		resCELLmuon->AddEntry("CELLmuon_1", "Muon Data", "L");
 		resCELLmuon->Draw();
+*/
 
 		//MHT Algorithm resoltuions in ZeroBias and Muons
 		TCanvas *cMHTzb = new TCanvas("cMHTzb", "MHT 2015 ");
@@ -233,7 +241,7 @@
 		TLegend* resMHTzb = new TLegend(0.37, 0.7, 0.55, 0.88);
 		resMHTzb->AddEntry("MHTzb_1", "Zero Bias Data", "L");
 		resMHTzb->Draw();
-
+/*
 		TCanvas *cMHTmuon = new TCanvas("cMHTmuon", "MHT 2016 ");
 		MHTmuon->Draw();
 		MHTmuon->FitSlicesY(func, 0, -1, 10, "L");
@@ -254,6 +262,7 @@
 		TLegend* resMHTmuon = new TLegend(0.37, 0.7, 0.55, 0.88);
 		resMHTmuon->AddEntry("MHTmuon_1", "Muon Data", "L");
 		resMHTmuon->Draw();
+*/
 
 		//TOPOCL Algorithm resoltuions in ZeroBias and Muon
 		TCanvas *cTOPOCLzb = new TCanvas("cTOPOCLzb", "TOPOCL 2015 ");
@@ -277,6 +286,7 @@
 		resTOPOCLzb->AddEntry("TOPOCLzb_1", "Zero Bias Data", "L");
 		resTOPOCLzb->Draw();
 
+/*
 		TCanvas *cTOPOCLmuon = new TCanvas("cTOPOCLmuon", "TOPOCL 2016 ");
 		TOPOCLmuon->Draw();
 		TOPOCLmuon->FitSlicesY(func, 0, -1, 10, "L");
@@ -297,6 +307,7 @@
 		TLegend* resTOPOCLmuon = new TLegend(0.37, 0.7, 0.55, 0.88);
 		resTOPOCLmuon->AddEntry("TOPOCLmuon_1", "Muon Data", "L");
 		resTOPOCLmuon->Draw();
+		*/
 
 		//TOPOCLPS Algorithm resoltuions in ZeroBias and Muons
 		TCanvas *cTOPOCLPSzb = new TCanvas("cTOPOCLPSzb", "TOPOCLPS 2015 ");
@@ -321,6 +332,7 @@
 		resTOPOCLPSzb->AddEntry("TOPOCLPSzb_1", "Zero Bias Data", "L");
 		resTOPOCLPSzb->Draw();
 
+/*
 		TCanvas *cTOPOCLPSmuon = new TCanvas("cTOPOCLPSmuon", "TOPOCLPS 2016 ");
 		TOPOCLPSmuon->Draw();
 		TOPOCLPSmuon->FitSlicesY(func, 0, -1, 10, "L");
@@ -342,6 +354,7 @@
 		TLegend* resTOPOCLPSmuon = new TLegend(0.37, 0.7, 0.55, 0.88);
 		resTOPOCLPSmuon->AddEntry("TOPOCLPSmuon_1", "Muon Data", "L");
 		resTOPOCLPSmuon->Draw();
+*/
 
 		//TOPOCLPUC Algorithm resoltuions in ZeroBias and Muons
 		TCanvas *cTOPOCLPUCzb = new TCanvas("cTOPOCLPUCzb", "TOPOCLPUC 2015 ");
@@ -365,6 +378,7 @@
 		resTOPOCLPUCzb->AddEntry("TOPOCLPUCzb_1", "Zero Bias Data", "L");
 		resTOPOCLPUCzb->Draw();
 
+/*
 		TCanvas *cTOPOCLPUCmuon = new TCanvas("cTOPOCLPUCmuon", "TOPOCLPUC 2016 ");
 		TOPOCLPUCmuon->Draw();
 		TOPOCLPUCmuon->FitSlicesY(func, 0, -1, 10, "L");
@@ -385,7 +399,7 @@
 		TLegend* resTOPOCLPUCmuon = new TLegend(0.37, 0.7, 0.55, 0.88);
 		resTOPOCLPUCmuon->AddEntry("TOPOCLPUCmuon_1", "Muon Data", "L");
 		resTOPOCLPUCmuon->Draw();
-
+*/
 
 		//TopoclEM Algorithm resolutions in ZeroBias2016 and Muons2016
 		TCanvas *cTopoclEMzb = new TCanvas("cTopoclEMzb", "TopoclEM ZeroBias2016");
@@ -409,6 +423,7 @@
 		restopoclemzb->AddEntry("TopoclEMzb_1", "Zero Bias Data", "L");
 		restopoclemzb->Draw();
 
+/*
 		TCanvas *cTopoclEMmuon = new TCanvas("cTopoclEMmuon", "TopoclEMMuon 2016 ");
 		TopoclEMmuon->Draw();
 		TopoclEMmuon->FitSlicesY(func, 0, -1, 10, "L");
@@ -429,10 +444,9 @@
 			TLegend* restopoclemmuon = new TLegend(0.37, 0.7, 0.55, 0.88);
 			restopoclemmuon->AddEntry("TopoclEMmuon_1", "Muon Data", "L");
 			restopoclemmuon->Draw();
-
+*/
 
 		//___Calculate Tail Events Based on Resolutions___
-
 		TString metalgName[6] = {"metcell", "metmht", "mettopocl", "mettopoclps", "mettopoclpuc", "mettopoclem"};
 		TString setalgName[6] = {"setcell", "setmht", "settopocl", "settopoclps", "settopoclpuc", "settopoclem"};
 
@@ -440,17 +454,27 @@
 		Float_t met[6]; Float_t set[6];
 		for (Int_t i = 0; i < 6; i++)
 		{
-			zbTree->SetBranchAddress(metalgName[i], &met[i]);
-			zbTree->SetBranchAddress(setalgName[i], &set[i]);
+			runtree->SetBranchAddress(metalgName[i], &met[i]);
+			runtree->SetBranchAddress(setalgName[i], &set[i]);
 		}
+
+		// initialize variables for calculating transverse mass
+		Double_t transversemass;
+		Float_t metref, metrefw, mexref, mexrefw, meyref, meyrefw;
+		muonTree->SetBranchAddress("metrefmuon", &metref);
+		muonTree->SetBranchAddress("metrefwmuon", &metrefw);
+		muonTree->SetBranchAddress("mexrefmuon", &mexref);
+		muonTree->SetBranchAddress("mexrefwmuon", &mexrefw);
+		muonTree->SetBranchAddress("meyrefmuon", &meyref);
+		muonTree->SetBranchAddress("meyrefwmuon", &meyrefw);
 
 		// create graphs which I will later populate with TailMET vs. MET of different algorithm pairs
 		// correlationgraphs will be populated with the FULL dataset
 		TH2F *correlationgraph[30];
 		char *histname = new char[30];
-		Int_t bins = 900;
+		Int_t bins = 1000;
 		Double_t min = 0.;
-		Double_t max = 900.;
+		Double_t max = 1000.;
 		for (Int_t i = 0; i < 30; i++)
 		{
 			sprintf(histname, "histo%d", i+1);
@@ -473,14 +497,23 @@
 			evencorrelationgraph[i] = new TH2F(histname, "", bins, min, max, bins, min, max);
 		}
 
+		// create a list whose entries correspond to algorithms and are the number of events in that algorithm's tail
+		Double_t tailevents[6];
+		for (Int_t i = 0; i < 6; i++)
+		{
+			tailevents[i] = 0;
+		}
+
 	int n = 0; // this variable will determine whether an event is even-numbered or odd-numbered
 	Long64_t nentries = runtree->GetEntries();
 	for (Int_t i = 0; i < nentries; i++)
 	{
 		n = ( 1 - n ); // this logic changes n to be either 0 or 1
-
 		runtree->GetEntry(i);
-		if (runcut)
+
+		transversemass = sqrt(2*metref*metrefw*(1+((mexref*mexrefw+meyref*meyrefw) / (metref*metrefw))));
+
+		if ( (passmuonmed > 0.1 || passmuonvarmed > 0.1) && ml1 > 50. && 40. < transversemass && transversemass < 100. )
 		{
 			Double_t sigma[6];
 			Double_t metdist[6]; // metdist will be the distance of the event's MET from the median
@@ -492,15 +525,15 @@
 			{
 				if (sqrt(set[j]) >= 4.0) // throw out events whose SET values are too low
 				{
-					// compute sigma for all algorithms
+					// compute sigma of this event for all algorithms
 					sigma[j] = slope_ZeroBias[j]*sqrt(set[j]) + intercept_ZeroBias[j];
 					//compute metdist for all algorithms
 					metdist[j] = TMath::Abs( met[j] - (sigma[j]*TMath::Sqrt(TMath::PiOver2())));
 				}
 			}
 
-			// the following logic populates correlationgraphs with (x = met, y = tailmet) tuples only...
-			// if they exist for a given event in the tree
+			// the following logic populates correlationgraphs with (x = met, y = tailmet) tuples
+			// only if they exist for a given event in the tree
 			Int_t h = 0; // this variable counts each TH2F correlationgraph
 			for (Int_t l = 0; l < 5; l++)
 			{
@@ -509,8 +542,9 @@
 					x[l] = met[l]; // save to x = met
 					for (Int_t m = l+1; m < 6; m++)
 					{
-						if (metdist[m] > 3*sigma[m]) // if the event is in the tail of alg[m] (does not equal alg[l])
+						if (metdist[m] >= 3*sigma[m]) // if the event is in the tail of alg[m] (does not equal alg[l])
 						{
+							tailevents[m]++; // count the tail events
 							y[m] = met[m]; // save to y = tailmet
 							correlationgraph[h]->Fill(x[l], y[m]); // and populate the appropraite correlationgraph
 							if (n == 0)
@@ -527,6 +561,7 @@
 				}
 				else
 				{
+					tailevents[l]++; // count the tail events
 					y[l] = met[l]; // save to y = tailmet
 					for (Int_t m = l+1; m < 6; m++) // for each remaining alg
 					{
@@ -548,7 +583,7 @@
 			h = 15; // this variable counts each correlationgraph
 			for (Int_t l = 0; l < 5; l++)
 			{
-				if (metdist[l] > 3*sigma[l]) // if the event is in the tail of alg[l]
+				if (metdist[l] >= 3*sigma[l]) // if the event is in the tail of alg[l]
 				{
 					y[l] = met[l]; // save to y = tailmet
 
@@ -570,10 +605,9 @@
 				else
 				{
 					x[l] = met[l]; // save to x = met
-
 					for (Int_t m = l+1; m < 6; m++)
 					{
-						if (metdist[m] > 3*sigma[m]) // if the event is in the tail of alg[m]
+						if (metdist[m] >= 3*sigma[m]) // if the event is in the tail of alg[m]
 						{
 							y[m] = met[m]; // save to y = tailmet
 							correlationgraph[h]->Fill(y[l], x[m]);
@@ -599,7 +633,14 @@
 
 		ofstream correlationcoefficients; // prepare log file of correlation coefficients
 		correlationcoefficients.open("correlationvalues.txt"); // open log file
-		correlationcoefficients << "Graph" << "\t" << "Correlation" << " " << "±" << " " << "Approx. Uncertainty" << " " << "\t" << "FILE:" << "\t" << graphtitle << "\n"; // write title of table
+		correlationcoefficients << "FILE:" << " " << graphtitle << "\n\n";
+		correlationcoefficients << "Graph" << "\t" << "Correlation" << " " << "±" << " " << "Approx. Uncertainty" << " " << "\t" << "Correlation Graph" << "\t\t\t\t\t" << "Tail Fractions" "\n"; // write title of table
+
+		Double_t tailfractions[6];
+		for (int i=0; i<6; i++)
+		{
+			tailfractions[i] = tailevents[i]/nentries;
+		}
 
 		TCanvas *mycanv[30];
 		char *canvname = new char[30];
@@ -624,7 +665,7 @@
 				evenvalue[k] = evencorrelationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factor of even graphs
 				c[k] = 0.5*(oddvalue[k] - evenvalue[k]);
 				mycanv[k]->Print(Form("%d.png", k+1));
-				correlationcoefficients << k+1 << "\t" << r[k] << " " << "±" << " " << c[k]	<< ',' << "\t" << yaxisNames[q] << " " << "vs." << " " << xaxisNames[l] << "\n";
+				correlationcoefficients << k+1 << "\t" << r[k] << " " << "±" << " " << c[k]	<< ',' << "\t\t" << yaxisNames[q] << " " << "vs." << " " << xaxisNames[l] << "\t\t" << tailfractions[l] << "\n";
 				k++;
 			}
 		}
@@ -645,7 +686,7 @@
 				evenvalue[k] = evencorrelationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factor of even graphs
 				c[k] = 0.5*(oddvalue[k] - evenvalue[k]);
 				mycanv[k]->Print(Form("%d.png", k+1));
-				correlationcoefficients << k+1 << "\t" << r[k] << " " << "±" << " " << c[k]	<< ',' << "\t" << xaxisNames[u] << " " << "vs." << " " << yaxisNames[t] << "\n";
+				correlationcoefficients << k+1 << "\t" << r[k] << " " << "±" << " " << c[k]	<< ',' << "\t\t" << xaxisNames[u] << " " << "vs." << " " << yaxisNames[t] << "\t\t" << tailfractions[u] << "\n";
 				k++;
 			}
 		}
