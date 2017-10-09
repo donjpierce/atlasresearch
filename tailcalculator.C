@@ -83,13 +83,13 @@
 
 	// choose with which file you're creating correlation plots
 	// ZERO BIAS CORRELATIOON RUN SELECT
-	TTree* runtree = (TTree*)zbFile->Get("tree");
-	TString graphtitle = "2016 Prescaled (L1KFnoalgXEtriggers...48Runs-001) for L1 > 50GeV";
-	//bool runcut = (zbl1gt10 > 0.1 || zbl1gt30 > 0.1 || zbl1gt40 > 0.1 || zbl1gt45 > 0.1) && zbl1 > 50. ;
+	//TTree* runtree = (TTree*)zbFile->Get("tree");
+	//TString graphtitle = "2016 Prescaled (L1KFnoalgXEtriggers...48Runs-001) L1 > 50GeV and actint > 35.";
+	//TString runcut = (zbl1gt10 > 0.1 || zbl1gt30 > 0.1 || zbl1gt40 > 0.1 || zbl1gt45 > 0.1) && zbl1 > 50. && zbint > 35.;
 	// MUON CORRELATION RUN SELECT
-	//TTree* runtree = (TTree*)muonFile->Get("tree");
-	//TString graphtitle = "2016 Muons (L1KFmuontriggers...48Runs-002) for 40 < REF mass < 100, L1 > 50GeV";
-	//bool runcut = (passmuonmed > 0.1 || passmuonvarmed > 0.1) && ml1 > 50. && muonint > 35. && 20. < transversemass && transversemass < 100.;
+	TTree* runtree = (TTree*)muonFile->Get("tree");
+	TString graphtitle = "2016 Muons (L1KFmuontriggers...48Runs-002) for L1 > 50GeV and actint > 35GeV";
+	TString runcut = (passmuonmed > 0.1 || passmuonvarmed > 0.1) && ml1 > 50. && muonclean > 0.1 && muonrecal < 0.1;
 
 	// initialize zerobias and muon cuts for resolution graphs
 	TString zbPlotCut("(passnoalgL1XE10>0.5||passnoalgL1XE30>0.5||passnoalgL1XE40>0.5||passnoalgL1XE45>0.5)");
@@ -458,26 +458,18 @@
 			runtree->SetBranchAddress(setalgName[i], &set[i]);
 		}
 
-			// initialize variables for calculating transverse mass
-			Float_t transversemass;
+		// initialize variables for calculating transverse mass
+		Double_t transversemass;
+		Float_t metref, metrefw, mexref, mexrefw, meyref, meyrefw;
+		muonTree->SetBranchAddress("metrefmuon", &metref);
+		muonTree->SetBranchAddress("metrefwmuon", &metrefw);
+		muonTree->SetBranchAddress("mexrefmuon", &mexref);
+		muonTree->SetBranchAddress("mexrefwmuon", &mexrefw);
+		muonTree->SetBranchAddress("meyrefmuon", &meyref);
+		muonTree->SetBranchAddress("meyrefwmuon", &meyrefw);
 
-			//Float_t metref, metrefw, mexref, mexrefw, meyref, meyrefw;
-			//muonTree->SetBranchAddress("metrefmuon", &metref);
-			//muonTree->SetBranchAddress("metrefwmuon", &metrefw);
-			//muonTree->SetBranchAddress("mexrefmuon", &mexref);
-			//muonTree->SetBranchAddress("mexrefwmuon", &mexrefw);
-			//muonTree->SetBranchAddress("meyrefmuon", &meyref);
-			//muonTree->SetBranchAddress("meyrefwmuon", &meyrefw);
-
-			Float_t metoff, metoffmuon, mexoff, mexoffmuon, meyoff, meyoffmuon;
-			muonTree->SetBranchAddress("metoffrecal", &metoff);
-			muonTree->SetBranchAddress("metoffrecalmuon", &metoffmuon);
-			muonTree->SetBranchAddress("mexoffrecal", &mexoff);
-			muonTree->SetBranchAddress("mexoffrecalmuon", &mexoffmuon);
-			muonTree->SetBranchAddress("meyoffrecal", &meyoff);
-			muonTree->SetBranchAddress("meyoffrecalmuon", &meyoffmuon);
-
-		// create histograms which will later be populated with TailMET vs. MET of different algorithm pairs
+		// create graphs which I will later populate with TailMET vs. MET of different algorithm pairs
+		// correlationgraphs will be populated with the FULL dataset
 		TH2F *correlationgraph[30];
 		char *histname = new char[30];
 		Int_t bins = 1000;
@@ -506,28 +498,23 @@
 		}
 
 		// create a list whose entries correspond to algorithms and are the number of events in that algorithm's tail
-	Double_t tailagreement[30];
-		for (Int_t i = 0; i < 30; i++)
+		Double_t tailevents[6];
+		for (Int_t i = 0; i < 6; i++)
 		{
-			tailagreement[i] = 0;
+			tailevents[i] = 0;
 		}
 
 	int n = 0; // this variable will determine whether an event is even-numbered or odd-numbered
-	Long64_t remainingentries;
 	Long64_t nentries = runtree->GetEntries();
 	for (Int_t i = 0; i < nentries; i++)
 	{
 		n = ( 1 - n ); // this logic changes n to be either 0 or 1
 		runtree->GetEntry(i);
 
-			// transverse mass based on metrefmuon:
-			//transversemass = sqrt(2*metref*metrefw*(1+((mexref*mexrefw+meyref*meyrefw) / metref*metrefw))));
-			// transverse mass based on metoffrecal:
-			//transversemass = sqrt(2*metoff*metoffmuon*(1+((mexoff*mexoffmuon+meyoff*meyoffmuon) / (metoff*metoffmuon))));
+		transversemass = sqrt(2*metref*metrefw*(1+((mexref*mexrefw+meyref*meyrefw) / (metref*metrefw))));
 
-		if ( /*(passmuonmed > 0.1 || passmuonvarmed > 0.1) && ml1 > 50. && 40. < transversemass && transversemass < 100. && muonclean > 0.1 && muonrecal < 0.1 && muonint > 35.*/ (zbl1gt10 > 0.1 || zbl1gt30 > 0.1 || zbl1gt40 > 0.1 || zbl1gt45 > 0.1) && zbl1 > 50.)
+		if ( (passmuonmed > 0.1 || passmuonvarmed > 0.1) && ml1 > 50. && 40. < transversemass && transversemass < 100. )
 		{
-			remainingentries++;
 			Double_t sigma[6];
 			Double_t metdist[6]; // metdist will be the distance of the event's MET from the median
 			Double_t x[6]; // x = bulkmet and y = tailmet will be calculated for each algorithm
@@ -559,11 +546,16 @@
 			Int_t h = 0; // this variable counts each TH2F correlationgraph
 			for (Int_t l = 0; l < 5; l++)
 			{
+<<<<<<< HEAD
 				if (metdist[l] >= 3*sigma[l]) // if the event is in the tail of alg A
+=======
+				if (metdist[l] < 3*sigma[l]) // if the event is in the bulk
+>>>>>>> parent of e1edb5b... Version before logic changes to correct for errors
 				{
 					y[l] = met[l]; // save to y = tail met
 					for (Int_t m = l+1; m < 6; m++)
 					{
+<<<<<<< HEAD
 						if (metdist[m] >= 3*sigma[m]) // if the event is also in the tail of Alg B
 						{
 							tailagreement[h]++;
@@ -572,10 +564,18 @@
 							x[m] = met[m]; // save to x = met
 							correlationgraph[h]->Fill(x[m], y[l]); // and populate the appropraite correlationgraph
 							if (n == 1)
+=======
+						if (metdist[m] >= 3*sigma[m]) // if the event is in the tail of alg[m] (does not equal alg[l])
+						{
+							tailevents[m]++; // count the tail events
+							y[m] = met[m]; // save to y = tailmet
+							correlationgraph[h]->Fill(x[l], y[m]); // and populate the appropraite correlationgraph
+							if (n == 0)
+>>>>>>> parent of e1edb5b... Version before logic changes to correct for errors
 							{
 								oddcorrelationgraph[h]->Fill(x[m], y[l]); // populate with odd-numbered entry
 							}
-							if (n == 0)
+							if (n == 1)
 							{
 								evencorrelationgraph[h]->Fill(x[m], y[l]); // populate with even-numbered entry
 							}
@@ -584,7 +584,26 @@
 				}
 				else
 				{
+<<<<<<< HEAD
 					h++;
+=======
+					tailevents[l]++; // count the tail events
+					y[l] = met[l]; // save to y = tailmet
+					for (Int_t m = l+1; m < 6; m++) // for each remaining alg
+					{
+						x[m] = met[m]; // save to x = met
+						correlationgraph[h]->Fill(x[l], y[m]); // and populate the appropraite correlationgraph
+						if (n == 0)
+						{
+							oddcorrelationgraph[h]->Fill(x[l], y[m]); // populate with odd-numbered entry
+						}
+						if (n == 1)
+						{
+							evencorrelationgraph[h]->Fill(x[l], y[m]); // populate with even-numbered entry
+						}
+						h++;
+					}
+>>>>>>> parent of e1edb5b... Version before logic changes to correct for errors
 				}
 			 }
 
@@ -592,20 +611,51 @@
 			h = 15; // this variable counts each correlationgraph
 			for (Int_t l = 0; l < 5; l++)
 			{
+<<<<<<< HEAD
 				if (metdist[l] <= 3*sigma[l]) // if the event is in the bulk of A
+=======
+				if (metdist[l] >= 3*sigma[l]) // if the event is in the tail of alg[l]
+				{
+					y[l] = met[l]; // save to y = tailmet
+
+					for (Int_t m = l+1; m < 6; m++)
+					{
+						x[m] = met[m]; // save to x = met
+						correlationgraph[h]->Fill(y[l], x[m]); // and populate the appropraite correlationgraph
+						if (n == 0)
+						{
+							oddcorrelationgraph[h]->Fill(x[l], y[m]); // populate with odd-numbered entry
+						}
+						if (n == 1)
+						{
+							evencorrelationgraph[h]->Fill(x[l], y[m]); // populate with even-numbered entry
+						}
+						h++;
+					}
+				}
+				else
+>>>>>>> parent of e1edb5b... Version before logic changes to correct for errors
 				{
 					x[l] = met[l]; // save to x = met
 					for (Int_t m = l+1; m < 6; m++)
 					{
+<<<<<<< HEAD
 						if (metdist[m] >= 3*sigma[m]) // if it's in the tail of B
 						{
 							y[m] = met[m]; // save to y = tail met
 							correlationgraph[h]->Fill(y[l], x[m]); // and populate the appropraite correlationgraph
 							if (n == 1)
+=======
+						if (metdist[m] >= 3*sigma[m]) // if the event is in the tail of alg[m]
+						{
+							y[m] = met[m]; // save to y = tailmet
+							correlationgraph[h]->Fill(y[l], x[m]);
+							if (n == 0)
+>>>>>>> parent of e1edb5b... Version before logic changes to correct for errors
 							{
 								oddcorrelationgraph[h]->Fill(x[l], y[m]); // populate with odd-numbered entry
 							}
-							if (n == 0)
+							if (n == 1)
 							{
 								evencorrelationgraph[h]->Fill(x[l], y[m]); // populate with even-numbered entry
 							}
@@ -613,6 +663,7 @@
 						}
 					}
 				}
+<<<<<<< HEAD
 				else
 				{
 					h++;
@@ -623,6 +674,11 @@
 	  }
 
 
+=======
+	  	}
+		}
+	}
+>>>>>>> parent of e1edb5b... Version before logic changes to correct for errors
 //======================================================================================================================================//
 
 		TString xaxisNames[6] = {"Cell MET [GeV]", "MHT MET [GeV]", "Topocl MET [GeV]", "TopoclPS MET [GeV]", "TopoclPUC MET [GeV]", "TopoclEM MET [GeV]"};
@@ -633,13 +689,15 @@
 		correlationcoefficients << "FILE:" << " " << graphtitle << "\n\n";
 		correlationcoefficients << "Graph" << "\t" << "Correlation" << " " << "±" << " " << "Approx. Uncertainty" << " " << "\t" << "Correlation Graph" << "\t\t\t\t\t" << "Tail Fractions" "\n"; // write title of table
 
-
+		Double_t tailfractions[6];
+		for (int i=0; i<6; i++)
+		{
+			tailfractions[i] = tailevents[i]/nentries;
+		}
 
 		TCanvas *mycanv[30];
 		char *canvname = new char[30];
 		Double_t r[30]; // correlation coefficients
-		Double_t tailfractions[30]; // fraction of events in the tail of Alg A that are also in the tail of Alg B
-		Int_t correlationentries;
 		Double_t oddvalue[30]; // correlation values from oddcorrelationgraphs
 		Double_t evenvalue[30]; // correlation values from evencorrelationgraphs
 		Double_t c[30]; // final confidence interval of original correlation coefficients (r values)
@@ -659,10 +717,8 @@
 				oddvalue[k] = oddcorrelationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factor of odd graphs
 				evenvalue[k] = evencorrelationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factor of even graphs
 				c[k] = 0.5*(oddvalue[k] - evenvalue[k]);
-				correlationentries = correlationgraph[k]->GetEntries();
-				tailfractions[k] = tailagreement[k]/correlationentries;
 				mycanv[k]->Print(Form("%d.png", k+1));
-				correlationcoefficients << k+1 << "\t" << r[k] << " " << "±" << " " << c[k]	<< ',' << "\t\t" << yaxisNames[q] << " " << "vs." << " " << xaxisNames[l] << "\t\t" << tailfractions[k] << "\n";
+				correlationcoefficients << k+1 << "\t" << r[k] << " " << "±" << " " << c[k]	<< ',' << "\t\t" << yaxisNames[q] << " " << "vs." << " " << xaxisNames[l] << "\t\t" << tailfractions[l] << "\n";
 				k++;
 			}
 		}
@@ -682,10 +738,8 @@
 				oddvalue[k] = oddcorrelationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factor of odd graphs
 				evenvalue[k] = evencorrelationgraph[k]->GetCorrelationFactor(1, 2); // record correlation factor of even graphs
 				c[k] = 0.5*(oddvalue[k] - evenvalue[k]);
-				correlationentries = correlationgraph[k]->GetEntries();
-				tailfractions[k] = tailagreement[k]/correlationentries;
 				mycanv[k]->Print(Form("%d.png", k+1));
-				correlationcoefficients << k+1 << "\t" << r[k] << " " << "±" << " " << c[k]	<< ',' << "\t\t" << xaxisNames[u] << " " << "vs." << " " << yaxisNames[t] << "\t\t" << tailfractions[k] << "\n";
+				correlationcoefficients << k+1 << "\t" << r[k] << " " << "±" << " " << c[k]	<< ',' << "\t\t" << xaxisNames[u] << " " << "vs." << " " << yaxisNames[t] << "\t\t" << tailfractions[u] << "\n";
 				k++;
 			}
 		}
