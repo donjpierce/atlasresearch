@@ -545,92 +545,62 @@
 				}
 			}
 
+/*
+			if(metdist[0] >= 3*sigma[0]) // if the event is in the tail of Cell
+			{
+				y[0] = met[0];
+				x[1] = met[1];
+				correlationgraph[0]->Fill(x[1],y[0]);
+			}
+*/
+
 			// the following logic populates correlationgraphs with (x = met, y = tailmet) tuples
 			// only if they exist for a given event in the tree
 			Int_t h = 0; // this variable counts each TH2F correlationgraph
 			for (Int_t l = 0; l < 5; l++)
 			{
-				if (metdist[l] <= 3*sigma[l]) // if the event is in the bulk of Alg A
+				if (metdist[l] >= 3*sigma[l]) // if the event is in the tail of alg A
 				{
-					x[l] = met[l]; // save to x = met
+					y[l] = met[l]; // save to y = tail met
 					for (Int_t m = l+1; m < 6; m++)
 					{
-						if (metdist[m] >= 3*sigma[m]) // if the event is in the tail of Alg B
+						if (metdist[m] >= 3*sigma[m]) // if the event is also in the tail of Alg B
 						{
-							y[m] = met[m]; // save to y = tailmet
-							correlationgraph[h]->Fill(x[l], y[m]); // and populate the appropraite correlationgraph
+							tailagreement[h]++;
+						}
+
+							x[m] = met[m]; // save to x = met
+							correlationgraph[h]->Fill(x[m], y[l]); // and populate the appropraite correlationgraph
 							if (n == 1)
 							{
-								oddcorrelationgraph[h]->Fill(x[l], y[m]); // populate with odd-numbered entry
+								oddcorrelationgraph[h]->Fill(x[m], y[l]); // populate with odd-numbered entry
 							}
 							if (n == 0)
 							{
-								evencorrelationgraph[h]->Fill(x[l], y[m]); // populate with even-numbered entry
+								evencorrelationgraph[h]->Fill(x[m], y[l]); // populate with even-numbered entry
 							}
-						}
 						h++;
 					}
 				}
 				else
 				{
-					y[l] = met[l]; // save to y = tailmet
-					for (Int_t m = l+1; m < 6; m++) // for each remaining alg
-					{
-						if (metdist[m] >= 3*sigma[m]) // if the event is in the tail of Alg B as well
-						{
-							tailagreement[h]++;
-						}
-
-						x[m] = met[m]; // save to x = met
-						correlationgraph[h]->Fill(x[l], y[m]); // and populate the appropraite correlationgraph
-						if (n == 1)
-						{
-							oddcorrelationgraph[h]->Fill(x[l], y[m]); // populate with odd-numbered entry
-						}
-						if (n == 0)
-						{
-							evencorrelationgraph[h]->Fill(x[l], y[m]); // populate with even-numbered entry
-						}
-						h++;
-					}
+					h++;
 				}
-			}
+			 }
 
+/*
 			h = 15; // this variable counts each correlationgraph
 			for (Int_t l = 0; l < 5; l++)
 			{
-				if (metdist[l] >= 3*sigma[l]) // if the event is in the tail of A
-				{
-					y[l] = met[l]; // save to y = tailmet
-					for (Int_t m = l+1; m < 6; m++)
-					{
-						if (metdist[m] >= 3*sigma[m]) // if it's in the tail of B as well
-						{
-							tailagreement[h]++;
-						}
-
-						x[m] = met[m]; // save to x = met
-						correlationgraph[h]->Fill(y[l], x[m]); // and populate the appropraite correlationgraph
-						if (n == 1)
-						{
-							oddcorrelationgraph[h]->Fill(x[l], y[m]); // populate with odd-numbered entry
-						}
-						if (n == 0)
-						{
-							evencorrelationgraph[h]->Fill(x[l], y[m]); // populate with even-numbered entry
-						}
-						h++;
-					}
-				}
-				else
+				if (metdist[l] <= 3*sigma[l]) // if the event is in the bulk of A
 				{
 					x[l] = met[l]; // save to x = met
 					for (Int_t m = l+1; m < 6; m++)
 					{
-						if (metdist[m] <= 3*sigma[m]) // if the event is in the tail of alg[m]
+						if (metdist[m] >= 3*sigma[m]) // if it's in the tail of B
 						{
-							y[m] = met[m]; // save to y = tailmet
-							correlationgraph[h]->Fill(y[l], x[m]);
+							y[m] = met[m]; // save to y = tail met
+							correlationgraph[h]->Fill(y[l], x[m]); // and populate the appropraite correlationgraph
 							if (n == 1)
 							{
 								oddcorrelationgraph[h]->Fill(x[l], y[m]); // populate with odd-numbered entry
@@ -639,14 +609,20 @@
 							{
 								evencorrelationgraph[h]->Fill(x[l], y[m]); // populate with even-numbered entry
 							}
+							h++;
 						}
-						h++;
 					}
 				}
-	  	}
+				else
+				{
+					h++;
+				}
+			 }
+			 */
+		 }
+	  }
 
-		}
-	}
+
 //======================================================================================================================================//
 
 		TString xaxisNames[6] = {"Cell MET [GeV]", "MHT MET [GeV]", "Topocl MET [GeV]", "TopoclPS MET [GeV]", "TopoclPUC MET [GeV]", "TopoclEM MET [GeV]"};
