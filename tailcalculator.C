@@ -510,6 +510,10 @@
 	{
 		n = ( 1 - n ); // this logic changes n to be either 0 or 1
 		runtree->GetEntry(i);
+		if (i % 100000 == 0)
+		{
+			cout << "hey there good lookin'";
+		}
 
 		// tranvserse mass based on metoffrecal
 		transversemass = sqrt(2*metoff*metoffw*(1+((mexoff*mexoffw+meyoff*meyoffw) / (metoff*metoffw))));

@@ -256,15 +256,19 @@
 
 	int n = 0; // this variable will determine whether an event is even-numbered or odd-numbered-
 	Long64_t nentries = runtree->GetEntries();
-	for (Int_t i = 0; i < nentries; i++)
-	{
-		n = ( 1 - n ); // this logic changes n to be either 0 or 1
-		runtree->GetEntry(i);
+		for (Int_t i = 0; i < nentries; i++)
+		{
+			n = ( 1 - n ); // this logic changes n to be either 0 or 1
+			runtree->GetEntry(i);
+			if (i % 100000 == 0)
+			{
+				cout << "hey there good lookin'";
+			}
 
 		// tranvserse mass based on metoffrecal
-		transversemass = sqrt(2*metoff*metoffw*(1+((mexoff*mexoffw+meyoff*meyoffw) / (metoff*metoffw))));
+		//transversemass = sqrt(2*metoff*metoffw*(1+((mexoff*mexoffw+meyoff*meyoffw) / (metoff*metoffw))));
 
-		if ( (passmuonmed > 0.1 || passmuonvarmed > 0.1) && ml1 > 50. && muonint > 35. && muonclean > 0.1 && muonrecal < 0.1 && 40. < transversemass && transversemass < 100. /*(zbl1gt10 > 0.1 || zbl1gt30 > 0.1 || zbl1gt40 > 0.1 || zbl1gt45 > 0.1) && zbl1 > 50. && zbint > 35.*/)
+		if ( /*(passmuonmed > 0.1 || passmuonvarmed > 0.1) && ml1 > 50. && muonint > 35. && muonclean > 0.1 && muonrecal < 0.1 && 40. < transversemass && transversemass < 100. *//*(zbl1gt10 > 0.1 || zbl1gt30 > 0.1 || zbl1gt40 > 0.1 || zbl1gt45 > 0.1) && zbl1 > 50.*/ )
 		{
 			Double_t sigma[4];
 			Double_t metdist[4]; // metdist will be the distance of the event's MET from the median
@@ -274,7 +278,7 @@
 			// the following loop populates the sigma and metdist arrays
 			for (Int_t j = 0; j < 4; j++)
 			{
-				if (sqrt(set[j]) >= 4.0) // throw out events whose SET values are too low
+				if (sqrt(set[j]) >= 10.) // throw out events whose SET values are too low
 				{
 					// compute sigma of this event for all algorithms
 					sigma[j] = slope_ZeroBias[j]*sqrt(set[j]) + intercept_ZeroBias[j];
