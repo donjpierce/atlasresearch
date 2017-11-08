@@ -62,34 +62,32 @@
 	TFile *zbFile = TFile::Open("../PhysicsMain.L1KFnoalgXEtriggers.2016.f731f758_m1659m1710.Run309759.48Runs-001.root");
 	TTree *zbTree = (TTree*)zbFile->Get("tree");
 	Int_t zbl1gt10, zbl1gt30, zbl1gt40, zbl1gt45;
-	Float_t zbl1, zbint;
+	Float_t zbint;
 	zbTree->SetBranchAddress("passnoalgL1XE10", &zbl1gt10);
 	zbTree->SetBranchAddress("passnoalgL1XE30", &zbl1gt30);
 	zbTree->SetBranchAddress("passnoalgL1XE40", &zbl1gt40);
 	zbTree->SetBranchAddress("passnoalgL1XE45", &zbl1gt45);
-	zbTree->SetBranchAddress("metl1", &zbl1);
 	zbTree->SetBranchAddress("actint", &zbint);
 
 	TFile *muonFile = TFile::Open("../PhysicsMain.L1KFmuontriggers.2016.f731f758_m1659m1710.Run309759.48Runs-002.root");
 	TTree* muonTree = (TTree*)muonFile->Get("tree");
 	Int_t passmuonmed, passmuonvarmed, muonrecal, muonclean;
-	Float_t ml1, muonint;
+	Float_t muonint;
 	muonTree->SetBranchAddress("passmu26med", &passmuonmed);
 	muonTree->SetBranchAddress("passmu26varmed", &passmuonvarmed);
-	muonTree->SetBranchAddress("metl1", &ml1);
 	muonTree->SetBranchAddress("actint", &muonint);
 	muonTree->SetBranchAddress("recalbroke", &muonrecal);
 	muonTree->SetBranchAddress("passcleancuts", &muonclean);
 
 	// choose with which file you're creating correlation plots
 	// ZERO BIAS CORRELATIOON RUN SELECT
-	//TTree* runtree = (TTree*)zbFile->Get("tree");
-	//TString graphtitle = "2016 Prescaled (L1KFnoalgXEtriggers...48Runs-001) L1 > 50GeV and actint > 35";
-	//TString runcut = (zbl1gt10 > 0.1 || zbl1gt30 > 0.1 || zbl1gt40 > 0.1 || zbl1gt45 > 0.1) && zbl1 > 50. && zbint > 35.;
+	//TTree* runtree = zbTree;
+	//TString graphtitle = "2016 Prescaled (L1KFnoalgXEtriggers...48Runs-001) L1 > 50GeV";
+	//TString runcut = (zbl1gt10 > 0.1 || zbl1gt30 > 0.1 || zbl1gt40 > 0.1 || zbl1gt45 > 0.1) && zbint > 35.;
 	// MUON CORRELATION RUN SELECT
-	TTree* runtree = (TTree*)muonFile->Get("tree");
+	TTree* runtree = muonTree;
 	TString graphtitle = "2016 Muons (L1KFmuontriggers...48Runs-002) for L1 > 50GeV, 40GeV < transversemass < 100GeV, and actint > 35.";
-	TString runcut = (passmuonmed > 0.1 || passmuonvarmed > 0.1) && ml1 > 50. && muonclean > 0.1 && muonrecal < 0.1;
+	//TString runcut = (passmuonmed > 0.1 || passmuonvarmed > 0.1) && ml1 > 50. && muonclean > 0.1 && muonrecal < 0.1;
 
 	// initialize zerobias and muon cuts for resolution graphs
 	TString zbPlotCut("(passnoalgL1XE10>0.5||passnoalgL1XE30>0.5||passnoalgL1XE40>0.5||passnoalgL1XE45>0.5)");
@@ -510,64 +508,59 @@
 	{
 		n = ( 1 - n ); // this logic changes n to be either 0 or 1
 		runtree->GetEntry(i);
-		if (i % 100000 == 0)
-		{
-			cout << "hey there good lookin'";
-		}
 
 		// tranvserse mass based on metoffrecal
-		transversemass = sqrt(2*metoff*metoffw*(1+((mexoff*mexoffw+meyoff*meyoffw) / (metoff*metoffw))));
+		//transversemass = sqrt(2*metoff*metoffw*(1+((mexoff*mexoffw+meyoff*meyoffw) / (metoff*metoffw))));
+		if ( (passmuonmed > 0.1 || passmuonvarmed > 0.1) && met[0] > 50. && muonint > 35. && muonclean > 0.1 && muonrecal < 0.1 && 40. < transversemass && transversemass < 100./*(zbl1gt10 > 0.1 || zbl1gt30 > 0.1 || zbl1gt40 > 0.1 || zbl1gt45 > 0.1) && met[0] > 50.*/)
 
-		if ( (passmuonmed > 0.1 || passmuonvarmed > 0.1) && ml1 > 50. && muonint > 35. && muonclean > 0.1 && muonrecal < 0.1 && 40. < transversemass && transversemass < 100. /*(zbl1gt10 > 0.1 || zbl1gt30 > 0.1 || zbl1gt40 > 0.1 || zbl1gt45 > 0.1) && zbl1 > 50. && zbint > 35.*/)
 		{
-			Double_t sigma[6];
-			Double_t metdist[6]; // metdist will be the distance of the event's MET from the median
-			Double_t x[6]; // x = bulkmet and y = tailmet will be calculated for each algorithm
-			Double_t y[6];
-
 			// the following loop populates the sigma and metdist arrays
 			for (Int_t j = 0; j < 6; j++)
 			{
 				if (sqrt(set[j]) >= 4.0) // throw out events whose SET values are too low
 				{
+					Double_t sigma[6];
+					Double_t metdist[6]; // metdist will be the distance of the event's MET from the median
+					Double_t x[6]; // x = bulkmet and y = tailmet will be calculated for each algorithm
+					Double_t y[6];
+
 					// compute sigma of this event for all algorithms
 					sigma[j] = slope_ZeroBias[j]*sqrt(set[j]) + intercept_ZeroBias[j];
 					//compute metdist for all algorithms
 					metdist[j] = TMath::Abs( met[j] - (sigma[j]*TMath::Sqrt(TMath::PiOver2())));
-				}
-			}
-
-			// the following logic populates correlationgraphs with (x = met, y = tailmet) tuples
-			// only if they exist for a given event in the tree
-			Int_t h = 0; // this variable counts each correlationgraph
-			for (Int_t l = 0; l < 6; l++)
-			{
-				if (metdist[l] >= 3*sigma[l]) // if the event is in the tail of alg A
-				{
-					y[l] = met[l]; // save to y = tail met
-					for (Int_t m = 0; m < 6; m++)
+					// the following logic populates correlationgraphs with (x = met, y = tailmet) tuples
+					// only if they exist for a given event in the tree
+					Int_t h = 0; // this variable counts each correlationgraph
+					for (Int_t l = 0; l < 6; l++)
 					{
-						if (l == m)	continue;
-							if (metdist[m] >= 3*sigma[m]) // if the event is also in the tail of Alg B
+						if (metdist[l] >= 3*sigma[l]) // if the event is in the tail of alg A
+						{
+							y[l] = met[l]; // save to y = tail met
+							for (Int_t m = 0; m < 6; m++)
 							{
-								tailagreement[h]++;
+								if (l == m)	continue;
+								if (metdist[m] >= 3*sigma[m]) // if the event is also in the tail of Alg B
+								{
+									tailagreement[h]++;
+								}
+									x[m] = met[m]; // save to x = met
+									correlationgraph[h]->Fill(x[m], y[l]); // and populate the appropraite correlationgraph
+									if (n == 0)
+									{
+										oddcorrelationgraph[h]->Fill(x[m], y[l]); // populate with odd-numbered entry
+									}
+									if (n == 1)
+									{
+										evencorrelationgraph[h]->Fill(x[m], y[l]); // populate with even-numbered entry
+									}
+								h++;
 							}
-								x[m] = met[m]; // save to x = met
-								correlationgraph[h]->Fill(x[m], y[l]); // and populate the appropraite correlationgraph
-								if (n == 0)
-								{
-									oddcorrelationgraph[h]->Fill(x[m], y[l]); // populate with odd-numbered entry
-								}
-								if (n == 1)
-								{
-									evencorrelationgraph[h]->Fill(x[m], y[l]); // populate with even-numbered entry
-								}
-							h++;
+						}
 					}
-				}
-			}
+			 }
 		}
 	}
+}
 
 //======================================================================================================================================//
 
