@@ -69,29 +69,25 @@
 	muonTree->SetBranchAddress("recalbroke", &muonrecal);
 	muonTree->SetBranchAddress("passcleancuts", &muonclean);
 
-	TFile *zbFile = TFile::Open("../PhysicsMain.L1KFnoalgXEtriggers.2016.f731f758_m1659m1710.Run309759.48Runs-001.root");
+	TFile *zbFile = TFile::Open("../ZeroBiasL1KF2016R307195R311481.51Runs.root");
 	TTree *zbTree = (TTree*)zbFile->Get("tree");
-	Int_t zbl1gt10, zbl1gt30, zbl1gt40, zbl1gt45;
+
+	Int_t rndm;
 	Float_t zbint;
-	zbTree->SetBranchAddress("passnoalgL1XE10", &zbl1gt10);
-	zbTree->SetBranchAddress("passnoalgL1XE30", &zbl1gt30);
-	zbTree->SetBranchAddress("passnoalgL1XE40", &zbl1gt40);
-	zbTree->SetBranchAddress("passnoalgL1XE45", &zbl1gt45);
+	zbTree->SetBranchAddress("passrndm", &rndm);
 	zbTree->SetBranchAddress("actint", &zbint);
 
 
 	// choose with which file you're creating correlation plots
 	// ZERO BIAS CORRELATIOON RUN SELECT
 	//TTree* runtree =  zbTree;
-	//TString graphtitle = "2016 Prescaled (L1KFnoalgXEtriggers...48Runs-001) L1 > 50GeV";
-	//TString runcut = (zbl1gt10 > 0.1 || zbl1gt30 > 0.1 || zbl1gt40 > 0.1 || zbl1gt45 > 0.1) && met[0] > 50. ;
+	//TString graphtitle = "2016 Prescaled (ZeroBiasL1KF2016....51Runs)";
 	// MUON CORRELATION RUN SELECT
 	TTree* runtree = muonTree;
-	TString graphtitle = "2016 Muons (L1KFmuontriggers...48Runs-002) for L1 > 50GeV, 40GeV < transversemass < 100GeV";
-	//TString runcut = (passmuonmed > 0.1 || passmuonvarmed > 0.1) && ml1 > 50. && muonclean > 0.1 && muonrecal < 0.1;
+	TString graphtitle = "2016 Muons (L1KFmuontriggers...48Runs-002) for 40GeV < transversemass < 100GeV and #mu#>35. (muonclean > 0.1 and muonrecal < 0.1)";
 
 	// initialize zerobias and muon cuts for resolution graphs
-	TString zbPlotCut("(passnoalgL1XE10>0.5||passnoalgL1XE30>0.5||passnoalgL1XE40>0.5||passnoalgL1XE45>0.5)");
+	TString zbPlotCut("rndm>0.1");
 	TString muonsPlotCut("passmu26med>0.5||passmu26varmed>0.5");
 
 	//Produce fitting graphs for zerobias L1 events
@@ -259,9 +255,9 @@
 			runtree->GetEntry(i);
 
 			// tranvserse mass based on metoffrecal
-			//transversemass = sqrt(2*metoff*metoffw*(1+((mexoff*mexoffw+meyoff*meyoffw) / (metoff*metoffw))));
+			transversemass = sqrt(2*metoff*metoffw*(1+((mexoff*mexoffw+meyoff*meyoffw) / (metoff*metoffw))));
 
-			if ( (passmuonmed > 0.1 || passmuonvarmed > 0.1) && met[0] > 50. /*&& muonint > 35.*/ && muonclean > 0.1 && muonrecal < 0.1 /*&& 40. < transversemass && transversemass < 100. (zbl1gt10 > 0.1 || zbl1gt30 > 0.1 || zbl1gt40 > 0.1 || zbl1gt45 > 0.1) && met[0] > 50.*/)
+			if ( (passmuonmed > 0.1 || passmuonvarmed > 0.1) muonint > 35. && muonclean > 0.1 && muonrecal < 0.1 && 40. < transversemass && transversemass < 100. /* rndm > 0.1*/)
 			{
 				// the following loop populates the sigma and metdist arrays
 				for (Int_t j = 0; j < 4; j++)

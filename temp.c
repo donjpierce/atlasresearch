@@ -1,5 +1,21 @@
 {
 
+	Int_t k = 0;
+	for (int q = 0; q < 4; q++)
+	{
+		for (int l = 0; l < 4; l++)
+		{
+			if (q == l)	continue;
+			correlationgraph[k]->SetTitle("2016 Muons (L1KFmuontriggers...48Runs-002) for L1 > 50GeV");
+			k++;
+		}
+	}
+
+
+}
+
+	/*
+
 	TFile *muonFile = TFile::Open("../PhysicsMain.L1KFmuontriggers.2016.f731f758_m1659m1710.Run309759.48Runs-002.root");
 	TTree* muonTree = (TTree*)muonFile->Get("tree");
 	Int_t passmuonmed, passmuonvarmed, muonrecal, muonclean;
