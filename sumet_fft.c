@@ -4,7 +4,6 @@
 #include <TF1.h>
 
 
-
 Double_t sumet_func_fft ( Double_t *x, Double_t *parm) {
   static Double_t parmsave[6] = {-999.,-999.,-999.,-999.,-999.,-999.};
   static int ncalls=0;
