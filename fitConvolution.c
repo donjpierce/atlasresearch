@@ -158,7 +158,7 @@ void fitConvolution() {
 
     Int_t n_subint = 700;
     Double_t upper_bound = 1000.0;
-    Int_t n_curves = 2;
+    Int_t n_curves = 12;
     TCanvas *dists = new TCanvas("dists", "");
     TLegend* legend = new TLegend(0.37, 0.7, 0.55, 0.88);
     TF1 *mu[n_curves];
@@ -179,7 +179,7 @@ void fitConvolution() {
 
     int normal = 1;
     if (normal == 1) {
-        // draw curves in normal order
+        // draw lrves in normal order
         for (Int_t k = 0; k < n_curves; k++) {
              if (k == 0) { mu[k]->Draw(); }
              else { mu[k]->Draw("sames"); }
