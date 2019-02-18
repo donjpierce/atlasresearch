@@ -122,7 +122,3 @@ Double_t sumet_func_fft ( Double_t *x, Double_t *parm) {
   }
 
 }
-
-// TF1 *fft[60];
-// fft[0] = new TF1('first_fft', sumet_func_fft, 0, 2000, 6);
-// fft[0]->SetParNames()
