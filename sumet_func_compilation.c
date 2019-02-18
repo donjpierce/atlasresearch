@@ -1,6 +1,6 @@
 #include "sumet_func_fft.h"
 
-Double_t sumet_func_compilation {
+void sumet_func_compilation() {
     // create array for mu values
     int muvals[12];
     for (int i = 0; i < 12; i++) {
@@ -18,4 +18,6 @@ Double_t sumet_func_compilation {
         fft[i]->FixParameter(4, 0.995);
         fft[i]->FixParameter(5, 0.0085);
     }
+
+    return fft;
 }
