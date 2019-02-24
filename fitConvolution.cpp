@@ -215,14 +215,14 @@ Double_t integration(Double_t *MET, Double_t *parm) {
     b = parm[2];
     h = (b - a) / n;  // get width of the subintervals
 
-    TF1 *fft = new TF1("sumet_func_fft", sumet_func_fft, 0, 2000, 6);
-    fft->SetParNames("Norm","Slope","Mu","Offset","Frac1","Slope2");
-    fft->FixParameter(0, 5.0);
-    fft->FixParameter(1, gamma);
-    fft->FixParameter(2, mu);
-    fft->FixParameter(3, 50.0 - 6.0 * mu);
-    fft->FixParameter(4, 0.995);
-    fft->FixParameter(5, 0.0085);
+    // TF1 *fft = new TF1("sumet_func_fft", sumet_func_fft, 0, 2000, 6);
+    // fft->SetParNames("Norm","Slope","Mu","Offset","Frac1","Slope2");
+    // fft->FixParameter(0, 5.0);
+    // fft->FixParameter(1, gamma);
+    // fft->FixParameter(2, mu);
+    // fft->FixParameter(3, 50.0 - 6.0 * mu);
+    // fft->FixParameter(4, 0.995);
+    // fft->FixParameter(5, 0.0085);
 
     Double_t sumetFFT_params[6];
     sumetFFT_params[0] = 5.0;
@@ -231,6 +231,7 @@ Double_t integration(Double_t *MET, Double_t *parm) {
     sumetFFT_params[3] = 50.0 - 6.0 * mu;
     sumetFFT_params[4] = 0.995;
     sumetFFT_params[5] = 0.0085;
+
     Double_t pwgdParams[3];
     pwgdParams[0] = gamma;
     pwgdParams[1] = mu;
