@@ -1,4 +1,7 @@
-#include "TF1.h"
+#include <TROOT.h>
+#include <TH1D.h>
+#include <TVirtualFFT.h>
+#include <TF1.h>
 #include "Math/WrappedTF1.h"
 #include "Math/GaussIntegrator.h"
 // #include "sumet_head.hpp"
@@ -78,8 +81,12 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
     Double_t hival = 50000.0;
     Double_t xtemp;
     int itemp;
-    cout << "made it to here" << "\n";
-    long double functot[n]; // **** THIS LINE IS THE PROBLEM ****
+
+    // long double functot[n]; // **** THIS LINE IS THE PROBLEM ****
+    //static Double_t finalfuncval[62914560];
+    // static Double_t finalfuncval[8847360];
+
+    long double functot[8847360]; // **** THIS LINE IS THE PROBLEM ****
     //static Double_t finalfuncval[62914560];
     static Double_t finalfuncval[8847360];
     bool sameparm;
@@ -105,10 +112,12 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
     }
 
     if(!sameparm) {
+
       //Recompute function
       for (int i=0; i<n; i++) {
         functot[i]=0.000000000000000000000000000;
       }
+
 
     //Calculate and fill histogram for one interaction
     //onetermfunc->SetParameters(parm[0],parm[1],1.,0.);
@@ -137,6 +146,7 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
     //Compute fft for full mu dependent function
     Double_t *re_full = new Double_t[n];
     Double_t *im_full = new Double_t[n];
+    cout << "made it here" << "\n";
     fft->GetPointsComplex(re_full,im_full);
 
     for(int i=0; i<n; i++) {
@@ -176,6 +186,7 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
     delete [] im_full;
 
   } // finished filling the function
+
 
   itemp=int((x[0] - parm[3])*double(n)/hival);
   if(itemp>n-1 || itemp<0){
@@ -261,6 +272,11 @@ Double_t integration(Double_t *MET, Double_t *parm) {
 
 void fitConvolution() {
 
+    Double_t params[6] = {5.0, 0.067, 5.0, 20.0, 0.995, 0.0085};
+    TF1 *fft = new TF1("fft", sumet_func_fft, 0, 2000, 5);
+    fft->SetParameters(params);
+    fft->Draw();
+
     // TF1 *rayleighFit = new TF1("rayleighFit", "[0]*(1/[1])*(x/[1])*exp(-.5*(x/[1])*(x/[1]))");
     // rayleighFit->SetParameters(1., 1.);
     // rayleighFit->SetParLimits(0, 0.1, 10000000.);
@@ -289,6 +305,10 @@ void fitConvolution() {
     // Double_t cell17_slope, cell17_intercept;
     // cell17_slope = linfit->GetParameter(0);
     // cell17_intercept = linfit->GetParameter(1);
+
+
+
+    /*
     Double_t cell17_slope = 0.17744; // 2017 cell
     Double_t cell17_intercept = 22.3986; // 2017 cell
 
@@ -331,13 +351,7 @@ void fitConvolution() {
     }
 
     legend->Draw();
-
-    // ROOT::Math::WrappedTF1 wf1(*mu[1]);
-    // ROOT::Math::GaussIntegrator ig;
-    // ig.SetFunction(wf1);
-    // ig.SetRelTolerance(0.001);
-    // cout << ig.Integral(0, 1000.0) << endl;
-
+    */
 
     // code for just plotting one curve
     // TF1 *mu7 = new TF1("mu7", integration, 0, 100, 6);
