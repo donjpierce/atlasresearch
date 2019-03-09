@@ -86,9 +86,9 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
     //static Double_t finalfuncval[62914560];
     // static Double_t finalfuncval[8847360];
 
-    long double functot[n]; // **** THIS LINE IS THE PROBLEM ****
+    long double functot[8847360]; // **** THIS LINE IS THE PROBLEM ****
     //static Double_t finalfuncval[62914560];
-    static Double_t finalfuncval[n];
+    static Double_t finalfuncval[8847360];
     bool sameparm;
 
     TH1D *funchist = 0;
@@ -282,6 +282,7 @@ Double_t integration(Double_t *MET, Double_t *parm) {
 
 void fitConvolution() {
 
+    TCanvas *canv = new TCanvas("canv", "canv");
     Double_t params[6] = {5.0, 0.067, 5.0, 20.0, 0.995, 0.0085};
     TF1 *fft = new TF1("fft", sumet_func_fft, 0, 2000, 5);
     fft->SetParameters(params);
