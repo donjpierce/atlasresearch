@@ -82,17 +82,17 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
     Double_t xtemp;
     int itemp;
 
-    // long double functot[n]; // **** THIS LINE IS THE PROBLEM ****
+    // long double functot[n];
     //static Double_t finalfuncval[62914560];
     // static Double_t finalfuncval[8847360];
 
-    long double functot[8847360]; // **** THIS LINE IS THE PROBLEM ****
+    long double functot[8847360];
     //static Double_t finalfuncval[62914560];
     static Double_t finalfuncval[8847360];
     bool sameparm;
 
     TH1D *funchist = 0;
-    TH1 *ftransform=0;
+    TH1 *ftransform = 0;
 
     ncalls++;
     if(ncalls%10000==0) {
@@ -118,7 +118,6 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
         functot[i]=0.000000000000000000000000000;
       }
 
-
     //Calculate and fill histogram for one interaction
     //onetermfunc->SetParameters(parm[0],parm[1],1.,0.);
     //delete funchist;
@@ -135,29 +134,19 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
       //alpha*gamma*exp(-gamma*x)+(1-alpha)*gamma2*exp(-gamma2*x)
       funchist->SetBinContent(i+1,parm[4]*parm[1]*exp(-parm[1]*xtemp)+(1.-parm[4])*parm[5]*exp(-parm[5]*xtemp));
      }
-
+     cout << "made it here" << "\n";
     //Compute and store fft for one interaction function
     //delete ftransform;
     //ftransform = 0;
 
-    /*
-        *** THE FOLLOWING FFT PROTOCAL MUST BE ISOLATED AND DEBUGGED ***
+    TVirtualFFT::SetTransform(0);
+    ftransform = funchist->FFT(ftransform, "MAG");
+    TVirtualFFT *fft = TVirtualFFT::GetCurrentTransform();
 
-    */
-        TVirtualFFT::SetTransform(0);
-        ftransform = funchist->FFT(ftransform, "MAG");
-        TVirtualFFT *fft = TVirtualFFT::GetCurrentTransform();
-
-        //Compute fft for full mu dependent function
-        Double_t *re_full = new Double_t[n];
-        Double_t *im_full = new Double_t[n];
-        cout << "made it here" << "\n";
-        fft->GetPointsComplex(re_full,im_full);
-
-    /*
-        *** THE PREVIOUS FFT PROTOCAL MUST BE ISOLATED AND DEBUGGED ***
-
-    */
+    //Compute fft for full mu dependent function
+    Double_t *re_full = new Double_t[n];
+    Double_t *im_full = new Double_t[n];
+    fft->GetPointsComplex(re_full,im_full);
 
     for(int i=0; i<n; i++) {
       Double_t re_full_save = re_full[i];

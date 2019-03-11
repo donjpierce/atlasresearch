@@ -3,33 +3,89 @@
 #include <TF1.h>
 #include <TMath.h>
 
-void fft_test () {
+TH1* histogram () {
 
     TCanvas *canv = new TCanvas("canv", "FFT");
     TH1::AddDirectory(kFALSE);
 
-    TF1 *fsin = new TF1("fsin", "sin(x) + sin(2*x) + sin(0.5*x) + 1", 0, 4*TMath::Pi());
-    fsin->Draw();
+    TF1 *func = new TF1("func", "cos(2 * TMath::Pi() * (3 * x)) * TMath::Exp(-TMath::Pi() * x * x)", -2, 2);
+    func->Draw();
 
     Int_t n = 25;
-    TH1D *hsin = 0;
+    TH1 *hist = 0;
     // funchist = new TH1D("hsin", "hsin", TMath::Sin(), lowval, hival);
-    hsin = new TH1D("hsin", "hsin", n + 1, 0, 4*TMath::Pi());
+    hist = new TH1D("hist", "hist", n + 1, -2, 2);
     Double_t x;
 
     for (Int_t i = 0; i <= n; i++) {
         x = (Double_t(i) / n) * (4*TMath::Pi());
-        hsin->SetBinContent(i+1, fsin->Eval(x));
+        hist->SetBinContent(i+1, func->Eval(x));
     }
 
-    hsin->Draw("same");
+    return hist;
+}
+
+TH1* hist (Double_t *x, Double_t *parm) {
+    static Double_t parmsave[6] = {-999.,-999.,-999.,-999.,-999.,-999.};
+    static int ncalls=0;
+    int n = 8847360;
+    int nparms = 6;
+    Double_t lowval = 0.0;
+    Double_t hival = 50000.0;
+    Double_t xtemp;
+    int itemp;
+
+    long double functot[8847360];
+    static Double_t finalfuncval[8847360];
+    bool sameparm;
+
+    TH1D *funchist = 0;
+    TH1 *ftransform = 0;
+
+    ncalls++;
+    if(ncalls%10000==0) {
+      std::cout << "Number of routine calls = " << ncalls << "\n";
+    }
+
+    if(x[0] - parm[3]<0.) {
+        TH1 * null;
+        return null;
+    }
+
+    sameparm=true;
+    for(int k=0; k<nparms; k++) {
+      if (parm[k] != parmsave[k]) {
+        sameparm=false;
+        parmsave[k]=parm[k];
+      }
+    }
+
+    if(!sameparm) {
+        //Recompute function
+        for (int i=0; i<n; i++) {
+            functot[i]=0.000000000000000000000000000;
+        }
+        //Calculate and fill histogram for one interaction
+        funchist = new TH1D("funchist", "funchist", n+1, lowval, hival);
+        for (Int_t i=0; i<=n; i++){
+          xtemp = hival*double(i)/double(n);
+          funchist->SetBinContent(i+1,parm[4]*parm[1]*exp(-parm[1]*xtemp)+(1.-parm[4])*parm[5]*exp(-parm[5]*xtemp));
+         }
+
+    }
+
+    return funchist;
+
+}
+
+TH1* fourier (TH1* hist) {
 
     TCanvas *fft_canv = new TCanvas("fft_canv", "fft canvas");
     TH1 *hm = 0;
     TVirtualFFT::SetTransform(0);
-    hm = hsin->FFT(hm, "MAG");
-    hm->SetTitle("Magnitude of the 1st transform");
+    hm = hist->FFT(hm, "MAG");
+    // hm->SetTitle("Magnitude of the 1st transform");
     hm->Draw();
 
-
+    return hm;
 }
