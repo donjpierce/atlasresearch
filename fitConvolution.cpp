@@ -111,6 +111,8 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
       }
     }
 
+    cout << "made it here" << "\n";
+    
     if(!sameparm) {
 
       //Recompute function
@@ -134,7 +136,6 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
       //alpha*gamma*exp(-gamma*x)+(1-alpha)*gamma2*exp(-gamma2*x)
       funchist->SetBinContent(i+1,parm[4]*parm[1]*exp(-parm[1]*xtemp)+(1.-parm[4])*parm[5]*exp(-parm[5]*xtemp));
      }
-     cout << "made it here" << "\n";
     //Compute and store fft for one interaction function
     //delete ftransform;
     //ftransform = 0;

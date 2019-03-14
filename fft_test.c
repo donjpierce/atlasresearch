@@ -25,7 +25,7 @@ TH1* histogram () {
     return hist;
 }
 
-TH1* hist (Double_t *x, Double_t *parm) {
+TH1D* hist (Double_t *x, Double_t *parm) {
     static Double_t parmsave[6] = {-999.,-999.,-999.,-999.,-999.,-999.};
     static int ncalls=0;
     int n = 8847360;
@@ -48,7 +48,7 @@ TH1* hist (Double_t *x, Double_t *parm) {
     }
 
     if(x[0] - parm[3]<0.) {
-        TH1 * null;
+        TH1D * null;
         return null;
     }
 
@@ -69,7 +69,8 @@ TH1* hist (Double_t *x, Double_t *parm) {
         funchist = new TH1D("funchist", "funchist", n+1, lowval, hival);
         for (Int_t i=0; i<=n; i++){
           xtemp = hival*double(i)/double(n);
-          funchist->SetBinContent(i+1,parm[4]*parm[1]*exp(-parm[1]*xtemp)+(1.-parm[4])*parm[5]*exp(-parm[5]*xtemp));
+          funchist->SetBinContent(i+1,
+              parm[4]*parm[1]*exp(-parm[1]*xtemp)+(1.-parm[4])*parm[5]*exp(-parm[5]*xtemp));
          }
 
     }
@@ -78,7 +79,7 @@ TH1* hist (Double_t *x, Double_t *parm) {
 
 }
 
-TH1* fourier (TH1* hist) {
+TH1* fourier (TH1D* hist) {
 
     TCanvas *fft_canv = new TCanvas("fft_canv", "fft canvas");
     TH1 *hm = 0;
