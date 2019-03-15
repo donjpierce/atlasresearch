@@ -72,6 +72,7 @@ Double_t PWGD (Double_t varSUMET, Double_t *parm) {
 }
 
 Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
+    cout << "made it to here" << endl;
     static Double_t parmsave[6] = {-999.,-999.,-999.,-999.,-999.,-999.};
     static int ncalls=0;
     //int n=62914560;
@@ -94,6 +95,7 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
     TH1D *funchist = 0;
     TH1 *ftransform = 0;
 
+
     ncalls++;
     if(ncalls%10000==0) {
       std::cout << "Number of routine calls = " << ncalls << "\n";
@@ -111,8 +113,6 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
       }
     }
 
-    cout << "made it here" << "\n";
-    
     if(!sameparm) {
 
       //Recompute function
@@ -274,7 +274,7 @@ void fitConvolution() {
 
     TCanvas *canv = new TCanvas("canv", "canv");
     Double_t params[6] = {5.0, 0.067, 5.0, 20.0, 0.995, 0.0085};
-    TF1 *fft = new TF1("fft", sumet_func_fft, 0, 2000, 5);
+    TF1 *fft = new TF1("fft", sumet_func_fft, 0, 2000, 6);
     fft->SetParameters(params);
     fft->Draw();
 

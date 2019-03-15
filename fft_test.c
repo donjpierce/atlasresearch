@@ -25,7 +25,7 @@ TH1* histogram () {
     return hist;
 }
 
-TH1D* hist (Double_t *x, Double_t *parm) {
+TH1D* hist (Double_t *parm) {
     static Double_t parmsave[6] = {-999.,-999.,-999.,-999.,-999.,-999.};
     static int ncalls=0;
     int n = 8847360;
@@ -35,45 +35,20 @@ TH1D* hist (Double_t *x, Double_t *parm) {
     Double_t xtemp;
     int itemp;
 
-    long double functot[8847360];
-    static Double_t finalfuncval[8847360];
+    // long double functot[8847360];
+    // static Double_t finalfuncval[8847360];
     bool sameparm;
 
     TH1D *funchist = 0;
     TH1 *ftransform = 0;
 
-    ncalls++;
-    if(ncalls%10000==0) {
-      std::cout << "Number of routine calls = " << ncalls << "\n";
-    }
-
-    if(x[0] - parm[3]<0.) {
-        TH1D * null;
-        return null;
-    }
-
-    sameparm=true;
-    for(int k=0; k<nparms; k++) {
-      if (parm[k] != parmsave[k]) {
-        sameparm=false;
-        parmsave[k]=parm[k];
-      }
-    }
-
-    if(!sameparm) {
-        //Recompute function
-        for (int i=0; i<n; i++) {
-            functot[i]=0.000000000000000000000000000;
-        }
-        //Calculate and fill histogram for one interaction
-        funchist = new TH1D("funchist", "funchist", n+1, lowval, hival);
-        for (Int_t i=0; i<=n; i++){
-          xtemp = hival*double(i)/double(n);
-          funchist->SetBinContent(i+1,
-              parm[4]*parm[1]*exp(-parm[1]*xtemp)+(1.-parm[4])*parm[5]*exp(-parm[5]*xtemp));
-         }
-
-    }
+    //Calculate and fill histogram for one interaction
+    funchist = new TH1D("funchist", "funchist", n+1, lowval, hival);
+    for (Int_t i=0; i<=n; i++){
+      xtemp = hival*double(i)/double(n);
+      funchist->SetBinContent(i+1,
+          parm[4]*parm[1]*exp(-parm[1]*xtemp)+(1.-parm[4])*parm[5]*exp(-parm[5]*xtemp));
+     }
 
     return funchist;
 
