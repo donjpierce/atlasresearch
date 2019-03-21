@@ -277,40 +277,37 @@ void fitConvolution() {
     Double_t params[6] = {5.0, 0.067, 5.0, 20.0, 0.995, 0.0085};
     TF1 *fft = new TF1("fft", sumet_func_fft, 0, 2000, 6);
     fft->SetParameters(params);
-    fft->Draw();
 
-    // TF1 *rayleighFit = new TF1("rayleighFit", "[0]*(1/[1])*(x/[1])*exp(-.5*(x/[1])*(x/[1]))");
-    // rayleighFit->SetParameters(1., 1.);
-    // rayleighFit->SetParLimits(0, 0.1, 10000000.);
-    // rayleighFit->SetParLimits(1, 0.1, 10000000.);
-    // rayleighFit->SetParNames("amplitude", "sigma");
-    //
-    // // Defining linear fit function
-    // TF1 *linfit = new TF1("linfit", "[0]*x + [1]");
-    // linfit->SetParameters(0, -80.);
-    // linfit->SetParameters(1, -80.);
-    // linfit->SetParLimits(0, -80., 80.);
-    // linfit->SetParLimits(1, -80., 80.);
-    // linfit->SetParNames("slope", "intercept");
-    //
-    // TFile *jburr17 = TFile::Open("../jburr_data_2017.root");
-    // TTree *tree17 = (TTree*)jburr17->Get("METTree");
-    //
-    // TCanvas *myCanv = new TCanvas("MyCanv", "");
-    // TH2F *cell17 = new TH2F("cell17", "", 100, 0., 100., 100, 0., 100.);
-    // // tree17->Draw("cell.met:sqrt(cell.sumet)>>cell17", "HLT_noalg_zb_L1ZB.passed>0.1");
-    // tree17->Draw("cell.met:sqrt(cell.sumet)>>cell17");
-    // cell17->FitSlicesY(rayleighFit, 0, -1, 10, "L");
-    // TH1D *cell17_sigma = (TH1D*)gDirectory->Get("cell17_1");
-    // cell17_sigma->Fit(linfit, "M", "L", 0., 200.);
-    // cell17_sigma->Draw();
-    // Double_t cell17_slope, cell17_intercept;
-    // cell17_slope = linfit->GetParameter(0);
-    // cell17_intercept = linfit->GetParameter(1);
+    TF1 *rayleighFit = new TF1("rayleighFit", "[0]*(1/[1])*(x/[1])*exp(-.5*(x/[1])*(x/[1]))");
+    rayleighFit->SetParameters(1., 1.);
+    rayleighFit->SetParLimits(0, 0.1, 10000000.);
+    rayleighFit->SetParLimits(1, 0.1, 10000000.);
+    rayleighFit->SetParNames("amplitude", "sigma");
 
+    // Defining linear fit function
+    TF1 *linfit = new TF1("linfit", "[0]*x + [1]");
+    linfit->SetParameters(0, -80.);
+    linfit->SetParameters(1, -80.);
+    linfit->SetParLimits(0, -80., 80.);
+    linfit->SetParLimits(1, -80., 80.);
+    linfit->SetParNames("slope", "intercept");
+
+    TFile *jburr17 = TFile::Open("../jburr_data_2017.root");
+    TTree *tree17 = (TTree*)jburr17->Get("METTree");
+
+    TCanvas *myCanv = new TCanvas("MyCanv", "");
+    TH2F *cell17 = new TH2F("cell17", "", 100, 0., 100., 100, 0., 100.);
+    // tree17->Draw("cell.met:sqrt(cell.sumet)>>cell17", "HLT_noalg_zb_L1ZB.passed>0.1");
+    tree17->Draw("cell.met:sqrt(cell.sumet)>>cell17");
+    cell17->FitSlicesY(rayleighFit, 0, -1, 10, "L");
+    TH1D *cell17_sigma = (TH1D*)gDirectory->Get("cell17_1");
+    cell17_sigma->Fit(linfit, "M", "L", 0., 200.);
+    cell17_sigma->Draw();
+    Double_t cell17_slope, cell17_intercept;
+    cell17_slope = linfit->GetParameter(0);
+    cell17_intercept = linfit->GetParameter(1);
 
 
-    /*
     Double_t cell17_slope = 0.17744; // 2017 cell
     Double_t cell17_intercept = 22.3986; // 2017 cell
 
@@ -353,7 +350,7 @@ void fitConvolution() {
     }
 
     legend->Draw();
-    */
+
 
     // code for just plotting one curve
     // TF1 *mu7 = new TF1("mu7", integration, 0, 100, 6);
