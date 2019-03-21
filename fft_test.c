@@ -35,8 +35,8 @@ TH1D* hist (Double_t *parm) {
     Double_t xtemp;
     int itemp;
 
-    // long double functot[8847360];
-    // static Double_t finalfuncval[8847360];
+    long double functot[8847360];
+    static Double_t finalfuncval[8847360];
     bool sameparm;
 
     TH1D *funchist = 0;

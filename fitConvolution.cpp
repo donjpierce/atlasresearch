@@ -1,6 +1,7 @@
 #include <TROOT.h>
 #include <TH1D.h>
 #include <TVirtualFFT.h>
+#include <TCanvas.h>
 #include <TF1.h>
 #include "Math/WrappedTF1.h"
 #include "Math/GaussIntegrator.h"
@@ -72,10 +73,10 @@ Double_t PWGD (Double_t varSUMET, Double_t *parm) {
 }
 
 Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
-    cout << "made it to here" << endl;
     static Double_t parmsave[6] = {-999.,-999.,-999.,-999.,-999.,-999.};
     static int ncalls=0;
     //int n=62914560;
+    // int n = 8847360;
     int n = 8847360;
     int nparms = 6;
     Double_t lowval = 0.0;
@@ -97,7 +98,7 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
 
 
     ncalls++;
-    if(ncalls%10000==0) {
+    if(ncalls%100==0) {
       std::cout << "Number of routine calls = " << ncalls << "\n";
     }
 
