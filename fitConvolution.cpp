@@ -99,10 +99,10 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
     TH1D *funchist = 0;
     TH1 *ftransform = 0;
 
-    ncalls++;
-    if(ncalls%100==0) {
-      std::cout << "Number of routine calls = " << ncalls << "\n";
-    }
+    // ncalls++;
+    // if(ncalls%100==0) {
+    //   std::cout << "Number of routine calls = " << ncalls << "\n";
+    // }
 
     if(x[0] - parm[3]<0.) {
       return 0.0;
@@ -262,7 +262,7 @@ Double_t integration(Double_t *MET, Double_t *parm) {
         rayleigh_func->SetParameters(rayleighParams);
         Double_t r1 = rayleigh_func->Eval(MET[0]);
         Double_t r2 = fft->Eval(SUMET[i]);
-        // Double_t r2 = PWGD(SUMET[i], pwgdParams);
+        // Double_t r2 = pwgd->Eval(SUMET[i]);
         R[i] = r1 * r2;
         R[i] /= (1 - exp(-mu)); // corrects for not starting the Poisson sum at 0
     }
@@ -316,52 +316,55 @@ void fitConvolution() {
     Int_t n_subint = 700;
     Double_t upper_bound = 1000.0;
 
-    TCanvas *dists = new TCanvas("dists", "");
-    TLegend* legend = new TLegend(0.37, 0.7, 0.55, 0.88);
-    TF1 *mu5 = new TF1("mu5", integration, 0, 100, 6);
-    mu5->SetParameters(n_subint, 0.0, upper_bound, 5, cell17_slope, cell17_intercept);
-    legend->AddEntry(mu5, "mu = 5");
-    mu5->Draw();
-    legend->Draw();
-
-    // Int_t n_curves = 12;
     // TCanvas *dists = new TCanvas("dists", "");
     // TLegend* legend = new TLegend(0.37, 0.7, 0.55, 0.88);
-    // TF1 *mu[n_curves];
-    // char *funcName = new char[5];
-    // for (Int_t i = 0; i < n_curves; i++) {
-    //     int color = i + 1;
-    //     int muValue = (i + 1) * 5;
-    //     sprintf(funcName, "mu%d", muValue);
-    //     mu[i] = new TF1(funcName, integration, 0, 100, 6);
-    //     mu[i]->SetParNames("number of subintervals", "lower bound", "upper bound", "mu", "slope", "intercept");
-    //     mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, cell17_slope, cell17_intercept);
-    //     mu[i]->SetLineColor(color);
-    //
-    //     char *legendEntryName = new char[7];
-    //     sprintf(legendEntryName, "#mu = %d", muValue);
-    //     legend->AddEntry(mu[i], legendEntryName);
-    // }
-    //
-    // int normal = 1;
-    // if (normal == 1) {
-    //     // draw lrves in normal order
-    //     for (Int_t k = 0; k < n_curves; k++) {
-    //          if (k == 0) { mu[k]->Draw(); }
-    //          else { mu[k]->Draw("sames"); }
-    //     }
-    // }
-    // else
-    // {
-    //     // draw curves in reverse order
-    //     for (Int_t j = 0; j < n_curves; j++) {
-    //         if (j == 0) { mu[n_curves - 1]->Draw(); }
-    //         else { mu[n_curves - j - 1]->Draw("sames"); }
-    //     }
-    // }
-    //
+    // TF1 *mu5 = new TF1("mu5", integration, 0, 100, 6);
+    // mu5->SetParameters(n_subint, 0.0, upper_bound, 5, cell17_slope, cell17_intercept);
+    // legend->AddEntry(mu5, "#mu = 5");
+    // mu5->Draw();
     // legend->Draw();
 
+    Int_t n_curves = 12;
+    TCanvas *dists = new TCanvas("dists", "");
+    TLegend* legend = new TLegend(0.37, 0.7, 0.55, 0.88);
+    TF1 *mu[n_curves];
+    char *funcName = new char[5];
+    for (Int_t i = 0; i < n_curves; i++) {
+        int color = i + 1;
+        short int muValue = (i + 1) * 5;
+        sprintf(funcName, "mu%i", muValue);
+        mu[i] = new TF1(funcName, integration, 0, 100, 6);
+        mu[i]->SetParNames("number of subintervals", "lower bound", "upper bound", "mu", "slope", "intercept");
+        mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, cell17_slope, cell17_intercept);
+        mu[i]->SetLineColor(color);
+
+        char *legendEntryName = new char[10];
+        sprintf(legendEntryName, "#mu = %i", muValue);
+        legend->AddEntry(mu[i], legendEntryName);
+    }
+
+    int normal = 1;
+    if (normal == 1) {
+        // draw lrves in normal order
+        for (Int_t k = 0; k < n_curves; k++) {
+             if (k == 0) { mu[k]->Draw(); }
+             else { mu[k]->Draw("sames"); }
+        }
+    }
+    else
+    {
+        // draw curves in reverse order
+        for (Int_t j = 0; j < n_curves; j++) {
+            if (j == 0) { mu[n_curves - 1]->Draw(); }
+            else { mu[n_curves - j - 1]->Draw("sames"); }
+        }
+    }
+
+    legend->Draw();
+    mu[0]->SetTitle("Convolution with FFT");
+    mu[0]->GetXaxis()->SetTitle("MET [GeV]");
+    mu[0]->GetYaxis()->SetTitle("Probability of an Event");
+    dists->SaveAs("results.png");
 
     // code for just plotting one curve
     // TF1 *mu7 = new TF1("mu7", integration, 0, 100, 6);
