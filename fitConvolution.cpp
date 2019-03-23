@@ -1,8 +1,12 @@
 #include <TROOT.h>
 #include <TH1D.h>
+#include <TH2F.h>
+#include <TLegend.h>
 #include <TVirtualFFT.h>
 #include <TCanvas.h>
 #include <TF1.h>
+#include <TFile.h>
+#include <TTree.h>
 #include "Math/WrappedTF1.h"
 #include "Math/GaussIntegrator.h"
 
@@ -84,7 +88,7 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
     int itemp;
 
     // long double functot[n];
-    //static Double_t finalfuncval[62914560];
+    // static Double_t finalfuncval[62914560];
     // static Double_t finalfuncval[8847360];
 
     long double functot[8847360];
@@ -94,7 +98,6 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
 
     TH1D *funchist = 0;
     TH1 *ftransform = 0;
-
 
     ncalls++;
     if(ncalls%100==0) {
@@ -252,9 +255,9 @@ Double_t integration(Double_t *MET, Double_t *parm) {
         SUMET[i] = a + i * h;
         rayleighParams[2] = SUMET[i];
         Double_t r1 = rayleigh(MET[0], rayleighParams);
-        Double_t r2 = sumet_func_fft(SUMET[i], sumetFFT_params);
+        // Double_t r2 = sumet_func_fft(SUMET[i], sumetFFT_params);
         // Double_t r2 = PWGD(SUMET[i], pwgdParams);
-        R[i] = r1 * r2;
+        // R[i] = r1 * r2;
         R[i] /= (1 - exp(-mu)); // corrects for not starting the Poisson sum at 0
     }
     double sum = 0;
@@ -269,10 +272,11 @@ Double_t integration(Double_t *MET, Double_t *parm) {
 
 void fitConvolution() {
 
-    TCanvas *canv = new TCanvas("canv", "canv");
-    Double_t params[6] = {5.0, 0.067, 5.0, 20.0, 0.995, 0.0085};
-    TF1 *fft = new TF1("fft", sumet_func_fft, 0, 2000, 6);
-    fft->SetParameters(params);
+    // *** JUST FOR TESTING ***
+    // TCanvas *canv = new TCanvas("canv", "canv");
+    // Double_t params[6] = {5.0, 0.067, 5.0, 20.0, 0.995, 0.0085};
+    // TF1 *fft = new TF1("fft", sumet_func_fft, 0, 2000, 6);
+    // fft->SetParameters(params);
 
     TF1 *rayleighFit = new TF1("rayleighFit", "[0]*(1/[1])*(x/[1])*exp(-.5*(x/[1])*(x/[1]))");
     rayleighFit->SetParameters(1., 1.);
