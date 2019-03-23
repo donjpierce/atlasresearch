@@ -10,7 +10,7 @@
 #include "Math/WrappedTF1.h"
 #include "Math/GaussIntegrator.h"
 
-Double_t rayleigh (Double_t varMET, Double_t *parm) {
+Double_t rayleigh (Double_t *varMET, Double_t *parm) {
     /*
         Arguments
         _________
@@ -32,12 +32,12 @@ Double_t rayleigh (Double_t varMET, Double_t *parm) {
     // if (parm[2] < 16.0) {
     //     sigma = parm[0] + 4.0 * parm[1];
     // }
-    rayleigh = varMET / (sigma * sigma) * exp(-0.5 * varMET * varMET / (sigma * sigma));
+    rayleigh = varMET[0] / (sigma * sigma) * exp(-0.5 * varMET[0] * varMET[0] / (sigma * sigma));
 
     return rayleigh;
 }
 
-Double_t PWGD (Double_t varSUMET, Double_t *parm) {
+Double_t PWGD (Double_t *varSUMET, Double_t *parm) {
     /*
         Arguments
         _________
@@ -59,12 +59,12 @@ Double_t PWGD (Double_t varSUMET, Double_t *parm) {
     buffer = 1.;
     for (Int_t n = 2; n < 50 * int(parm[1]); n++)
     {
-        buffer *= parm[0] * parm[1] * varSUMET / (n * (n - 1));
+        buffer *= parm[0] * parm[1] * varSUMET[0] / (n * (n - 1));
         sum += buffer;
     }
 
     // Poisson-weighted gamma densities function result
-    pwgd = double(sum) * parm[1] * parm[0] * exp(-(parm[0] * varSUMET + parm[1]));
+    pwgd = double(sum) * parm[1] * parm[0] * exp(-(parm[0] * varSUMET[0] + parm[1]));
     // if (varSUMET > parm[2]) {
     //     pwgd = parm[0] * exp(-parm[0] * (varSUMET - parm[2]));
     // }
@@ -238,26 +238,32 @@ Double_t integration(Double_t *MET, Double_t *parm) {
     sumetFFT_params[3] = 50.0 - 6.0 * mu;
     sumetFFT_params[4] = 0.995;
     sumetFFT_params[5] = 0.0085;
+    TF1 *fft = new TF1("fft", sumet_func_fft, 0, 1000, 6);
+    fft->SetParameters(sumetFFT_params);
 
     // parameters for PWGD component
     Double_t pwgdParams[3];
     pwgdParams[0] = gamma;
     pwgdParams[1] = mu;
     pwgdParams[2] = offset;
+    TF1 *pwgd = new TF1("pwgd", PWGD, 0, 1000, 3);
+    pwgd->SetParameters(pwgdParams);
 
     // parameters for Rayleigh component
     Double_t rayleighParams[3];
     rayleighParams[0] = cell17_slope;
     rayleighParams[1] = cell17_intercept;
+    TF1 *rayleigh_func = new TF1("rayleigh_func", rayleigh, 0, 500, 3);
 
     Double_t SUMET[n+1], R[n+1];  // SUMET = integration variable, R = result
     for (int i = 0; i < n; i ++) {
         SUMET[i] = a + i * h;
         rayleighParams[2] = SUMET[i];
-        Double_t r1 = rayleigh(MET[0], rayleighParams);
-        // Double_t r2 = sumet_func_fft(SUMET[i], sumetFFT_params);
+        rayleigh_func->SetParameters(rayleighParams);
+        Double_t r1 = rayleigh_func->Eval(MET[0]);
+        Double_t r2 = fft->Eval(SUMET[i]);
         // Double_t r2 = PWGD(SUMET[i], pwgdParams);
-        // R[i] = r1 * r2;
+        R[i] = r1 * r2;
         R[i] /= (1 - exp(-mu)); // corrects for not starting the Poisson sum at 0
     }
     double sum = 0;
@@ -309,44 +315,52 @@ void fitConvolution() {
 
     Int_t n_subint = 700;
     Double_t upper_bound = 1000.0;
-    // Int_t n_curves = 12;
-    Int_t n_curves = 1;
+
     TCanvas *dists = new TCanvas("dists", "");
     TLegend* legend = new TLegend(0.37, 0.7, 0.55, 0.88);
-    TF1 *mu[n_curves];
-    char *funcName = new char[5];
-    for (Int_t i = 0; i < n_curves; i++) {
-        int color = i + 1;
-        int muValue = (i + 1) * 5;
-        sprintf(funcName, "mu%d", muValue);
-        mu[i] = new TF1(funcName, integration, 0, 100, 6);
-        mu[i]->SetParNames("number of subintervals", "lower bound", "upper bound", "mu", "slope", "intercept");
-        mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, cell17_slope, cell17_intercept);
-        mu[i]->SetLineColor(color);
-
-        char *legendEntryName = new char[7];
-        sprintf(legendEntryName, "#mu = %d", muValue);
-        legend->AddEntry(mu[i], legendEntryName);
-    }
-
-    int normal = 1;
-    if (normal == 1) {
-        // draw lrves in normal order
-        for (Int_t k = 0; k < n_curves; k++) {
-             if (k == 0) { mu[k]->Draw(); }
-             else { mu[k]->Draw("sames"); }
-        }
-    }
-    else
-    {
-        // draw curves in reverse order
-        for (Int_t j = 0; j < n_curves; j++) {
-            if (j == 0) { mu[n_curves - 1]->Draw(); }
-            else { mu[n_curves - j - 1]->Draw("sames"); }
-        }
-    }
-
+    TF1 *mu5 = new TF1("mu5", integration, 0, 100, 6);
+    mu5->SetParameters(n_subint, 0.0, upper_bound, 5, cell17_slope, cell17_intercept);
+    legend->AddEntry(mu5, "mu = 5");
+    mu5->Draw();
     legend->Draw();
+
+    // Int_t n_curves = 12;
+    // TCanvas *dists = new TCanvas("dists", "");
+    // TLegend* legend = new TLegend(0.37, 0.7, 0.55, 0.88);
+    // TF1 *mu[n_curves];
+    // char *funcName = new char[5];
+    // for (Int_t i = 0; i < n_curves; i++) {
+    //     int color = i + 1;
+    //     int muValue = (i + 1) * 5;
+    //     sprintf(funcName, "mu%d", muValue);
+    //     mu[i] = new TF1(funcName, integration, 0, 100, 6);
+    //     mu[i]->SetParNames("number of subintervals", "lower bound", "upper bound", "mu", "slope", "intercept");
+    //     mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, cell17_slope, cell17_intercept);
+    //     mu[i]->SetLineColor(color);
+    //
+    //     char *legendEntryName = new char[7];
+    //     sprintf(legendEntryName, "#mu = %d", muValue);
+    //     legend->AddEntry(mu[i], legendEntryName);
+    // }
+    //
+    // int normal = 1;
+    // if (normal == 1) {
+    //     // draw lrves in normal order
+    //     for (Int_t k = 0; k < n_curves; k++) {
+    //          if (k == 0) { mu[k]->Draw(); }
+    //          else { mu[k]->Draw("sames"); }
+    //     }
+    // }
+    // else
+    // {
+    //     // draw curves in reverse order
+    //     for (Int_t j = 0; j < n_curves; j++) {
+    //         if (j == 0) { mu[n_curves - 1]->Draw(); }
+    //         else { mu[n_curves - j - 1]->Draw("sames"); }
+    //     }
+    // }
+    //
+    // legend->Draw();
 
 
     // code for just plotting one curve
