@@ -5,7 +5,6 @@
 #include <TF1.h>
 #include "Math/WrappedTF1.h"
 #include "Math/GaussIntegrator.h"
-// #include "sumet_head.hpp"
 
 Double_t rayleigh (Double_t varMET, Double_t *parm) {
     /*
@@ -103,7 +102,7 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
     }
 
     if(x[0] - parm[3]<0.) {
-      return 0.;
+      return 0.0;
     }
 
     sameparm=true;
@@ -191,11 +190,11 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
 
   itemp=int((x[0] - parm[3])*double(n)/hival);
   if(itemp>n-1 || itemp<0){
-      return 0.;
+      return 0.0;
   }
   else {
       //std::cout << " itemp " << itemp << " x = " << x[0] << "  f(x) " << finalfuncval[itemp] <<"\n";
-      return parm[0]*finalfuncval[itemp];
+      return parm[0] * finalfuncval[itemp];
   }
 
 }
@@ -252,8 +251,10 @@ Double_t integration(Double_t *MET, Double_t *parm) {
     for (int i = 0; i < n; i ++) {
         SUMET[i] = a + i * h;
         rayleighParams[2] = SUMET[i];
-        // R[i] = PWGD(SUMET[i], pwgdParams) * rayleigh(MET[0], rayleighParams);
-        R[i] = rayleigh(MET[0], rayleighParams) * sumet_func_fft(SUMET[i], sumetFFT_params);
+        Double_t r1 = rayleigh(MET[0], rayleighParams);
+        Double_t r2 = sumet_func_fft(SUMET[i], sumetFFT_params);
+        // Double_t r2 = PWGD(SUMET[i], pwgdParams);
+        R[i] = r1 * r2;
         R[i] /= (1 - exp(-mu)); // corrects for not starting the Poisson sum at 0
     }
     double sum = 0;
@@ -301,9 +302,6 @@ void fitConvolution() {
     Double_t cell17_slope, cell17_intercept;
     cell17_slope = linfit->GetParameter(0);
     cell17_intercept = linfit->GetParameter(1);
-
-    Double_t cell17_slope = 0.17744; // 2017 cell
-    Double_t cell17_intercept = 22.3986; // 2017 cell
 
     Int_t n_subint = 700;
     Double_t upper_bound = 1000.0;
@@ -357,4 +355,4 @@ void fitConvolution() {
     // legend->AddEntry(mu7, "#mu = 7");
     // legend->Draw();
 
- }
+}
