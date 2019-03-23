@@ -228,15 +228,7 @@ Double_t integration(Double_t *MET, Double_t *parm) {
     b = parm[2];
     h = (b - a) / n;  // get width of the subintervals
 
-    // TF1 *fft = new TF1("sumet_func_fft", sumet_func_fft, 0, 2000, 6);
-    // fft->SetParNames("Norm","Slope","Mu","Offset","Frac1","Slope2");
-    // fft->FixParameter(0, 5.0);
-    // fft->FixParameter(1, gamma);
-    // fft->FixParameter(2, mu);
-    // fft->FixParameter(3, 50.0 - 6.0 * mu);
-    // fft->FixParameter(4, 0.995);
-    // fft->FixParameter(5, 0.0085);
-
+    // parameters for FFT component
     Double_t sumetFFT_params[6];
     sumetFFT_params[0] = 5.0;
     sumetFFT_params[1] = gamma;
@@ -245,20 +237,23 @@ Double_t integration(Double_t *MET, Double_t *parm) {
     sumetFFT_params[4] = 0.995;
     sumetFFT_params[5] = 0.0085;
 
+    // parameters for PWGD component
     Double_t pwgdParams[3];
     pwgdParams[0] = gamma;
     pwgdParams[1] = mu;
     pwgdParams[2] = offset;
+
+    // parameters for Rayleigh component
     Double_t rayleighParams[3];
     rayleighParams[0] = cell17_slope;
     rayleighParams[1] = cell17_intercept;
 
-    Double_t SUMET[n+1], R[n+1];  // integration variable = SUMET, result = Rayleigh
+    Double_t SUMET[n+1], R[n+1];  // SUMET = integration variable, R = result
     for (int i = 0; i < n; i ++) {
         SUMET[i] = a + i * h;
         rayleighParams[2] = SUMET[i];
         // R[i] = PWGD(SUMET[i], pwgdParams) * rayleigh(MET[0], rayleighParams);
-        // R[i] = rayleigh(MET[0], rayleighParams) * sumet_func_fft(SUMET[i], sumetFFT_params);
+        R[i] = rayleigh(MET[0], rayleighParams) * sumet_func_fft(SUMET[i], sumetFFT_params);
         R[i] /= (1 - exp(-mu)); // corrects for not starting the Poisson sum at 0
     }
     double sum = 0;
@@ -292,7 +287,7 @@ void fitConvolution() {
     linfit->SetParLimits(1, -80., 80.);
     linfit->SetParNames("slope", "intercept");
 
-    TFile *jburr17 = TFile::Open("../jburr_data_2017.root");
+    TFile *jburr17 = TFile::Open("data/jburr_data_2017.root");
     TTree *tree17 = (TTree*)jburr17->Get("METTree");
 
     TCanvas *myCanv = new TCanvas("MyCanv", "");
@@ -307,13 +302,13 @@ void fitConvolution() {
     cell17_slope = linfit->GetParameter(0);
     cell17_intercept = linfit->GetParameter(1);
 
-
     Double_t cell17_slope = 0.17744; // 2017 cell
     Double_t cell17_intercept = 22.3986; // 2017 cell
 
     Int_t n_subint = 700;
     Double_t upper_bound = 1000.0;
-    Int_t n_curves = 12;
+    // Int_t n_curves = 12;
+    Int_t n_curves = 1;
     TCanvas *dists = new TCanvas("dists", "");
     TLegend* legend = new TLegend(0.37, 0.7, 0.55, 0.88);
     TF1 *mu[n_curves];
