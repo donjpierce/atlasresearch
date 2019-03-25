@@ -53,8 +53,13 @@ Double_t PWGD (Double_t *varSUMET, Double_t *parm) {
         pwgd   : double : Poisson-Weighted Gamma Densities result for given args
     */
 
+    if (varSUMET < parm[2]) {
+        pwgd = 0;
+        return pwgd;
+    }
+
     long double sum;
-    double buffer, pwgd;
+    double buffer;
     sum = 1.;
     buffer = 1.;
     for (Int_t n = 2; n < 50 * int(parm[1]); n++)
@@ -65,6 +70,7 @@ Double_t PWGD (Double_t *varSUMET, Double_t *parm) {
 
     // Poisson-weighted gamma densities function result
     pwgd = double(sum) * parm[1] * parm[0] * exp(-(parm[0] * varSUMET[0] + parm[1]));
+
     // if (varSUMET > parm[2]) {
     //     pwgd = parm[0] * exp(-parm[0] * (varSUMET - parm[2]));
     // }
@@ -218,9 +224,9 @@ Double_t integration(Double_t *MET, Double_t *parm) {
     // gamma for 2011
     // Double_t gamma = 0.042;
     // gamma for 2017
-    Double_t gamma = 0.065;
+    Double_t gamma = 0.070;
     Double_t mu = parm[3];
-    Double_t offset = 92 - 7.4 * parm[3];
+    Double_t offset = 25.0 - 5.0 * parm[3];
     Double_t cell17_slope = parm[4];
     Double_t cell17_intercept = parm[5];
 
@@ -232,13 +238,13 @@ Double_t integration(Double_t *MET, Double_t *parm) {
 
     // parameters for FFT component
     Double_t sumetFFT_params[6];
-    sumetFFT_params[0] = 5.0;
-    sumetFFT_params[1] = gamma;
+    sumetFFT_params[0] = 1.0;  // Normalization constant
+    sumetFFT_params[1] = gamma; // gamma
     sumetFFT_params[2] = mu;
-    sumetFFT_params[3] = 50.0 - 6.0 * mu;
+    sumetFFT_params[3] = offset;
     sumetFFT_params[4] = 0.995;
-    sumetFFT_params[5] = 0.0085;
-    TF1 *fft = new TF1("fft", sumet_func_fft, 0, 1000, 6);
+    sumetFFT_params[5] = 0.0090;
+    TF1 *fft = new TF1("fft", sumet_func_fft, 0, 2000, 6);
     fft->SetParameters(sumetFFT_params);
 
     // parameters for PWGD component
@@ -246,7 +252,7 @@ Double_t integration(Double_t *MET, Double_t *parm) {
     pwgdParams[0] = gamma;
     pwgdParams[1] = mu;
     pwgdParams[2] = offset;
-    TF1 *pwgd = new TF1("pwgd", PWGD, 0, 1000, 3);
+    TF1 *pwgd = new TF1("pwgd", PWGD, 0, 2000, 3);
     pwgd->SetParameters(pwgdParams);
 
     // parameters for Rayleigh component
@@ -261,8 +267,8 @@ Double_t integration(Double_t *MET, Double_t *parm) {
         rayleighParams[2] = SUMET[i];
         rayleigh_func->SetParameters(rayleighParams);
         Double_t r1 = rayleigh_func->Eval(MET[0]);
-        Double_t r2 = fft->Eval(SUMET[i]);
-        // Double_t r2 = pwgd->Eval(SUMET[i]);
+        // Double_t r2 = fft->Eval(SUMET[i]);
+        Double_t r2 = pwgd->Eval(SUMET[i]);
         R[i] = r1 * r2;
         R[i] /= (1 - exp(-mu)); // corrects for not starting the Poisson sum at 0
     }
@@ -313,8 +319,8 @@ void fitConvolution() {
     cell17_slope = linfit->GetParameter(0);
     cell17_intercept = linfit->GetParameter(1);
 
-    Int_t n_subint = 700;
-    Double_t upper_bound = 1000.0;
+    Int_t n_subint = 1700;
+    Double_t upper_bound = 2000.0;
 
     // TCanvas *dists = new TCanvas("dists", "");
     // TLegend* legend = new TLegend(0.37, 0.7, 0.55, 0.88);
@@ -361,10 +367,22 @@ void fitConvolution() {
     }
 
     legend->Draw();
-    mu[0]->SetTitle("Convolution with FFT");
+    mu[0]->SetTitle("Convolution with PWGD");
     mu[0]->GetXaxis()->SetTitle("MET [GeV]");
     mu[0]->GetYaxis()->SetTitle("Probability of an Event");
-    dists->SaveAs("results.png");
+    // cout << "Integral of mu5:  " << mu[0]->Integral(1, 2000) << "\n";
+    // cout << "Integral of mu10:  " << mu[1]->Integral(1, 2000) << "\n";
+    // cout << "Integral of mu15:  " << mu[2]->Integral(1, 2000) << "\n";
+    // cout << "Integral of mu20:  " << mu[3]->Integral(1, 2000) << "\n";
+    // cout << "Integral of mu25:  " << mu[4]->Integral(1, 2000) << "\n";
+    // cout << "Integral of mu30:  " << mu[5]->Integral(1, 2000) << "\n";
+    // cout << "Integral of mu35:  " << mu[6]->Integral(1, 2000) << "\n";
+    // cout << "Integral of mu40:  " << mu[7]->Integral(1, 2000) << "\n";
+    // cout << "Integral of mu45:  " << mu[8]->Integral(1, 2000) << "\n";
+    // cout << "Integral of mu50:  " << mu[9]->Integral(1, 2000) << "\n";
+    // cout << "Integral of mu55:  " << mu[10]->Integral(1, 2000) << "\n";
+    // cout << "Integral of mu60:  " << mu[11]->Integral(1, 2000) << "\n";
+    // dists->SaveAs("results.png");
 
     // code for just plotting one curve
     // TF1 *mu7 = new TF1("mu7", integration, 0, 100, 6);
