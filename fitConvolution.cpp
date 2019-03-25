@@ -52,13 +52,13 @@ Double_t PWGD (Double_t *varSUMET, Double_t *parm) {
 
         pwgd   : double : Poisson-Weighted Gamma Densities result for given args
     */
+    long double sum, pwgd;
 
-    if (varSUMET < parm[2]) {
+    if (varSUMET[0] < parm[2]) {
         pwgd = 0;
         return pwgd;
     }
 
-    long double sum;
     double buffer;
     sum = 1.;
     buffer = 1.;
@@ -267,8 +267,8 @@ Double_t integration(Double_t *MET, Double_t *parm) {
         rayleighParams[2] = SUMET[i];
         rayleigh_func->SetParameters(rayleighParams);
         Double_t r1 = rayleigh_func->Eval(MET[0]);
-        // Double_t r2 = fft->Eval(SUMET[i]);
-        Double_t r2 = pwgd->Eval(SUMET[i]);
+        Double_t r2 = fft->Eval(SUMET[i]);
+        // Double_t r2 = pwgd->Eval(SUMET[i]);
         R[i] = r1 * r2;
         R[i] /= (1 - exp(-mu)); // corrects for not starting the Poisson sum at 0
     }
@@ -367,7 +367,7 @@ void fitConvolution() {
     }
 
     legend->Draw();
-    mu[0]->SetTitle("Convolution with PWGD");
+    mu[0]->SetTitle("Convolution with FFT");
     mu[0]->GetXaxis()->SetTitle("MET [GeV]");
     mu[0]->GetYaxis()->SetTitle("Probability of an Event");
     // cout << "Integral of mu5:  " << mu[0]->Integral(1, 2000) << "\n";
@@ -382,7 +382,7 @@ void fitConvolution() {
     // cout << "Integral of mu50:  " << mu[9]->Integral(1, 2000) << "\n";
     // cout << "Integral of mu55:  " << mu[10]->Integral(1, 2000) << "\n";
     // cout << "Integral of mu60:  " << mu[11]->Integral(1, 2000) << "\n";
-    // dists->SaveAs("results.png");
+    dists->SaveAs("results.png");
 
     // code for just plotting one curve
     // TF1 *mu7 = new TF1("mu7", integration, 0, 100, 6);
