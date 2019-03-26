@@ -84,8 +84,6 @@ Double_t PWGD (Double_t *varSUMET, Double_t *parm) {
 Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
     static Double_t parmsave[6] = {-999.,-999.,-999.,-999.,-999.,-999.};
     static int ncalls=0;
-    //int n=62914560;
-    // int n = 8847360;
     int n = 8847360;
     int nparms = 6;
     Double_t lowval = 0.0;
@@ -93,12 +91,7 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
     Double_t xtemp;
     int itemp;
 
-    // long double functot[n];
-    // static Double_t finalfuncval[62914560];
-    // static Double_t finalfuncval[8847360];
-
     long double functot[8847360];
-    //static Double_t finalfuncval[62914560];
     static Double_t finalfuncval[8847360];
     bool sameparm;
 
@@ -130,25 +123,13 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
       }
 
     //Calculate and fill histogram for one interaction
-    //onetermfunc->SetParameters(parm[0],parm[1],1.,0.);
-    //delete funchist;
-    //funchist=0;
     funchist = new TH1D("funchist", "funchist", n+1, lowval, hival);
     for (Int_t i=0; i<=n; i++){
       xtemp = hival*double(i)/double(n);
-      //gamma*exp(-gamma*x)
-      //funchist->SetBinContent(i+1,parm[1]*exp(-parm[1]*xtemp));
-      //gamma^2*exp(-gamma*sqrt(x))
-      //funchist->SetBinContent(i+1,parm[1]*parm[1]*exp(-parm[1]*sqrt(xtemp)));
-      //(gamma-1)*x^-gamma
-      //funchist->SetBinContent(i+1,(parm[1]-1)*pow(xtemp,-parm[1]));
-      //alpha*gamma*exp(-gamma*x)+(1-alpha)*gamma2*exp(-gamma2*x)
       funchist->SetBinContent(i+1,parm[4]*parm[1]*exp(-parm[1]*xtemp)+(1.-parm[4])*parm[5]*exp(-parm[5]*xtemp));
      }
-    //Compute and store fft for one interaction function
-    //delete ftransform;
-    //ftransform = 0;
 
+    //Compute and store fft for one interaction function
     TVirtualFFT::SetTransform(0);
     ftransform = funchist->FFT(ftransform, "MAG");
     TVirtualFFT *fft = TVirtualFFT::GetCurrentTransform();
@@ -161,11 +142,8 @@ Double_t sumet_func_fft (Double_t *x, Double_t *parm) {
     for(int i=0; i<n; i++) {
       Double_t re_full_save = re_full[i];
       Double_t im_full_save = im_full[i];
-      //re_full[i] = exp(parm[2]*(re_full_save)*hival/double(n))*cos(parm[2]*im_full_save*hival/double(n));
       re_full[i] = exp(parm[2]*(re_full_save)*hival/double(n))*cos(parm[2]*im_full_save*hival/double(n))-1.0;
       im_full[i] = exp(parm[2]*(re_full_save)*hival/double(n))*sin(parm[2]*im_full_save*hival/double(n));
-      //re_full[i] = re_full_save;
-      //im_full[i] = im_full_save;
     }
 
     //get the back transform of full function
