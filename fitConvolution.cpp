@@ -284,12 +284,6 @@ Double_t integration(Double_t *MET, Double_t *parm) {
 
 void fitConvolution() {
 
-    // *** JUST FOR TESTING ***
-    // TCanvas *canv = new TCanvas("canv", "canv");
-    // Double_t params[6] = {5.0, 0.067, 5.0, 20.0, 0.995, 0.0085};
-    // TF1 *fft = new TF1("fft", sumet_func_fft, 0, 2000, 6);
-    // fft->SetParameters(params);
-
     TF1 *rayleighFit = new TF1("rayleighFit", "[0]*(1/[1])*(x/[1])*exp(-.5*(x/[1])*(x/[1]))");
     rayleighFit->SetParameters(1., 1.);
     rayleighFit->SetParLimits(0, 0.1, 10000000.);
@@ -320,14 +314,6 @@ void fitConvolution() {
 
     Int_t n_subint = 1700;
     Double_t upper_bound = 2000.0;
-
-    // TCanvas *dists = new TCanvas("dists", "");
-    // TLegend* legend = new TLegend(0.37, 0.7, 0.55, 0.88);
-    // TF1 *mu5 = new TF1("mu5", integration, 0, 100, 6);
-    // mu5->SetParameters(n_subint, 0.0, upper_bound, 5, cell17_slope, cell17_intercept);
-    // legend->AddEntry(mu5, "#mu = 5");
-    // mu5->Draw();
-    // legend->Draw();
 
     Int_t n_curves = 12;
     TCanvas *dists = new TCanvas("dists", "");
