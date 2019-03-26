@@ -349,7 +349,6 @@ void fitConvolution() {
     dists->SaveAs("results.png");
 }
 
-/*
 void plotIndividualSUMET() {
     // This method plots two SUMET plots:
     // (1) the SUMET using one-exponential (PWGD method)
@@ -459,4 +458,3 @@ void plotIndividualSUMET() {
     pwgd_mu[0]->GetYaxis()->SetTitle("Probability of an Event");
     pwgd_dists->SaveAs("pwgd_dists.png");
 }
-*/
