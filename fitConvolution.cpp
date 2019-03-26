@@ -245,8 +245,8 @@ Double_t integration(Double_t *MET, Double_t *parm) {
         rayleighParams[2] = SUMET[i];
         rayleigh_func->SetParameters(rayleighParams);
         Double_t r1 = rayleigh_func->Eval(MET[0]);
-        Double_t r2 = fft->Eval(SUMET[i]);
-        // Double_t r2 = pwgd->Eval(SUMET[i]);
+        // Double_t r2 = fft->Eval(SUMET[i]);
+        Double_t r2 = pwgd->Eval(SUMET[i]);
         R[i] = r1 * r2;
         R[i] /= (1 - exp(-mu)); // corrects for not starting the Poisson sum at 0
     }
@@ -304,7 +304,8 @@ void fitConvolution() {
         sprintf(funcName, "mu%i", muValue);
         mu[i] = new TF1(funcName, integration, 0, 100, 6);
         mu[i]->SetParNames("number of subintervals", "lower bound", "upper bound", "mu", "slope", "intercept");
-        mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, cell17_slope, cell17_intercept);
+        // mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, cell17_slope, cell17_intercept);
+        mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, 0.465, 3.0);
         mu[i]->SetLineColor(color);
 
         char *legendEntryName = new char[10];
@@ -330,7 +331,7 @@ void fitConvolution() {
     }
 
     legend->Draw();
-    mu[0]->SetTitle("Convolution with FFT");
+    mu[0]->SetTitle("Convolution with PWGD");
     mu[0]->GetXaxis()->SetTitle("MET [GeV]");
     mu[0]->GetYaxis()->SetTitle("Probability of an Event");
     // cout << "Integral of mu5:  " << mu[0]->Integral(1, 2000) << "\n";
@@ -348,13 +349,11 @@ void fitConvolution() {
     dists->SaveAs("results.png");
 }
 
+/*
 void plotIndividualSUMET() {
-    /*
-        This method plots two SUMET plots:
-        (1) the SUMET using one-exponential (PWGD method)
-        (2) the SUMET using two-exponential (FFT method)
-    */
-
+    // This method plots two SUMET plots:
+    // (1) the SUMET using one-exponential (PWGD method)
+    // (2) the SUMET using two-exponential (FFT method)
 
     // BEGIN FFT PART
     Int_t n_curves = 12;
@@ -460,3 +459,4 @@ void plotIndividualSUMET() {
     pwgd_mu[0]->GetYaxis()->SetTitle("Probability of an Event");
     pwgd_dists->SaveAs("pwgd_dists.png");
 }
+*/
