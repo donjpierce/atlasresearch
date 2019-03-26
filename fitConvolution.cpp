@@ -298,8 +298,7 @@ void fitConvolution() {
 
     // Defining linear fit function
     TF1 *linfit = new TF1("linfit", "[0]*x + [1]");
-    linfit->SetParameters(0, -80.);
-    linfit->SetParameters(1, -80.);
+    linfit->SetParameters(-80., -80.);
     linfit->SetParLimits(0, -80., 80.);
     linfit->SetParLimits(1, -80., 80.);
     linfit->SetParNames("slope", "intercept");
