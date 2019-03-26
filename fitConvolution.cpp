@@ -395,3 +395,116 @@ void fitConvolution() {
     // legend->Draw();
 
 }
+
+void plotIndividualSUMET() {
+    /*
+        This method plots two SUMET plots:
+        (1) the SUMET using one-exponential (PWGD method)
+        (2) the SUMET using two-exponential (FFT method)
+    */
+
+
+    // BEGIN FFT PART
+    Int_t n_curves = 12;
+    Double_t sumetFFT_params[6];
+    sumetFFT_params[0] = 1.0;   // Normalization constant
+    sumetFFT_params[1] = 0.070; // gamma
+    sumetFFT_params[2] = 0.0;   // mu
+    sumetFFT_params[3] = 0.0;   // offset
+    sumetFFT_params[4] = 0.995;
+    sumetFFT_params[5] = 0.0090;
+    TCanvas *fft_dists = new TCanvas("dists", "");
+    TLegend* legend = new TLegend(0.37, 0.7, 0.55, 0.88);
+    TF1 *fft_mu[n_curves];
+    char *funcName = new char[5];
+    for (Int_t i = 0; i < n_curves; i++) {
+        int color = i + 1;
+        short int muValue = (i + 1) * 5;
+        double offset = 25.0 - 5.0 * muValue;
+
+        sprintf(funcName, "mu%i", muValue);
+        mu[i] = new TF1(funcName, sumet_func_fft, 0, 1600, 6);
+
+        sumetFFT_params[2] = muValue;
+        sumetFFT_params[3] = 25.0 - 5.0 * muValue;
+
+        fft_mu[i]->SetParameters(sumetFFT_params);
+        fft_mu[i]->SetLineColor(color);
+
+        char *legendEntryName = new char[10];
+        sprintf(legendEntryName, "#mu = %i", muValue);
+        legend->AddEntry(fft_mu[i], legendEntryName);
+    }
+
+    int normal = 1;  // change to 0 if drawings do not fit on canvas
+    if (normal == 1) {
+        // draw lrves in normal order
+        for (Int_t k = 0; k < n_curves; k++) {
+             if (k == 0) { fft_mu[k]->Draw(); }
+             else { fft_mu[k]->Draw("sames"); }
+        }
+    }
+    else
+    {
+        // draw curves in reverse order
+        for (Int_t j = 0; j < n_curves; j++) {
+            if (j == 0) { fft_mu[n_curves - 1]->Draw(); }
+            else { fft_mu[n_curves - j - 1]->Draw("sames"); }
+        }
+    }
+
+    legend->Draw();
+    fft_mu[0]->SetTitle("SumEt Distribution using Two-Exponential (FFT method)");
+    fft_mu[0]->GetXaxis()->SetTitle("SumEt [GeV]");
+    fft_mu[0]->GetYaxis()->SetTitle("Probability of an Event");
+    fft_dists->SaveAs("fft_dists.png");
+
+
+    // BEGIN PWGD PART
+    Double_t pwgd_params[3];
+    sumetFFT_params[0] = 0.070; // gamma
+    sumetFFT_params[1] = 0.0;   // mu
+    sumetFFT_params[2] = 0.0;   // offset
+    TCanvas *pwgd_dists = new TCanvas("dists", "");
+    TF1 *pwgd_mu[n_curves];
+    for (Int_t i = 0; i < n_curves; i++) {
+        int color = i + 1;
+        short int muValue = (i + 1) * 5;
+        double offset = 25.0 - 5.0 * muValue;
+
+        sprintf(funcName, "mu%i", muValue);
+        mu[i] = new TF1(funcName, PWGD, 0, 1600, 3);
+
+        sumetFFT_params[1] = muValue;
+        sumetFFT_params[2] = 25.0 - 5.0 * muValue;
+
+        pwgd_mu[i]->SetParameters(sumetFFT_params);
+        pwgd_mu[i]->SetLineColor(color);
+
+        sprintf(legendEntryName, "#mu = %i", muValue);
+        legend->AddEntry(pwgd_mu[i], legendEntryName);
+    }
+
+    int normal = 1;  // change to 0 if drawings do not fit on canvas
+    if (normal == 1) {
+        // draw lrves in normal order
+        for (Int_t k = 0; k < n_curves; k++) {
+             if (k == 0) { pwgd_mu[k]->Draw(); }
+             else { pwgd_mu[k]->Draw("sames"); }
+        }
+    }
+    else
+    {
+        // draw curves in reverse order
+        for (Int_t j = 0; j < n_curves; j++) {
+            if (j == 0) { pwgd_mu[n_curves - 1]->Draw(); }
+            else { pwgd_mu[n_curves - j - 1]->Draw("sames"); }
+        }
+    }
+
+    legend->Draw();
+    pwgd_mu[0]->SetTitle("SumEt Distribution using Two-Exponential (PWGD method)");
+    pwgd_mu[0]->GetXaxis()->SetTitle("SumEt [GeV]");
+    pwgd_mu[0]->GetYaxis()->SetTitle("Probability of an Event");
+    pwgd_dists->SaveAs("pwgd_dists.png");
+}
