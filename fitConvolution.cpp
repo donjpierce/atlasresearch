@@ -368,17 +368,6 @@ void fitConvolution() {
     // cout << "Integral of mu55:  " << mu[10]->Integral(1, 2000) << "\n";
     // cout << "Integral of mu60:  " << mu[11]->Integral(1, 2000) << "\n";
     dists->SaveAs("results.png");
-
-    // code for just plotting one curve
-    // TF1 *mu7 = new TF1("mu7", integration, 0, 100, 6);
-    // mu7->SetParNames("number of subintervals", "lower bound", "upper bound", "mu", "slope", "intercept");
-    // mu7->SetParameters(n_subint, 0.0, upper_bound, 7.0, cell17_slope, cell17_intercept);
-    // mu7->SetLineColor(4); // blue
-    // mu7->Draw();
-    // TLegend* legend = new TLegend(0.37, 0.7, 0.55, 0.88);
-    // legend->AddEntry(mu7, "#mu = 7");
-    // legend->Draw();
-
 }
 
 void plotIndividualSUMET() {
