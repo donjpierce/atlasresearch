@@ -218,6 +218,7 @@ Double_t integration(Double_t *MET, Double_t *parm) {
         parm[3] :   Double_t    : mu
         parm[4] :   Double_t    : slope
         parm[5] :   Double_t    : intercept
+        parm[6] :   Bool        : FALSE for FFT, TRUE for PWGD
     */
 
     // gamma for 2011
@@ -266,8 +267,14 @@ Double_t integration(Double_t *MET, Double_t *parm) {
         rayleighParams[2] = SUMET[i];
         rayleigh_func->SetParameters(rayleighParams);
         Double_t r1 = rayleigh_func->Eval(MET[0]);
-        Double_t r2 = fft->Eval(SUMET[i]);
-        // Double_t r2 = pwgd->Eval(SUMET[i]);
+
+        if (parm[5] == true) {
+          Double_t r2 = fft->Eval(SUMET[i]);
+        }
+        else {
+          Double_t r2 = pwgd->Eval(SUMET[i]);
+        }
+
         R[i] = r1 * r2;
         R[i] /= (1 - exp(-mu)); // corrects for not starting the Poisson sum at 0
     }
@@ -356,18 +363,6 @@ void fitConvolution() {
     mu[0]->SetTitle("Convolution with FFT");
     mu[0]->GetXaxis()->SetTitle("MET [GeV]");
     mu[0]->GetYaxis()->SetTitle("Probability of an Event");
-    // cout << "Integral of mu5:  " << mu[0]->Integral(1, 2000) << "\n";
-    // cout << "Integral of mu10:  " << mu[1]->Integral(1, 2000) << "\n";
-    // cout << "Integral of mu15:  " << mu[2]->Integral(1, 2000) << "\n";
-    // cout << "Integral of mu20:  " << mu[3]->Integral(1, 2000) << "\n";
-    // cout << "Integral of mu25:  " << mu[4]->Integral(1, 2000) << "\n";
-    // cout << "Integral of mu30:  " << mu[5]->Integral(1, 2000) << "\n";
-    // cout << "Integral of mu35:  " << mu[6]->Integral(1, 2000) << "\n";
-    // cout << "Integral of mu40:  " << mu[7]->Integral(1, 2000) << "\n";
-    // cout << "Integral of mu45:  " << mu[8]->Integral(1, 2000) << "\n";
-    // cout << "Integral of mu50:  " << mu[9]->Integral(1, 2000) << "\n";
-    // cout << "Integral of mu55:  " << mu[10]->Integral(1, 2000) << "\n";
-    // cout << "Integral of mu60:  " << mu[11]->Integral(1, 2000) << "\n";
     dists->SaveAs("results.png");
 
 }
