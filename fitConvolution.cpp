@@ -10,6 +10,27 @@
 #include "Math/WrappedTF1.h"
 #include "Math/GaussIntegrator.h"
 
+Double_t frechet (Double_t *x, Double_t *parm) {
+    /*
+        Arguments
+        _________
+        x       :  function variable    : MET
+        parm[0] :  constant             : norm
+        parm[1] :  constant             : alpha
+        parm[2] :  constant             : s
+        parm[3] :  constant             : m
+
+        Returns
+        _________
+        value   :  Double_t             : value of the Frechet PDF
+    */
+
+    double argument = (x[0] - parm[3]) / parm[2];
+    double value = parm[0] * (parm[1] / parm[2]) * pow(argument, -1.0 - parm[1]) \
+                   * exp(-pow(argument, -parm[1]));
+    return value;
+}
+
 Double_t rayleigh (Double_t *varMET, Double_t *parm) {
     /*
         Arguments
@@ -245,8 +266,8 @@ Double_t integration(Double_t *MET, Double_t *parm) {
         rayleighParams[2] = SUMET[i];
         rayleigh_func->SetParameters(rayleighParams);
         Double_t r1 = rayleigh_func->Eval(MET[0]);
-        // Double_t r2 = fft->Eval(SUMET[i]);
-        Double_t r2 = pwgd->Eval(SUMET[i]);
+        Double_t r2 = fft->Eval(SUMET[i]);
+        // Double_t r2 = pwgd->Eval(SUMET[i]);
         R[i] = r1 * r2;
         R[i] /= (1 - exp(-mu)); // corrects for not starting the Poisson sum at 0
     }
@@ -275,13 +296,14 @@ void fitConvolution() {
     linfit->SetParLimits(1, -80., 80.);
     linfit->SetParNames("slope", "intercept");
 
-    TFile *jburr17 = TFile::Open("data/jburr_data_2017.root");
+    // TFile *jburr17 = TFile::Open("data/jburr_data_2017.root");
+    TFile *jburr17 = TFile::Open("data/user.jburr.2017_11_17.data17.ZB.root");
     TTree *tree17 = (TTree*)jburr17->Get("METTree");
 
     TCanvas *myCanv = new TCanvas("MyCanv", "");
     TH2F *cell17 = new TH2F("cell17", "", 100, 0., 100., 100, 0., 100.);
-    // tree17->Draw("cell.met:sqrt(cell.sumet)>>cell17", "HLT_noalg_zb_L1ZB.passed>0.1");
-    tree17->Draw("cell.met:sqrt(cell.sumet)>>cell17");
+    tree17->Draw("cell.met:sqrt(cell.sumet)>>cell17", "HLT_noalg_zb_L1ZB.passed>0.1");
+    // tree17->Draw("cell.met:sqrt(cell.sumet)>>cell17");
     cell17->FitSlicesY(rayleighFit, 0, -1, 10, "L");
     TH1D *cell17_sigma = (TH1D*)gDirectory->Get("cell17_1");
     cell17_sigma->Fit(linfit, "M", "L", 0., 200.);
@@ -331,7 +353,7 @@ void fitConvolution() {
     }
 
     legend->Draw();
-    mu[0]->SetTitle("Convolution with PWGD");
+    mu[0]->SetTitle("Convolution with FFT");
     mu[0]->GetXaxis()->SetTitle("MET [GeV]");
     mu[0]->GetYaxis()->SetTitle("Probability of an Event");
     // cout << "Integral of mu5:  " << mu[0]->Integral(1, 2000) << "\n";
@@ -347,6 +369,7 @@ void fitConvolution() {
     // cout << "Integral of mu55:  " << mu[10]->Integral(1, 2000) << "\n";
     // cout << "Integral of mu60:  " << mu[11]->Integral(1, 2000) << "\n";
     dists->SaveAs("results.png");
+
 }
 
 void plotIndividualSUMET() {
