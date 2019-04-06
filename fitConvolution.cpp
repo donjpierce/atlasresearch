@@ -332,9 +332,10 @@ void fitConvolution() {
         short int muValue = (i + 1) * 5;
         sprintf(funcName, "mu%i", muValue);
         mu[i] = new TF1(funcName, integration, 0, 100, 6);
-        mu[i]->SetParNames("number of subintervals", "lower bound", "upper bound", "mu", "slope", "intercept");
+        mu[i]->SetParNames("number of subintervals", "lower bound",
+                           "upper bound", "mu", "slope", "intercept", "FFT");
         // mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, cell17_slope, cell17_intercept);
-        mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, 0.465, 3.0);
+        mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, 0.465, 3.0, true);
         mu[i]->SetLineColor(color);
 
         char *legendEntryName = new char[10];
