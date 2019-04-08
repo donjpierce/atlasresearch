@@ -278,14 +278,13 @@ Double_t integration(Double_t *MET, Double_t *parm) {
         frechet_func->SetParameters(frechetParams);
 
         Double_t r1 = rayleigh_func->Eval(MET[0]);
-        if (parm[5] == true) {
-          Double_t r2 = fft->Eval(SUMET[i]);
-        }
-        else {
-          Double_t r2 = pwgd->Eval(SUMET[i]);
-        }
 
-        R[i] = r1 * r2;
+        if (parm[6] == true) { Double_t r2 = fft->Eval(SUMET[i]); }
+        else { Double_t r2 = pwgd->Eval(SUMET[i]); }
+
+        Double_t r3 = frechet_func->Eval(MET[0]);
+
+        R[i] = r1 * r2 * r3;
         R[i] /= (1 - exp(-mu)); // corrects for not starting the Poisson sum at 0
     }
     double sum = 0;
@@ -299,7 +298,6 @@ Double_t integration(Double_t *MET, Double_t *parm) {
 }
 
 void fitConvolution() {
-
     TF1 *rayleighFit = new TF1("rayleighFit", "[0]*(1/[1])*(x/[1])*exp(-.5*(x/[1])*(x/[1]))");
     rayleighFit->SetParameters(1., 1.);
     rayleighFit->SetParLimits(0, 0.1, 10000000.);
@@ -341,11 +339,11 @@ void fitConvolution() {
         int color = i + 1;
         short int muValue = (i + 1) * 5;
         sprintf(funcName, "mu%i", muValue);
-        mu[i] = new TF1(funcName, integration, 0, 100, 6);
+        mu[i] = new TF1(funcName, integration, 0, 100, 7);
         mu[i]->SetParNames("number of subintervals", "lower bound",
                            "upper bound", "mu", "slope", "intercept", "FFT");
         // mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, cell17_slope, cell17_intercept);
-        mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, 0.465, 3.0, true);
+        mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, 0.465, 3.0, false);
         mu[i]->SetLineColor(color);
 
         char *legendEntryName = new char[10];
@@ -402,7 +400,7 @@ void plotIndividualSUMET() {
         double offset = 25.0 - 5.0 * muValue;
 
         sprintf(funcName, "mu%i", muValue);
-        mu[i] = new TF1(funcName, sumet_func_fft, 0, 1600, 6);
+        fft_mu[i] = new TF1(funcName, sumet_func_fft, 0, 1600, 6);
 
         sumetFFT_params[2] = muValue;
         sumetFFT_params[3] = 25.0 - 5.0 * muValue;
@@ -410,13 +408,13 @@ void plotIndividualSUMET() {
         fft_mu[i]->SetParameters(sumetFFT_params);
         fft_mu[i]->SetLineColor(color);
 
-        char *legendEntryName = new char[10];
-        sprintf(legendEntryName, "#mu = %i", muValue);
-        legend->AddEntry(fft_mu[i], legendEntryName);
+        char *fft_legendEntryName = new char[10];
+        sprintf(fft_legendEntryName, "#mu = %i", muValue);
+        legend->AddEntry(fft_mu[i], fft_legendEntryName);
     }
 
-    int normal = 1;  // change to 0 if drawings do not fit on canvas
-    if (normal == 1) {
+    int fft_normal = 1;  // change to 0 if drawings do not fit on canvas
+    if (fft_normal == 1) {
         // draw lrves in normal order
         for (Int_t k = 0; k < n_curves; k++) {
              if (k == 0) { fft_mu[k]->Draw(); }
@@ -452,7 +450,7 @@ void plotIndividualSUMET() {
         double offset = 25.0 - 5.0 * muValue;
 
         sprintf(funcName, "mu%i", muValue);
-        mu[i] = new TF1(funcName, PWGD, 0, 1600, 3);
+        pwgd_mu[i] = new TF1(funcName, PWGD, 0, 1600, 3);
 
         sumetFFT_params[1] = muValue;
         sumetFFT_params[2] = 25.0 - 5.0 * muValue;
@@ -460,12 +458,13 @@ void plotIndividualSUMET() {
         pwgd_mu[i]->SetParameters(sumetFFT_params);
         pwgd_mu[i]->SetLineColor(color);
 
-        sprintf(legendEntryName, "#mu = %i", muValue);
-        legend->AddEntry(pwgd_mu[i], legendEntryName);
+        char *pwgd_legendEntryName = new char[10];
+        sprintf(pwgd_legendEntryName, "#mu = %i", muValue);
+        legend->AddEntry(pwgd_mu[i], pwgd_legendEntryName);
     }
 
-    int normal = 1;  // change to 0 if drawings do not fit on canvas
-    if (normal == 1) {
+    int pwgd_normal = 1;  // change to 0 if drawings do not fit on canvas
+    if (pwgd_normal == 1) {
         // draw lrves in normal order
         for (Int_t k = 0; k < n_curves; k++) {
              if (k == 0) { pwgd_mu[k]->Draw(); }
