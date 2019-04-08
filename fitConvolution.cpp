@@ -9,6 +9,7 @@
 #include <TTree.h>
 #include "Math/WrappedTF1.h"
 #include "Math/GaussIntegrator.h"
+#include <iostream>
 
 Double_t frechet (Double_t *x, Double_t *parm) {
     /*
@@ -272,8 +273,12 @@ Double_t integration(Double_t *MET, Double_t *parm) {
     Double_t SUMET[n+1], R[n+1];  // SUMET = integration variable, R = result
     for (int i = 0; i < n; i ++) {
         SUMET[i] = a + i * h;
+
+        // set the SUMET-dependent rayleigh parameters
         rayleighParams[2] = SUMET[i];
         rayleigh_func->SetParameters(rayleighParams);
+
+        // set the SUMET-dependent frechet parameters 
         frechetParams[0] = 0.04 * SUMET[i] / 60.0;
         frechet_func->SetParameters(frechetParams);
 
