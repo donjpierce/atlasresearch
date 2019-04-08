@@ -278,14 +278,15 @@ Double_t integration(Double_t *MET, Double_t *parm) {
         rayleighParams[2] = SUMET[i];
         rayleigh_func->SetParameters(rayleighParams);
 
-        // set the SUMET-dependent frechet parameters 
+        // set the SUMET-dependent frechet parameters
         frechetParams[0] = 0.04 * SUMET[i] / 60.0;
         frechet_func->SetParameters(frechetParams);
 
         Double_t r1 = rayleigh_func->Eval(MET[0]);
 
-        if (parm[6] == true) { Double_t r2 = fft->Eval(SUMET[i]); }
-        else { Double_t r2 = pwgd->Eval(SUMET[i]); }
+        Double_t r2;
+        if (parm[6] == true) { r2 = fft->Eval(SUMET[i]); }
+        else { r2 = pwgd->Eval(SUMET[i]); }
 
         Double_t r3 = frechet_func->Eval(MET[0]);
 
@@ -356,7 +357,7 @@ void fitConvolution() {
         legend->AddEntry(mu[i], legendEntryName);
     }
 
-    int normal = 1;
+    int normal = 0;
     if (normal == 1) {
         // draw lrves in normal order
         for (Int_t k = 0; k < n_curves; k++) {
