@@ -218,7 +218,7 @@ Double_t integration(Double_t *MET, Double_t *parm) {
         parm[3] :   Double_t    : mu
         parm[4] :   Double_t    : slope
         parm[5] :   Double_t    : intercept
-        parm[6] :   Bool        : FALSE for FFT, TRUE for PWGD
+        parm[6] :   Bool        : TRUE for FFT, FALSE for PWGD
     */
 
     // gamma for 2011
@@ -261,13 +261,23 @@ Double_t integration(Double_t *MET, Double_t *parm) {
     rayleighParams[1] = cell17_intercept;
     TF1 *rayleigh_func = new TF1("rayleigh_func", rayleigh, 0, 500, 3);
 
+    // parameters for the Frechet tail
+    Double_t frechetParams[4];
+    frechetParams[0] = 0.;
+    frechetParams[1] = 18.0;
+    frechetParams[2] = 100.0;
+    frechetParams[3] = -70.0;
+    TF1 *frechet_func = new TF1("frechet_func", frechet, 0, 500, 4);
+
     Double_t SUMET[n+1], R[n+1];  // SUMET = integration variable, R = result
     for (int i = 0; i < n; i ++) {
         SUMET[i] = a + i * h;
         rayleighParams[2] = SUMET[i];
         rayleigh_func->SetParameters(rayleighParams);
-        Double_t r1 = rayleigh_func->Eval(MET[0]);
+        frechetParams[0] = 0.04 * SUMET[i] / 60.0;
+        frechet_func->SetParameters(frechetParams);
 
+        Double_t r1 = rayleigh_func->Eval(MET[0]);
         if (parm[5] == true) {
           Double_t r2 = fft->Eval(SUMET[i]);
         }
