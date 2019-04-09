@@ -262,14 +262,6 @@ Double_t integration(Double_t *MET, Double_t *parm) {
     rayleighParams[1] = cell17_intercept;
     TF1 *rayleigh_func = new TF1("rayleigh_func", rayleigh, 0, 500, 3);
 
-    // parameters for the Frechet tail
-    Double_t frechetParams[4];
-    frechetParams[0] = 0.;
-    frechetParams[1] = 18.0;
-    frechetParams[2] = 100.0;
-    frechetParams[3] = -70.0;
-    TF1 *frechet_func = new TF1("frechet_func", frechet, 0, 500, 4);
-
     Double_t SUMET[n+1], R[n+1];  // SUMET = integration variable, R = result
     for (int i = 0; i < n; i ++) {
         SUMET[i] = a + i * h;
@@ -304,6 +296,7 @@ Double_t integration(Double_t *MET, Double_t *parm) {
 }
 
 void fitConvolution() {
+    // Defining the Rayleigh function in main() 
     TF1 *rayleighFit = new TF1("rayleighFit", "[0]*(1/[1])*(x/[1])*exp(-.5*(x/[1])*(x/[1]))");
     rayleighFit->SetParameters(1., 1.);
     rayleighFit->SetParLimits(0, 0.1, 10000000.);
@@ -316,6 +309,14 @@ void fitConvolution() {
     linfit->SetParLimits(0, -80., 80.);
     linfit->SetParLimits(1, -80., 80.);
     linfit->SetParNames("slope", "intercept");
+
+    // Defining the Frechet function
+    Double_t frechetParams[4];
+    frechetParams[0] = 0.;
+    frechetParams[1] = 18.0;
+    frechetParams[2] = 100.0;
+    frechetParams[3] = -70.0;
+    TF1 *frechet_func = new TF1("frechet_func", frechet, 0, 500, 4);
 
     // TFile *jburr17 = TFile::Open("data/jburr_data_2017.root");
     TFile *jburr17 = TFile::Open("data/user.jburr.2017_11_17.data17.ZB.root");
