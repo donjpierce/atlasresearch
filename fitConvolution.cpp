@@ -269,20 +269,13 @@ Double_t integration(Double_t *MET, Double_t *parm) {
         // set the SUMET-dependent rayleigh parameters
         rayleighParams[2] = SUMET[i];
         rayleigh_func->SetParameters(rayleighParams);
-
-        // set the SUMET-dependent frechet parameters
-        frechetParams[0] = 0.04 * SUMET[i] / 60.0;
-        frechet_func->SetParameters(frechetParams);
-
         Double_t r1 = rayleigh_func->Eval(MET[0]);
 
         Double_t r2;
         if (parm[6] == true) { r2 = fft->Eval(SUMET[i]); }
         else { r2 = pwgd->Eval(SUMET[i]); }
 
-        Double_t r3 = frechet_func->Eval(MET[0]);
-
-        R[i] = r1 * r2 * r3;
+        R[i] = r1 * r2;
         R[i] /= (1 - exp(-mu)); // corrects for not starting the Poisson sum at 0
     }
     double sum = 0;
@@ -296,7 +289,7 @@ Double_t integration(Double_t *MET, Double_t *parm) {
 }
 
 void fitConvolution() {
-    // Defining the Rayleigh function in main() 
+    // Defining the Rayleigh function in main()
     TF1 *rayleighFit = new TF1("rayleighFit", "[0]*(1/[1])*(x/[1])*exp(-.5*(x/[1])*(x/[1]))");
     rayleighFit->SetParameters(1., 1.);
     rayleighFit->SetParLimits(0, 0.1, 10000000.);
