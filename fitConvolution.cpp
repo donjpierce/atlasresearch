@@ -305,7 +305,7 @@ void fitConvolution() {
 
     // Defining the Frechet function
     Double_t frechetParams[4];
-    frechetParams[0] = 0.;
+    frechetParams[0] = 0.0;
     frechetParams[1] = 18.0;
     frechetParams[2] = 100.0;
     frechetParams[3] = -70.0;
