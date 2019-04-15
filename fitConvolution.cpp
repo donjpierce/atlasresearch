@@ -353,7 +353,7 @@ void fitConvolution() {
 
     int normal = 0;
     if (normal == 1) {
-        // draw lrves in normal order
+        // draw curves in normal order
         for (Int_t k = 0; k < n_curves; k++) {
              if (k == 0) { mu[k]->Draw(); }
              else { mu[k]->Draw("sames"); }
