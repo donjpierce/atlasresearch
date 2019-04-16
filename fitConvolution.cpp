@@ -219,7 +219,8 @@ Double_t integration(Double_t *MET, Double_t *parm) {
         parm[3] :   Double_t    : mu
         parm[4] :   Double_t    : slope
         parm[5] :   Double_t    : intercept
-        parm[6] :   Bool        : TRUE for FFT, FALSE for PWGD
+        parm[6] :   bool        : TRUE for FFT, FALSE for PWGD
+        parm[7] :   bool        : TRUE for Frechet integral, FALSE for convolution
     */
 
     // gamma for 2011
@@ -262,21 +263,39 @@ Double_t integration(Double_t *MET, Double_t *parm) {
     rayleighParams[1] = cell17_intercept;
     TF1 *rayleigh_func = new TF1("rayleigh_func", rayleigh, 0, 500, 3);
 
+    // parameters for the Frechet distribtuion
+    Double_t frechetParams[4];
+    frechetParams[0] = 0.0; // must be set later at loop level
+    frechetParams[1] = 18.0;
+    frechetParams[2] = 100.0;
+    frechetParams[3] = -70.0;
+    TF1 *frechet_func = new TF1("frechet_func", frechet, 0, 500, 4);
+
     Double_t SUMET[n+1], R[n+1];  // SUMET = integration variable, R = result
     for (int i = 0; i < n; i ++) {
         SUMET[i] = a + i * h;
 
-        // set the SUMET-dependent rayleigh parameters
-        rayleighParams[2] = SUMET[i];
-        rayleigh_func->SetParameters(rayleighParams);
-        Double_t r1 = rayleigh_func->Eval(MET[0]);
+        if (parm[7] == true) {
+          // Perform integral of Frechet distribution
+          frechetParams[0] = 0.04 * SUMET[i] / 60;
+          frechet_func->SetParameters(frechetParams);
 
-        Double_t r2;
-        if (parm[6] == true) { r2 = fft->Eval(SUMET[i]); }
-        else { r2 = pwgd->Eval(SUMET[i]); }
+          R[i] = frechet_func->Eval(MET[0]);
+        }
+        else {
+          // Perform convolution of Raylegih and PWDG / FFT
+          // set the SUMET-dependent rayleigh parameters
+          rayleighParams[2] = SUMET[i];
+          rayleigh_func->SetParameters(rayleighParams);
+          Double_t r1 = rayleigh_func->Eval(MET[0]);
 
-        R[i] = r1 * r2;
-        R[i] /= (1 - exp(-mu)); // corrects for not starting the Poisson sum at 0
+          Double_t r2;
+          if (parm[6] == true) { r2 = fft->Eval(SUMET[i]); }
+          else { r2 = pwgd->Eval(SUMET[i]); }
+
+          R[i] = r1 * r2;
+          R[i] /= (1 - exp(-mu)); // corrects for not starting the Poisson sum at 0
+        }
     }
     double sum = 0;
     for (int j = 1; j < n; j++) {
@@ -302,14 +321,6 @@ void fitConvolution() {
     linfit->SetParLimits(0, -80., 80.);
     linfit->SetParLimits(1, -80., 80.);
     linfit->SetParNames("slope", "intercept");
-
-    // Defining the Frechet function
-    Double_t frechetParams[4];
-    frechetParams[0] = 0.0;
-    frechetParams[1] = 18.0;
-    frechetParams[2] = 100.0;
-    frechetParams[3] = -70.0;
-    TF1 *frechet_func = new TF1("frechet_func", frechet, 0, 500, 4);
 
     // TFile *jburr17 = TFile::Open("data/jburr_data_2017.root");
     TFile *jburr17 = TFile::Open("data/user.jburr.2017_11_17.data17.ZB.root");
@@ -339,13 +350,25 @@ void fitConvolution() {
         int color = i + 1;
         short int muValue = (i + 1) * 5;
         sprintf(funcName, "mu%i", muValue);
-        TF1 *convolution = new TF1(funcName, integration, 0, 100, 7);
 
-        mu[i] =
-        mu[i]->SetParNames("number of subintervals", "lower bound",
-                           "upper bound", "mu", "slope", "intercept", "FFT");
-        // mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, cell17_slope, cell17_intercept);
-        mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, 0.465, 3.0, false);
+        // initialize function which performs convolution
+        TF1 *convolution = new TF1(funcName, integration, 0, 100, 7);
+        convolution->SetParameters(n_subint, 0.0, upper_bound, muValue, 0.465, 3.0, true, false);
+        // convolution->SetParameters(n_subint, 0.0, upper_bound, muValue, cell17_slope, cell17_intercept, true, false);
+        convolution->SetParNames("number of subintervals", "lower bound",
+                           "upper bound", "mu", "slope", "intercept", "FFT", "FRECHET");
+
+        // initialize function which simply integrates Frechet
+        TF1 *frechet_dist = new TF1(funcName, integration, 0, 100, 7);
+        frechet_dist->SetParameters(n_subint, 0.0, upper_bound, muValue, 0.465, 3.0, true, true);
+        // frechet_dist->SetParameters(n_subint, 0.0, upper_bound, muValue, cell17_slope, cell17_intercept, true, true);
+        frechet_dist->SetParNames("number of subintervals", "lower bound",
+                           "upper bound", "mu", "slope", "intercept", "FFT", "FRECHET");
+
+        mu[i] = 
+        mu[i]->
+        // mu[i]->
+        mu[i]->
         mu[i]->SetLineColor(color);
 
         char *legendEntryName = new char[10];
