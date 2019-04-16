@@ -343,21 +343,11 @@ void fitConvolution() {
         sprintf(funcName, "mu%i", muValue);
 
         // initialize function which performs convolution
-        TF1 *convolution = new TF1(funcName, integration, 0, 100, 7);
-        convolution->SetParameters(n_subint, 0.0, upper_bound, muValue, 0.465, 3.0, true);
-        // convolution->SetParameters(n_subint, 0.0, upper_bound, muValue, cell17_slope, cell17_intercept, true);
-        convolution->SetParNames("number of subintervals", "lower bound",
-                           "upper bound", "mu", "slope", "intercept", "FFT");
-
-        // initialize function which simply integrates Frechet
-        TF1 *frechet_dist = new TF1(funcName, integration, 0, 100, 7);
-        frechet_dist->SetParameters(n_subint, 0.0, upper_bound, muValue, 0.465, 3.0, true);
-        // frechet_dist->SetParameters(n_subint, 0.0, upper_bound, muValue, cell17_slope, cell17_intercept, true);
-        frechet_dist->SetParNames("number of subintervals", "lower bound",
-                           "upper bound", "mu", "slope", "intercept", "FFT");
-
-        mu[i] = 
-        mu[i]->
+        mu[i] = new TF1(funcName, integration, 0, 100, 7);
+        mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, 0.465, 3.0, true);
+        // mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, cell17_slope, cell17_intercept, true);
+        mu[i]->SetParNames("number of subintervals", "lower bound",
+                                 "upper bound", "mu", "slope", "intercept", "FFT");
         mu[i]->SetLineColor(color);
 
         char *legendEntryName = new char[10];
