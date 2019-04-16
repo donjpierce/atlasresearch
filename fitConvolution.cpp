@@ -16,7 +16,7 @@ Double_t frechet (Double_t *x, Double_t *parm) {
         Arguments
         _________
         x       :  function variable    : MET
-        parm[0] :  constant             : norm
+        parm[0] :  constant             : norm (function of SUMET)
         parm[1] :  constant             : alpha
         parm[2] :  constant             : s
         parm[3] :  constant             : m
@@ -332,14 +332,16 @@ void fitConvolution() {
 
     Int_t n_curves = 12;
     TCanvas *dists = new TCanvas("dists", "");
-    TLegend* legend = new TLegend(0.37, 0.7, 0.55, 0.88);
+    TLegend *legend = new TLegend(0.37, 0.7, 0.55, 0.88);
     TF1 *mu[n_curves];
     char *funcName = new char[5];
     for (Int_t i = 0; i < n_curves; i++) {
         int color = i + 1;
         short int muValue = (i + 1) * 5;
         sprintf(funcName, "mu%i", muValue);
-        mu[i] = new TF1(funcName, integration, 0, 100, 7);
+        TF1 *convolution = new TF1(funcName, integration, 0, 100, 7);
+
+        mu[i] =
         mu[i]->SetParNames("number of subintervals", "lower bound",
                            "upper bound", "mu", "slope", "intercept", "FFT");
         // mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, cell17_slope, cell17_intercept);
