@@ -358,8 +358,28 @@ void fitConvolution() {
     cell17_slope = linfit->GetParameter(0);
     cell17_intercept = linfit->GetParameter(1);
 
+    // function parameters
     Int_t n_subint = 1700;
     Double_t upper_bound = 2000.0;
+    Double_t lower_bound = 0.0;
+    // Double_t slope = cell17_slope;
+    Double_t slope = 0.465;
+    // Double_t intercept = cell17_intercept;
+    Double_t intercept = 3.0;
+    Double_t fft = true;
+
+    // set parametes for linear sum
+    // NOTE: SKIPPED PARAMS ARE SET AT LOOP LEVEL
+    Double_t linear_combinationParams[10];
+    linear_combinationParams[0] = n_subint;
+    linear_combinationParams[1] = lower_bound;
+    linear_combinationParams[2] = upper_bound;
+    linear_combinationParams[4] = slope;
+    linear_combinationParams[5] = intercept;
+    linear_combinationParams[6] = fft;
+    linear_combinationParams[8] = 18.0;
+    linear_combinationParams[9] = 100.0;
+    linear_combinationParams[10] = -70.0;
 
     Int_t n_curves = 12;
     TCanvas *dists = new TCanvas("dists", "");
@@ -371,8 +391,9 @@ void fitConvolution() {
         short int muValue = (i + 1) * 5;
         sprintf(funcName, "mu%i", muValue);
 
-        Double_t linear_combinationParams[10];
-        linear_combinationParams[0] =
+        // set mu parameter for linear sum
+        linear_combinationParams[3] = muValue;
+        linear_combinationParams[7] = 0.04 * muValue / 60;
 
         // initialize function which performs convolution
         TF1 *convolution = new TF1(funcName, integration, 0, 100, 7);
