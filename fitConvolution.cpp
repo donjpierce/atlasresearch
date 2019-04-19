@@ -295,34 +295,34 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
     Arguments
     _________
     MET     :   Double_t    :   MET value
-    parm[0] :   Double_t    :   Frechet 0
-    parm[1] :   Double_t    :   Frechet 1
-    parm[2] :   Double_t    :   Frechet 2
-    parm[3] :   Double_t    :   Frechet 3
-    parm[4] :   Double_t    :   convolution 0 (number of subintervals)
-    parm[5] :   Double_t    :   convolution 1 (lower bound)
-    parm[6] :   Double_t    :   convolution 2 (upper bound)
-    parm[7] :   Double_t    :   convolution 3 (mu)
-    parm[8] :   Double_t    :   convolution 4 (resolution slope)
-    parm[9] :   Double_t    :   convolution 5 (resolution intercept)
-    parm[10]:   bool        :   true for fft, false for PWGD
+    parm[0] :   Double_t    :   integration 0 (number of subintervals)
+    parm[1] :   Double_t    :   integration 1 (lower bound)
+    parm[2] :   Double_t    :   integration 2 (upper bound)
+    parm[3] :   Double_t    :   integration 3 (mu)
+    parm[4] :   Double_t    :   integration 4 (resolution slope)
+    parm[5] :   Double_t    :   integration 5 (resolution intercept)
+    parm[6] :   bool        :   true for fft, false for PWGD
+    parm[7] :   Double_t    :   Frechet 0 (norm)
+    parm[8] :   Double_t    :   Frechet 1 (alpha)
+    parm[9] :   Double_t    :   Frechet 2 (s)
+    parm[10]:   Double_t    :   Frechet 3 (m)
 
     Returns
     _________
 
 
   */
+
+  // parameters for the integration
+  Double_t integrationParams[6] = {parm[0], parm[1], parm[2], parm[3],
+                                   parm[4], parm[5], parm[6]};
+  TF1 *integration_func = new TF1("integration_funcs", integration, 0, 2000, 7);
+  integration_func->SetParameters(integrationParams);
+
   // parameters for the Frechet distribtuion
-  Double_t frechetParams[4] = {parm[0], parm[1], parm[2], parm[3]};
-  frechetParams[0] = 0.0; // must be set later at loop level
-  frechetParams[1] = 18.0;
-  frechetParams[2] = 100.0;
-  frechetParams[3] = -70.0;
+  Double_t frechetParams[4] = {parm[7], parm[8], parm[9], parm[10]};
   TF1 *frechet_func = new TF1("frechet_func", frechet, 0, 500, 4);
-
-
-  Double_t convolutionParams[7];
-
+  frechet_func->SetParameters(frechetParams);
 
 
 }
@@ -370,7 +370,7 @@ void fitConvolution() {
 
     // set parametes for linear sum
     // NOTE: SKIPPED PARAMS ARE SET AT LOOP LEVEL
-    Double_t linear_combinationParams[10];
+    Double_t linear_combinationParams[11];
     linear_combinationParams[0] = n_subint;
     linear_combinationParams[1] = lower_bound;
     linear_combinationParams[2] = upper_bound;
@@ -397,10 +397,10 @@ void fitConvolution() {
 
         // initialize function which performs convolution
         mu[i] = new TF1("met", linear_combination, 0, 100, 10);
-        mu[i]->SetParameters(linear);
-        // mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, cell17_slope, cell17_intercept, true);
-        mu[i]->SetParNames("number of subintervals", "lower bound",
-                                 "upper bound", "mu", "slope", "intercept", "FFT");
+        mu[i]->SetParameters(linear_combinationParams);
+        mu[i]->SetParNames("number of subintervals", "lower bound", "upper bound",
+                           "mu", "slope", "intercept", "FFT", "frechet_norm",
+                           "frechet_alpha", "frechet_s", "frechet_m");
         mu[i]->SetLineColor(color);
 
         char *legendEntryName = new char[10];
