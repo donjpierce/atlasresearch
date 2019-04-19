@@ -212,7 +212,7 @@ Double_t integration(Double_t *MET, Double_t *parm) {
     /*
         Arguments
         _________
-        var[0]  :   variable    : MET
+        MET     :   variable    : MET
         parm[0] :   Double_t    : number of subintervals for integration
         parm[1] :   Double_t    : lower bound of integration
         parm[2] :   Double_t    : upper bound of integration
@@ -309,14 +309,13 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
 
     Returns
     _________
-
-
+    linsum  :   Double_t    :   result of the linear sum
   */
 
   // parameters for the integration
-  Double_t integrationParams[6] = {parm[0], parm[1], parm[2], parm[3],
+  Double_t integrationParams[7] = {parm[0], parm[1], parm[2], parm[3],
                                    parm[4], parm[5], parm[6]};
-  TF1 *integration_func = new TF1("integration_funcs", integration, 0, 2000, 7);
+  TF1 *integration_func = new TF1("integration_funcs", integration, 0, 1000, 7);
   integration_func->SetParameters(integrationParams);
 
   // parameters for the Frechet distribtuion
@@ -324,6 +323,19 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
   TF1 *frechet_func = new TF1("frechet_func", frechet, 0, 500, 4);
   frechet_func->SetParameters(frechetParams);
 
+  Double_t linsum, integration_result, frechet_result;
+  integration_result = integration_func->Eval(MET[0]);
+  frechet_result = frechet_func->Eval(MET[0]);
+
+  // perform mu-dependent linear sum
+  linsum = (1 - parm[3]) * integration_result + parm[3] * frechet_result;
+
+  if (linsum < 0.0) {
+    return -linsum;
+  }
+  else {
+    return linsum;
+  }
 
 }
 
