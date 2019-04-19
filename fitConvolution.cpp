@@ -396,16 +396,8 @@ void fitConvolution() {
         linear_combinationParams[7] = 0.04 * muValue / 60;
 
         // initialize function which performs convolution
-        TF1 *convolution = new TF1(funcName, integration, 0, 100, 7);
-        convolution->SetParameters(n_subint, 0.0, upper_bound, muValue, 0.465, 3.0, true);
-
-        TF1 *frechet_func = new TF1(funcName, frechet, 0, 100, 4);
-        frechet_func->SetParameters(n_subint, 0.0, upper_bound, muValue, 0.465, 3.0, true);
-
-
-
-
-        mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, 0.465, 3.0, true);
+        mu[i] = new TF1("met", linear_combination, 0, 100, 10);
+        mu[i]->SetParameters(linear);
         // mu[i]->SetParameters(n_subint, 0.0, upper_bound, muValue, cell17_slope, cell17_intercept, true);
         mu[i]->SetParNames("number of subintervals", "lower bound",
                                  "upper bound", "mu", "slope", "intercept", "FFT");
