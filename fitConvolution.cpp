@@ -7,6 +7,7 @@
 #include <TF1.h>
 #include <TFile.h>
 #include <TTree.h>
+#include <TMath.h>
 #include "Math/WrappedTF1.h"
 #include "Math/GaussIntegrator.h"
 #include <iostream>
@@ -320,7 +321,7 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
 
   // parameters for the Frechet distribtuion
   Double_t frechetParams[4] = {parm[7], parm[8], parm[9], parm[10]};
-  TF1 *frechet_func = new TF1("frechet_func", frechet, 0, 500, 4);
+  TF1 *frechet_func = new TF1("frechet_func", frechet, 0, 1000, 4);
   frechet_func->SetParameters(frechetParams);
 
   Double_t linsum, integration_result, frechet_result;
@@ -328,14 +329,23 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
   frechet_result = frechet_func->Eval(MET[0]);
 
   // perform mu-dependent linear sum
-  linsum = (1 - parm[3]) * integration_result + parm[3] * frechet_result;
+  // linsum = (1 - parm[3]) * integration_result + parm[3] * frechet_result;
+  Double_t alpha = 0.0001;
+  Double_t int_coeff =  1 - (alpha * parm[3]);
+  Double_t frechet_coeff = alpha * parm[3];
+  linsum = int_coeff * integration_result + frechet_coeff * frechet_result;
 
+  /*
   if (linsum < 0.0) {
     return -linsum;
   }
   else {
     return linsum;
   }
+  */
+
+  return linsum;
+
 
 }
 
@@ -391,7 +401,7 @@ void fitConvolution() {
     linear_combinationParams[6] = fft;
     linear_combinationParams[8] = 18.0;
     linear_combinationParams[9] = 100.0;
-    linear_combinationParams[10] = -70.0;
+    linear_combinationParams[10] = -80.0;
 
     Int_t n_curves = 12;
     TCanvas *dists = new TCanvas("dists", "");
@@ -405,8 +415,7 @@ void fitConvolution() {
 
         // set mu parameter for linear sum
         linear_combinationParams[3] = muValue;
-        linear_combinationParams[7] = 0.04 * muValue / 60;
-
+        linear_combinationParams[7] = 1;
         // initialize function which performs convolution
         mu[i] = new TF1("met", linear_combination, 0, 100, 10);
         mu[i]->SetParameters(linear_combinationParams);
@@ -420,7 +429,7 @@ void fitConvolution() {
         legend->AddEntry(mu[i], legendEntryName);
     }
 
-    int normal = 0;
+    int normal = 1;
     if (normal == 1) {
         // draw curves in normal order
         for (Int_t k = 0; k < n_curves; k++) {
@@ -441,6 +450,7 @@ void fitConvolution() {
     mu[0]->SetTitle("Convolution with FFT");
     mu[0]->GetXaxis()->SetTitle("MET [GeV]");
     mu[0]->GetYaxis()->SetTitle("Probability of an Event");
+    dists->SetLogy();
     dists->SaveAs("results.png");
 
 }
