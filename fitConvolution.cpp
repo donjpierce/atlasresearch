@@ -404,6 +404,7 @@ void fitConvolution() {
 
         // set mu parameter for linear sum
         linear_combinationParams[3] = muValue;
+        // Frechet NORM set to 1 for almost all purposes
         linear_combinationParams[7] = 1;
         // initialize function which performs convolution
         mu[i] = new TF1("met", linear_combination, 0, 100, 10);
