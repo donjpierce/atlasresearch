@@ -335,18 +335,7 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
   Double_t frechet_coeff = alpha * parm[3];
   linsum = int_coeff * integration_result + frechet_coeff * frechet_result;
 
-  /*
-  if (linsum < 0.0) {
-    return -linsum;
-  }
-  else {
-    return linsum;
-  }
-  */
-
   return linsum;
-
-
 }
 
 void fitConvolution() {
