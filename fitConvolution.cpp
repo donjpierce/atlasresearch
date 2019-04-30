@@ -307,6 +307,7 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
     parm[8] :   Double_t    :   Frechet 1 (alpha)
     parm[9] :   Double_t    :   Frechet 2 (s)
     parm[10]:   Double_t    :   Frechet 3 (m)
+    parm[11]:   Double_t    :   alpha (fitting parameter)
 
     Returns
     _________
@@ -330,7 +331,7 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
 
   // perform mu-dependent linear sum
   // linsum = (1 - parm[3]) * integration_result + parm[3] * frechet_result;
-  Double_t alpha = 0.0001;
+  Double_t alpha = parm[11];
   Double_t int_coeff =  1 - (alpha * parm[3]);
   Double_t frechet_coeff = alpha * parm[3];
   linsum = int_coeff * integration_result + frechet_coeff * frechet_result;
@@ -381,7 +382,7 @@ void fitConvolution() {
 
     // set parametes for linear sum
     // NOTE: SKIPPED PARAMS ARE SET AT LOOP LEVEL
-    Double_t linear_combinationParams[11];
+    Double_t linear_combinationParams[12];
     linear_combinationParams[0] = n_subint;
     linear_combinationParams[1] = lower_bound;
     linear_combinationParams[2] = upper_bound;
@@ -407,11 +408,11 @@ void fitConvolution() {
         // Frechet NORM set to 1 for almost all purposes
         linear_combinationParams[7] = 1;
         // initialize function which performs convolution
-        mu[i] = new TF1("met", linear_combination, 0, 100, 10);
+        mu[i] = new TF1("met", linear_combination, 0, 100, 11);
         mu[i]->SetParameters(linear_combinationParams);
         mu[i]->SetParNames("number of subintervals", "lower bound", "upper bound",
                            "mu", "slope", "intercept", "FFT", "frechet_norm",
-                           "frechet_alpha", "frechet_s", "frechet_m");
+                           "frechet_alpha", "frechet_s", "frechet_m", "alpha");
         mu[i]->SetLineColor(color);
 
         char *legendEntryName = new char[10];
