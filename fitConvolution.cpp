@@ -314,7 +314,7 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
     linsum  :   Double_t    :   result of the linear sum
   */
 
-  Double_t muValue = 5.0;
+  Double_t muValue = parm[0];
 
   // parameters for the integration
   Double_t integrationParams[7] = {1700, 0.0, 2000.0, muValue, 0.456, 3.0, true};
@@ -334,7 +334,7 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
   frechet_result = frechet_func->Eval(MET[0]);
 
   // perform mu-dependent linear sum
-  Double_t alpha = parm[0];
+  Double_t alpha = parm[1];
   Double_t int_coeff =  1 - (alpha * muValue);
   Double_t frechet_coeff = alpha * muValue;
   linsum = int_coeff * integration_result + frechet_coeff * frechet_result;
@@ -368,7 +368,10 @@ void fitConvolution() {
 
     int muValue = (i + 1) * 5;
 
-    canvMu[i] = new TCanvas("myCanv", "");
+    char *canvName = new char[10];
+    sprintf(canvName, "canvMu_%i", muValue);
+
+    canvMu[i] = new TCanvas(canvName, canvName);
     reconcorrmuxx[i]->Draw();
     func->SetParameter(0, muValue);
     func->Draw("sames");
