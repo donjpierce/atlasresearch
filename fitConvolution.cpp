@@ -376,7 +376,8 @@ void fitConvolution() {
 
     func->SetParameter(0, muValue);
     func->SetParLimits(0, muValue, muValue);
-    reconcorrmuxx[i]->Fit(func);
+    func->SetParameter(1, 0.01);
+    reconcorrmuxx[i]->Fit(func, "L");
     func->Draw("sames");
     canvMu[i]->SetLogy();
 
@@ -389,6 +390,7 @@ void fitConvolution() {
     char *plotTitle = new char[60];
     Double_t alpha = func->GetParameter(1);
     sprintf(plotTitle, "MET Curve Fit for #mu = %i and #alpha = %e", muValue, alpha);
+    reconcorrmuxx[i]->SetTitle(plotTitle);
 
     canvMu[i]->SaveAs(filename);
   }
