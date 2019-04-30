@@ -340,6 +340,18 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
 }
 
 void fitConvolution() {
+
+
+  Double_t muValue = 5;
+  Double_t params[11] = {1700, 0.0, 2000.0, muValue, 0.456, 3.0, true, 1, 18.0, 100.0, -80.0};
+  TF1 *func = new TF1("func", linear_combination, 12);
+  func->SetParameters(params);
+  func->SetParLimits(11, 0.0, 1.0);
+
+
+}
+
+void plotMuCurves() {
     // Defining the Rayleigh function in main()
     TF1 *rayleighFit = new TF1("rayleighFit", "[0]*(1/[1])*(x/[1])*exp(-.5*(x/[1])*(x/[1]))");
     rayleighFit->SetParameters(1., 1.);
@@ -409,7 +421,7 @@ void fitConvolution() {
         // Frechet NORM set to 1 for almost all purposes
         linear_combinationParams[7] = 1;
         // initialize function which performs convolution
-        mu[i] = new TF1("met", linear_combination, 0, 100, 11);
+        mu[i] = new TF1("met", linear_combination, 0, 100, 12);
         mu[i]->SetParameters(linear_combinationParams);
         mu[i]->SetParNames("number of subintervals", "lower bound", "upper bound",
                            "mu", "slope", "intercept", "FFT", "frechet_norm",
