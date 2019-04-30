@@ -314,14 +314,18 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
     linsum  :   Double_t    :   result of the linear sum
   */
 
+  Double_t muValue = 5.0;
+
   // parameters for the integration
-  Double_t integrationParams[7] = {parm[0], parm[1], parm[2], parm[3],
-                                   parm[4], parm[5], parm[6]};
+  Double_t integrationParams[7] = {1700, 0.0, 2000.0, muValue, 0.456, 3.0, true};
+  // Double_t integrationParams[7] = {parm[0], parm[1], parm[2], parm[3],
+                                   // parm[4], parm[5], parm[6]};
   TF1 *integration_func = new TF1("integration_funcs", integration, 0, 1000, 7);
   integration_func->SetParameters(integrationParams);
 
   // parameters for the Frechet distribtuion
-  Double_t frechetParams[4] = {parm[7], parm[8], parm[9], parm[10]};
+  Double_t frechetParams[4] = {1, 18.0, 100.0, -80.0};
+  // Double_t frechetParams[4] = {parm[7], parm[8], parm[9], parm[10]};
   TF1 *frechet_func = new TF1("frechet_func", frechet, 0, 1000, 4);
   frechet_func->SetParameters(frechetParams);
 
@@ -330,9 +334,9 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
   frechet_result = frechet_func->Eval(MET[0]);
 
   // perform mu-dependent linear sum
-  Double_t alpha = parm[11];
-  Double_t int_coeff =  1 - (alpha * parm[3]);
-  Double_t frechet_coeff = alpha * parm[3];
+  Double_t alpha = parm[0];
+  Double_t int_coeff =  1 - (alpha * muValue);
+  Double_t frechet_coeff = alpha * muValue;
   linsum = int_coeff * integration_result + frechet_coeff * frechet_result;
   // linsum = (1 - alpha * parm[3]) * integration_result + alpha * parm[3] * frechet_result;
 
@@ -341,13 +345,42 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
 
 void fitConvolution() {
 
+  TF1 *func = new TF1("func", linear_combination, 0.0, 100.0, 2);
+  func->SetParameter(1, 0.001);
+  func->SetParNames("mu", "alpha");
 
-  Double_t muValue = 5;
-  Double_t params[11] = {1700, 0.0, 2000.0, muValue, 0.456, 3.0, true, 1, 18.0, 100.0, -80.0};
-  TF1 *func = new TF1("func", linear_combination, 12);
-  func->SetParameters(params);
-  func->SetParLimits(11, 0.0, 1.0);
+  TFile *file = new TFile("data/mu_analysis.root");
+  TObjArray* reconstructed_distributions = 0;
+  file->GetObject("reconstructed_distributions",reconstructed_distributions);
+  TH1F *reconcorrmuxx[7];
+  TCanvas *canvMu[7];
+  for (int i=0;i<7;i++) {
+    reconcorrmuxx[i] = (TH1F*)reconstructed_distributions->At(i)->Clone();
+    reconcorrmuxx[i]->SetNormFactor(0.2);
+    reconcorrmuxx[i]->SetMarkerColor(6);
+    reconcorrmuxx[i]->SetMarkerStyle(21);
+    reconcorrmuxx[i]->SetMarkerSize(0.8);
+    reconcorrmuxx[i]->SetLineColor(6);
+    reconcorrmuxx[i]->GetXaxis()->SetTitle("Cell Algorithm E_{T}^{MISS} [GeV]");
+    reconcorrmuxx[i]->GetYaxis()->SetTitle("Fraction of Events / GeV");
+    reconcorrmuxx[i]->SetStats(kFALSE);
+    reconcorrmuxx[i]->SetTitle("");
 
+    int muValue = (i + 1) * 5;
+
+    canvMu[i] = new TCanvas("myCanv", "");
+    reconcorrmuxx[i]->Draw();
+    func->SetParameter(0, muValue);
+    func->Draw("sames");
+
+    char *legendEntryName = new char[10];
+    sprintf(legendEntryName, "#mu = %i", muValue);
+
+    char *filename = new char[10];
+    sprintf(filename, "mu_%i", muValue);
+
+    canvMu[i]->SaveAs(filename);
+  }
 
 }
 
@@ -425,7 +458,7 @@ void plotMuCurves() {
         mu[i]->SetParameters(linear_combinationParams);
         mu[i]->SetParNames("number of subintervals", "lower bound", "upper bound",
                            "mu", "slope", "intercept", "FFT", "frechet_norm",
-                           "frechet_alpha", "frechet_s", "frechet_m", "alpha");
+                           "frechet_alpha", "frechet_s", "frechet_m");
         mu[i]->SetLineColor(color);
 
         char *legendEntryName = new char[10];
