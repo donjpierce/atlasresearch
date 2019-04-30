@@ -347,7 +347,7 @@ void fitConvolution() {
 
   TF1 *func = new TF1("func", linear_combination, 0.0, 300.0, 2);
   func->SetParNames("mu", "alpha");
-  func->SetParLimits(1, 0.0, 2.0);
+  func->SetParLimits(1, 0.000, 1.000);
 
   TFile *file = new TFile("data/mu_analysis.root");
   TObjArray* reconstructed_distributions = 0;
@@ -375,6 +375,7 @@ void fitConvolution() {
     reconcorrmuxx[i]->Draw();
 
     func->SetParameter(0, muValue);
+    func->SetParLimits(0, muValue, muValue);
     reconcorrmuxx[i]->Fit(func);
     func->Draw("sames");
     canvMu[i]->SetLogy();
@@ -384,6 +385,10 @@ void fitConvolution() {
 
     char *filename = new char[10];
     sprintf(filename, "mu_%i.png", muValue);
+
+    char *plotTitle = new char[60];
+    Double_t alpha = func->GetParameter(1);
+    sprintf(plotTitle, "MET Curve Fit for #mu = %i and #alpha = %e", muValue, alpha);
 
     canvMu[i]->SaveAs(filename);
   }
