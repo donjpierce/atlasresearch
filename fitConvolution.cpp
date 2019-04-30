@@ -330,11 +330,11 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
   frechet_result = frechet_func->Eval(MET[0]);
 
   // perform mu-dependent linear sum
-  // linsum = (1 - parm[3]) * integration_result + parm[3] * frechet_result;
   Double_t alpha = parm[11];
   Double_t int_coeff =  1 - (alpha * parm[3]);
   Double_t frechet_coeff = alpha * parm[3];
   linsum = int_coeff * integration_result + frechet_coeff * frechet_result;
+  // linsum = (1 - alpha * parm[3]) * integration_result + alpha * parm[3] * frechet_result;
 
   return linsum;
 }
@@ -382,6 +382,7 @@ void fitConvolution() {
 
     // set parametes for linear sum
     // NOTE: SKIPPED PARAMS ARE SET AT LOOP LEVEL
+    // NOTE: linear_combinationParams[11] is a fitting parameter
     Double_t linear_combinationParams[12];
     linear_combinationParams[0] = n_subint;
     linear_combinationParams[1] = lower_bound;
