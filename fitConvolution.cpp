@@ -345,9 +345,9 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
 
 void fitConvolution() {
 
-  TF1 *func = new TF1("func", linear_combination, 0.0, 100.0, 2);
-  func->SetParameter(1, 0.001);
+  TF1 *func = new TF1("func", linear_combination, 0.0, 300.0, 2);
   func->SetParNames("mu", "alpha");
+  func->SetParLimits(1, 0.0, 2.0);
 
   TFile *file = new TFile("data/mu_analysis.root");
   TObjArray* reconstructed_distributions = 0;
@@ -373,7 +373,9 @@ void fitConvolution() {
 
     canvMu[i] = new TCanvas(canvName, canvName);
     reconcorrmuxx[i]->Draw();
+
     func->SetParameter(0, muValue);
+    reconcorrmuxx[i]->Fit(func);
     func->Draw("sames");
     canvMu[i]->SetLogy();
 
