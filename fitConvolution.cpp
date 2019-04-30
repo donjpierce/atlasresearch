@@ -372,12 +372,13 @@ void fitConvolution() {
     reconcorrmuxx[i]->Draw();
     func->SetParameter(0, muValue);
     func->Draw("sames");
+    canvMu[i]->SetLogy();
 
     char *legendEntryName = new char[10];
     sprintf(legendEntryName, "#mu = %i", muValue);
 
     char *filename = new char[10];
-    sprintf(filename, "mu_%i", muValue);
+    sprintf(filename, "mu_%i.png", muValue);
 
     canvMu[i]->SaveAs(filename);
   }
