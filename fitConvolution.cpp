@@ -244,8 +244,8 @@ Double_t integration(Double_t *MET, Double_t *parm) {
     sumetFFT_params[1] = gamma; // gamma
     sumetFFT_params[2] = mu;
     sumetFFT_params[3] = offset;
-    sumetFFT_params[4] = 0.995;
-    sumetFFT_params[5] = 0.0090;
+    sumetFFT_params[4] = 0.995; // fraction of first exponential
+    sumetFFT_params[5] = 0.0090; // fraction of second exponential
     TF1 *fft = new TF1("fft", sumet_func_fft, 0, 2000, 6);
     fft->SetParameters(sumetFFT_params);
 
@@ -317,7 +317,7 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
   Double_t muValue = parm[0];
 
   // parameters for the integration
-  Double_t integrationParams[7] = {1700, 0.0, 2000.0, muValue, 0.456, 3.0, true};
+  Double_t integrationParams[7] = {1700, 0.0, 2000.0, muValue, 0.465, 3.0, true};
   // Double_t integrationParams[7] = {parm[0], parm[1], parm[2], parm[3],
                                    // parm[4], parm[5], parm[6]};
   TF1 *integration_func = new TF1("integration_funcs", integration, 0, 1000, 7);
@@ -336,7 +336,9 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
   // perform mu-dependent linear sum
   Double_t alpha = parm[1];
   Double_t int_coeff =  1 - (alpha * muValue);
+  // Double_t int_coeff = 1;
   Double_t frechet_coeff = alpha * muValue;
+  // Double_t frechet_coeff = 0;
   linsum = int_coeff * integration_result + frechet_coeff * frechet_result;
   // linsum = (1 - alpha * parm[3]) * integration_result + alpha * parm[3] * frechet_result;
 
@@ -366,7 +368,7 @@ void fitConvolution() {
     reconcorrmuxx[i]->SetStats(kFALSE);
     reconcorrmuxx[i]->SetTitle("");
 
-    int muValue = (i + 1) * 5;
+    int muValue = (i + 1) * 10 - 5;
 
     char *canvName = new char[10];
     sprintf(canvName, "canvMu_%i", muValue);
@@ -377,7 +379,7 @@ void fitConvolution() {
     func->SetParameter(0, muValue);
     func->SetParLimits(0, muValue, muValue);
     func->SetParameter(1, 0.01);
-    reconcorrmuxx[i]->Fit(func, "L");
+    reconcorrmuxx[i]->Fit(func, "M", "L");
     func->Draw("sames");
     canvMu[i]->SetLogy();
 
