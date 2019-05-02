@@ -343,22 +343,45 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
 }
 
 void fitConvolution() {
+  /*
+    Description:
+
+    This function constructions the MET distribution from data and fits the
+    data to the theoretical MET curve.
+  */
+
+
 
   TF1 *func = new TF1("func", linear_combination, 0.0, 300.0, 12);
-
-  // Double_t funcParams[12];
-  // funcParams[0] = 1700;
-  // funcParams[1] = 0.0;
-  // funcParams[2] = 2000.0;
-  // funcParams[3] = 0.0; // mu value, must be set at loop LEVEL
-  // funcParams[4] = 0.465;
-  // funcParams[5] = 3.0;
-  // funcParams[6] = true;
-  // funcParams[7] = 1;
-  // funcParams[8] = 18.0;
-  // funcParams[9] = 100.0;
-  // funcParams[10] = -80.0;
-  // funcParams[11] = 0.0; // alpha, must be set at loop level
+  /*
+  Descrption of func parameters.
+  _________
+  MET     :   Double_t    :   MET value
+  parm[0] :   Double_t    :   integration 0 (number of subintervals)
+  parm[1] :   Double_t    :   integration 1 (lower bound)
+  parm[2] :   Double_t    :   integration 2 (upper bound)
+  parm[3] :   Double_t    :   integration 3 (mu)
+  parm[4] :   Double_t    :   integration 4 (resolution slope)
+  parm[5] :   Double_t    :   integration 5 (resolution intercept)
+  parm[6] :   bool        :   true for fft, false for PWGD
+  parm[7] :   Double_t    :   Frechet 0 (norm)
+  parm[8] :   Double_t    :   Frechet 1 (alpha)
+  parm[9] :   Double_t    :   Frechet 2 (s)
+  parm[10]:   Double_t    :   Frechet 3 (m)
+  parm[11]:   Double_t    :   alpha (fitting parameter)
+  */
+  func->FixParameter(0, 1700);
+  func->FixParameter(1, 0.0);
+  func->FixParameter(2, 2000.0);
+  func->FixParameter(4, 0.465);
+  func->FixParameter(5, 3.0);
+  func->FixParameter(6, true);
+  func->FixParameter(7, 1);
+  func->FixParameter(8, 18.0);
+  func->FixParameter(9, 100.0);
+  func->FixParameter(10, -80.0);
+  func->SetParameter(11, 0.001); // alpha
+  func->SetParLimits(11, 0.0005, 0.01);
 
   Double_t integrationParams[7] = {};
   Double_t frechetParams[4] = {};
@@ -389,28 +412,12 @@ void fitConvolution() {
 
     canvMu[i] = new TCanvas(canvName, canvName);
 
-    // funcParams[3] = muValue;
-    // func->SetParameters(funcParams);
-    func->FixParameter(0, 1700);
-    func->FixParameter(1, 0.0);
-    func->FixParameter(2, 2000.0);
     func->FixParameter(3, muValue);
-    func->FixParameter(4, 0.465);
-    func->FixParameter(5, 3.0);
-    func->FixParameter(6, true);
-    func->FixParameter(7, 1);
-    func->FixParameter(8, 18.0);
-    func->FixParameter(9, 100.0);
-    func->FixParameter(10, -80.0);
-    func->SetParameter(11, 0.001);
-    func->SetParLimits(11, 0.0005, 0.01);
 
     reconcorrmuxx[i]->Draw();
     reconcorrmuxx[i]->Fit(func, "R");
     // func->Draw("sames");
     canvMu[i]->SetLogy();
-
-
 
     char *entryName = new char[10];
     sprintf(entryName, "#mu = %i", muValue);
