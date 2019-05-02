@@ -334,6 +334,7 @@ Double_t linear_combination(Double_t *MET, Double_t *parm) {
   // perform mu-dependent linear sum
   Double_t alpha = parm[11];
   Double_t int_coeff =  1 - (alpha * muValue);
+  // Double_t int_coeff = 0;
   Double_t frechet_coeff = alpha * muValue;
   linsum = int_coeff * integration_result + frechet_coeff * frechet_result;
   // linsum = (1 - alpha * parm[3]) * integration_result + alpha * parm[3] * frechet_result;
@@ -345,24 +346,26 @@ void fitConvolution() {
 
   TF1 *func = new TF1("func", linear_combination, 0.0, 300.0, 12);
 
-  Double_t funcParams[12];
-  funcParams[0] = 1700;
-  funcParams[1] = 0.0;
-  funcParams[2] = 2000.0;
-  funcParams[3] = 0.0; // mu value, must be set at loop LEVEL
-  funcParams[4] = 0.465;
-  funcParams[5] = 3.0;
-  funcParams[6] = true;
-  funcParams[7] = 1;
-  funcParams[8] = 18.0;
-  funcParams[9] = 100.0;
-  funcParams[10] = -80.0;
-  funcParams[11] = 0.0; // alpha, must be set at loop level
+  // Double_t funcParams[12];
+  // funcParams[0] = 1700;
+  // funcParams[1] = 0.0;
+  // funcParams[2] = 2000.0;
+  // funcParams[3] = 0.0; // mu value, must be set at loop LEVEL
+  // funcParams[4] = 0.465;
+  // funcParams[5] = 3.0;
+  // funcParams[6] = true;
+  // funcParams[7] = 1;
+  // funcParams[8] = 18.0;
+  // funcParams[9] = 100.0;
+  // funcParams[10] = -80.0;
+  // funcParams[11] = 0.0; // alpha, must be set at loop level
 
   Double_t integrationParams[7] = {};
   Double_t frechetParams[4] = {};
 
   TFile *file = new TFile("data/mu_analysis.root");
+
+  TLegend *legend = new TLegend(0.37, 0.7, 0.55, 0.88);
   TObjArray* reconstructed_distributions = 0;
   file->GetObject("reconstructed_distributions",reconstructed_distributions);
   TH1F *reconcorrmuxx[7];
@@ -381,15 +384,13 @@ void fitConvolution() {
 
     int muValue = (i + 1) * 10 - 5;
 
-
     char *canvName = new char[10];
     sprintf(canvName, "canvMu_%i", muValue);
 
     canvMu[i] = new TCanvas(canvName, canvName);
-    reconcorrmuxx[i]->Draw();
 
-    funcParams[3] = muValue;
-    func->SetParameters(funcParams);
+    // funcParams[3] = muValue;
+    // func->SetParameters(funcParams);
     func->FixParameter(0, 1700);
     func->FixParameter(1, 0.0);
     func->FixParameter(2, 2000.0);
@@ -401,20 +402,26 @@ void fitConvolution() {
     func->FixParameter(8, 18.0);
     func->FixParameter(9, 100.0);
     func->FixParameter(10, -80.0);
-    func->SetParameter(11, 0.01);
-    func->SetParLimits(11, 0.0, 1.0);
-    reconcorrmuxx[i]->Fit(func, "M", "L", 50.0, 300.0);
-    func->Draw("sames");
+    func->SetParameter(11, 0.001);
+    func->SetParLimits(11, 0.0005, 0.01);
+
+    reconcorrmuxx[i]->Draw();
+    reconcorrmuxx[i]->Fit(func, "R");
+    // func->Draw("sames");
     canvMu[i]->SetLogy();
 
-    char *legendEntryName = new char[10];
-    sprintf(legendEntryName, "#mu = %i", muValue);
+
+
+    char *entryName = new char[10];
+    sprintf(entryName, "#mu = %i", muValue);
 
     char *filename = new char[10];
     sprintf(filename, "mu_%i.png", muValue);
 
+    legend->AddEntry(reconcorrmuxx[i], entryName);
+
     char *plotTitle = new char[60];
-    Double_t alpha = func->GetParameter(1);
+    Double_t alpha = func->GetParameter(11);
     sprintf(plotTitle, "MET Curve Fit for #mu = %i and #alpha = %e", muValue, alpha);
     reconcorrmuxx[i]->SetTitle(plotTitle);
 
