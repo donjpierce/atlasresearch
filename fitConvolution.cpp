@@ -350,8 +350,6 @@ void fitConvolution() {
     data to the theoretical MET curve.
   */
 
-
-
   TF1 *func = new TF1("func", linear_combination, 0.0, 300.0, 12);
   /*
   Descrption of func parameters.
