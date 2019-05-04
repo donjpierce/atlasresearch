@@ -368,18 +368,22 @@ void fitConvolution() {
   parm[10]:   Double_t    :   Frechet 3 (m)
   parm[11]:   Double_t    :   alpha (fitting parameter)
   */
+  func->SetParNames("N sub-int", "Lower Bound",
+                    "Upper Bound", "mu", "res. slope",
+                    "res. y-int", "FFT (bool)", "Frech. Norm",
+                    "Frech. alpha", "Frech. s", "Frech. m", "Alpha");
   func->FixParameter(0, 1700);
   func->FixParameter(1, 0.0);
   func->FixParameter(2, 2000.0);
   func->FixParameter(4, 0.465);
   func->FixParameter(5, 3.0);
   func->FixParameter(6, true);
-  func->FixParameter(7, 1);
-  func->FixParameter(8, 18.0);
-  func->FixParameter(9, 100.0);
-  func->FixParameter(10, -80.0);
+  func->FixParameter(7, 1); // Frechet norm
+  func->FixParameter(8, 18.0); // Frechet alpha
+  func->SetParameter(9, 100.0); // Frechet s
+  func->SetParameter(10, -80.0); // Frechet m
   func->SetParameter(11, 0.001); // alpha
-  func->SetParLimits(11, 0.0005, 0.01);
+  func->SetParLimits(11, 0.0001, 0.1);
 
   Double_t integrationParams[7] = {};
   Double_t frechetParams[4] = {};
@@ -413,7 +417,7 @@ void fitConvolution() {
     func->FixParameter(3, muValue);
 
     reconcorrmuxx[i]->Draw();
-    reconcorrmuxx[i]->Fit(func, "R");
+    reconcorrmuxx[i]->Fit(func, "W");
     // func->Draw("sames");
     canvMu[i]->SetLogy();
 
@@ -423,7 +427,8 @@ void fitConvolution() {
     char *filename = new char[10];
     sprintf(filename, "mu_%i.png", muValue);
 
-    legend->AddEntry(reconcorrmuxx[i], entryName);
+    // legend->AddEntry(reconcorrmuxx[i], entryName);
+    // legend->Draw();
 
     char *plotTitle = new char[60];
     Double_t alpha = func->GetParameter(11);
