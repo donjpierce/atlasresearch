@@ -371,7 +371,7 @@ void fitConvolution() {
   func->SetParNames("N sub-int", "Lower Bound",
                     "Upper Bound", "mu", "res. slope",
                     "res. y-int", "FFT (bool)", "Frech. Norm",
-                    "Frech. alpha", "Frech. s", "Frech. m", "Alpha");
+                    "Frech. alpha", "Frech. s", "Frech. m");
   func->FixParameter(0, 1700);
   func->FixParameter(1, 0.0);
   func->FixParameter(2, 2000.0);
