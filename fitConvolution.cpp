@@ -379,11 +379,18 @@ void fitConvolution() {
   func->FixParameter(5, 3.0);
   func->FixParameter(6, true);
   func->FixParameter(7, 1); // Frechet norm
-  func->FixParameter(8, 18.0); // Frechet alpha
+
+  func->SetParameter(8, 18.0); // Frechet alpha
+  func->SetParLimits(9, 0.0, 50.0);
+
   func->SetParameter(9, 100.0); // Frechet s
+  func->SetParLimits(9, 200.0, 0.0);
+
   func->SetParameter(10, -80.0); // Frechet m
+  func->SetParLimits(10, -150.0, 0.0);
+
   func->SetParameter(11, 0.001); // alpha
-  func->SetParLimits(11, 0.0001, 0.1);
+  func->SetParLimits(11, 0.001, 0.1);
 
   Double_t integrationParams[7] = {};
   Double_t frechetParams[4] = {};
@@ -395,7 +402,7 @@ void fitConvolution() {
   file->GetObject("reconstructed_distributions",reconstructed_distributions);
   TH1F *reconcorrmuxx[7];
   TCanvas *canvMu[7];
-  for (int i=0;i<7;i++) {
+  for (int i = 2; i < 3; i++) {
     reconcorrmuxx[i] = (TH1F*)reconstructed_distributions->At(i)->Clone();
     reconcorrmuxx[i]->SetNormFactor(0.2);
     reconcorrmuxx[i]->SetMarkerColor(6);
